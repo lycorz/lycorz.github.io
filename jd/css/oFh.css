@@ -1,0 +1,12 @@
+		#oFh .oFhUl{width: 42px; position: fixed; bottom: 0; right: 20px; z-index: 101;}
+		#oFh .oFhLi1{width: 42px; height: 42px; background: #999; color: #fff; display: block;overflow: hidden; text-align: center; text-decoration: none; cursor: pointer; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;}
+		#oFh .oFhLi2{width: 42px; height: 42px; background: #999; color: #fff; display: block;overflow: hidden; text-align: center; text-decoration: none; cursor: pointer; margin-top: 1px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;}
+		#oFh .oFh1{width: 42px; height: 5px; padding-top: 18px; font-family: "宋体"; display: block; overflow: hidden;}
+		#oFh .oFh2{width: 42px; height: 5px; padding-top: 18px; font-family: "宋体"; display: block; overflow: hidden;}
+		#oFh .oFh1Hv1, #oFh .oFh2Hv2{display: none;}
+		#oFh .oFhLi1:hover{background: #c81623;line-height: 42px;}
+		#oFh .oFhLi1:hover .oFh1{display: none;}
+		#oFh .oFhLi1:hover .oFh1Hv1{display: block;}
+		#oFh .oFhLi2:hover{background: #c81623;line-height: 42px; }
+		#oFh .oFhLi2:hover .oFh2{display: none;}
+		#oFh .oFhLi2:hover .oFh2Hv2{display: block;}

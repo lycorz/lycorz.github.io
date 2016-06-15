@@ -1,0 +1,7 @@
+		#oXl{width: 30px; position: fixed; left: 34.5px; top: 33.5px; display: block;overflow: hidden; z-index: 98;}
+		#oXl .oXl_Ul{display: none;}
+		#oXl .oXl_Li1{width: 30px; height: 30px; cursor: pointer;line-height: 30px; margin-top: -1px; text-align: center; overflow: hidden; color: #666; position: relative; float: left; border-bottom: 1px solid #ccc; }
+		#oXl .oXl_Li1_A1{width: 30px; height: 30px; text-decoration: none; color: #625351; position: absolute; top: 0; left: 0; display: block; font-size: 14px;}
+		#oXl .oXl_Li1_A2{width: 30px; height: 30px;text-decoration: none; color: #fff; display: none;position: absolute; top: 0; left: 0; font-size: 12px; background: #c81623;}
+		/* #oXl .oXl_Li1:hover .oXl_Li1_A1{display: none;}
+		#oXl .oXl_Li1:hover .oXl_Li1_A2{display: block;} */

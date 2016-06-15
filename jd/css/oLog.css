@@ -1,0 +1,4 @@
+		#oLog{width: 45px; height: 90px;  position: fixed; right: 0; bottom: 50%; z-index: 288; cursor: pointer; }
+		#oLog .oLoga{color: #fff; text-decoration: none; font: 12px/150% Arial,Verdana,'宋体'; }
+		#oLog .oLogl{width: 31px; height: 90px;display: block; background: url(../images/img/553f7750Na2b4a167.png)0 0 no-repeat; float: right;}
+		#oLog .oLogr{width: 70px; height: 70px; display: block; background: url(../images/img/553f7750Na2b4a167.png) -70px 0 no-repeat; position: absolute; top: 0; left: -50px; display: none; }
