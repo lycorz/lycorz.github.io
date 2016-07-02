@@ -1,0 +1,232 @@
+/*初始化*/
+	html, body {
+        position: relative;
+        height: 100%;
+    }
+    body {
+        background: #051623;
+        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        color:#000;
+        margin: 0;
+        padding: 0;
+        min-width: 1122px;
+    }
+    *{
+    	padding:0;
+    	margin:0;
+    }
+    ul li{
+    	list-style: none;
+    }
+    .norepeat{
+    	background:url(../img/norepeat.png) no-repeat;
+    }
+      .slide2bg{
+    	background:url(../img/slide2bg.png) no-repeat;
+    }
+    .clear:after{
+    		content:"";
+    		overflow: hidden;
+    		clear:both;
+    		height:0;
+    		display: block;
+    }
+
+  /*公共*/  
+    .swiper-container {
+        width: 100%;
+        height: 100%;
+       float: right;
+    }
+    .swiper-slide {
+        text-align: center;
+        font-size: 18px;
+        background: #fff;
+
+        /* Center slide text vertically */
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+    
+/*header*/
+#header{
+	position: fixed;
+	left:0;
+	top:0;
+	width:101px;
+	border:1px rgba(24,40,52,.5) solid;
+	border-top:none;
+	border-bottom:none;
+	z-index: 2;
+	background: #051623;
+	
+}
+#header .nav_mark{
+	width:42px;
+	margin:10px auto;
+	height:57px;
+	overflow: hidden;
+}
+#header span{
+	display: inline-block;
+	border-top: 1px #fff solid;
+	width:42px;
+	height:0;
+	font-size: 12px;
+	
+}
+#header .message{
+	width: 65px;
+	height: 72px;
+	background-position:; 0 0 ;
+	margin:50px auto 0;
+}
+.toper{
+	position: fixed;
+	/*bottom:0;*/
+	height:67px;
+	width:100%;
+	left: 103px;
+	z-index: 2;
+	background:rgba(52,54,52,.2);
+	overflow: hidden;
+}
+
+.toper .logo{
+	float:left;
+}
+.toper .calendar{
+	float:left;
+	line-height:67px;
+	overflow: hidden;
+}
+.toper .calendar .myDate{
+	font-family: Microsoft Yahei;
+	color:#FFF;
+	font-size: 14px;
+	float:left;
+	display: inline;
+	margin:0 20px 0 10px;
+}
+.toper .calendar .icon-calendar{
+	float:left;
+	margin-top:15px;
+	width:30px;
+	height:35px;
+	background-position:0 -73px ;
+	
+}
+.toper .nav_right{
+	float:right;
+	width:844px;
+	overflow: hidden;
+}
+.toper .nav_right ul{
+	overflow:hidden;
+	height:67px;
+	
+}
+.toper .nav_right li{
+	float:left;
+	padding:0 30px;
+	height:67px;
+	line-height:67px;
+	text-align: center;
+	border-left:1px rgba(202,79,101,0.5) solid;
+}
+.toper .nav_right li a{
+	font-family: "微软雅黑";
+	font-size:14px ;
+	color:#fff;
+	text-decoration: none;
+	
+}
+
+/*第一*/
+#page1{
+	background: url(../img/bannerNoRepeat.png) repeat;
+	position: relative;
+}
+#page1 .http{
+	width:100%;
+	height:59px;
+	background:#21242a;
+	text-align: center;
+	line-height: 59px;
+	color:#fff;
+	font-size: 16px;
+	position: absolute;
+	left:0;
+	top:0;
+	z-index: 1;
+}
+#page1 .first-content{
+	width:1027px;
+	height:629px;
+	/*border:1px solid #38f;*/
+	margin:0 auto;
+	position: absolute;
+	left:0;
+	top:59px;
+	right:0;
+	bottom:0;
+}
+.first-content img,span{
+	display: block;
+	margin:0 auto;
+}
+.deng2,.deng{
+	position: absolute;
+	left:400px;
+	top:30px;
+}
+.dashuju{
+	position: absolute;
+	left:445px;
+	top:389px;
+	font-size: 22px;
+	color:white;
+}
+.shipin{
+	position: absolute;
+	left:320px;
+	top:430px;
+	font-size: 33px;
+	color:white;
+}
+/*第二*/
+#page2{
+	width:100%;
+	height:100%;
+}
+
+/*第三*/
+
+/*第四*/
+
+
+
+/*第五*/
+
+  
+/*第六*/
+
+
+
+/*第七*/
+
+
+
+
+/*第八*/
