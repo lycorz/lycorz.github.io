@@ -3,16 +3,16 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
-subtitle:
+title: Hexo-blog
+subtitle: the first nodejs-blog
 description:
-author: John Doe
-language:
+author: lyc
+language: zh-CN
 timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://yoursite.com
+url: http://lyc-blog.com
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
