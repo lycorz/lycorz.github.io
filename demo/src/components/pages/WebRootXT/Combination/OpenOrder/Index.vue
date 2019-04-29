@@ -267,7 +267,7 @@ export default {
     },
     showRelationship(index, row) {
       let relationship = this.$refs.relationship;
-      relationship.Code = row.itemCode;
+      relationship.orderItemCode = row.itemCode;
       relationship.isShow = true;
     },
     showDocking(index, row) {

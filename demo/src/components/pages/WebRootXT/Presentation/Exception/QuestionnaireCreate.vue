@@ -17,8 +17,8 @@
         class="demo-ruleForm"
         label-position="left"
       >
-         <el-form-item label="题目" :label-width="formLabelWidth" prop="questionContent">
-          <el-select filterable v-model="fromData.questionContent" @change="getAnswers" placeholder="请选择">
+         <el-form-item label="题目" :label-width="formLabelWidth" prop="questionNum">
+          <el-select filterable v-model="fromData.questionNum" @change="getAnswers" placeholder="请选择">
             <el-option
               v-for="item in questionItems"
               :key="item.ID"
@@ -28,8 +28,8 @@
             >{{item.Content}}</el-option>
           </el-select>
         </el-form-item>
-            <el-form-item label="答案" :label-width="formLabelWidth" prop="answerContent">
-         <el-select filterable v-model="fromData.answerContent" placeholder="请选择">
+            <el-form-item label="答案" :label-width="formLabelWidth" prop="answerNum">
+         <el-select filterable v-model="fromData.answerNum" placeholder="请选择">
             <el-option
               v-for="item in answerItems"
               :key="item.Title"
@@ -59,16 +59,16 @@ export default {
       fromData: {
         ruleCode: null,
         abnormalCode: "",
-        answerContent: "",
-        questionContent: ""
+        answerNum: "",
+        questionNum: ""
       },
       questionItems:[],
       answerItems:[],
       rules: {
-        questionContent: [
+        questionNum: [
           { required: true, message: "请选择答案", trigger: "change" }
         ],
-        answerContent: [
+        answerNum: [
           { required: true, message: "请选择问题", trigger: "change" }
         ]
       }
@@ -166,8 +166,8 @@ export default {
       }
       this.fromData = {
         abnormalCode: "",
-        answerContent: "",
-        questionContent: ""
+        answerNum: "",
+        questionNum: ""
       };
     }
   }

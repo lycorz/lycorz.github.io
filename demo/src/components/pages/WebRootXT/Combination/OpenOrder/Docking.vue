@@ -6,7 +6,7 @@
       @open="Init"
       :close-on-click-modal="false"
       @close="close"
-      width="700px"
+      width="1000px"
     >
       <el-col :span="24">
         <el-table
@@ -19,24 +19,54 @@
           @row-click="handleCurrentChange"
         >
           <el-table-column type="index"></el-table-column>
-          <el-table-column label="名称关键词" align="left">
+          <el-table-column prop="outCode" label="外部系统编号" align="left">
             <template slot-scope="scope">
               <el-input
-                v-model="scope.row.name"
+                v-model="scope.row.outCode"
                 placeholder="请输入内容"
                 @change="handleEdit(scope.$index, scope.row)"
               ></el-input>
-              <span>{{scope.row.name}}</span>
+              <span>{{scope.row.outCode}}</span>
             </template>
           </el-table-column>
-          <el-table-column label="结论关键词" align="left">
+          <el-table-column prop="lisGrpNum" label="检验类项目条码合并组类" width="200px" align="left">
             <template slot-scope="scope">
               <el-input
-                v-model="scope.row.con"
+                v-model="scope.row.lisGrpNum"
                 placeholder="请输入内容"
                 @change="handleEdit(scope.$index, scope.row)"
               ></el-input>
-              <span>{{scope.row.con}}</span>
+              <span>{{scope.row.lisGrpNum}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="lisTubeName" label="检验类项目试管名称" align="left">
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.lisTubeName"
+                placeholder="请输入内容"
+                @change="handleEdit(scope.$index, scope.row)"
+              ></el-input>
+              <span>{{scope.row.lisTubeName}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="lisSampleType" label="检验类项目样本类型" align="left">
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.lisSampleType"
+                placeholder="请输入内容"
+                @change="handleEdit(scope.$index, scope.row)"
+              ></el-input>
+              <span>{{scope.row.lisSampleType}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="lisCheckType" label="检验类项目送检类型" align="left">
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.lisCheckType"
+                placeholder="请输入内容"
+                @change="handleEdit(scope.$index, scope.row)"
+              ></el-input>
+              <span>{{scope.row.lisCheckType}}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" width="80px" align="center">
@@ -73,28 +103,43 @@ export default {
       Code: "",
       isShow: false,
       loading: false,
-      tableData: [
-        {
-          name: "我是名称关键词",
-          con: "我是项目关键词"
-        },
-        {
-          name: "我是名称关键词",
-          con: "我是项目关键词"
-        },
-        {
-          name: "我是名称关键词",
-          con: "我是项目关键词"
-        }
-      ]
+      tableData: []
     };
   },
   methods: {
-    Init() {},
+    Init() {
+      this.$axios
+        .get(this.$api.GetOrderItemIfsDic, { params: { itemCode: this.Code } })
+        .then(res => {
+          if (res.data.status == 1) {
+            this.tableData.push(res.data.entity);
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
     close() {
+      this.tableData = [];
       this.isShow = false;
     },
-    submit() {},
+    submit() {
+      this.$axios
+        .post(this.$api.SaveOrderItemIfsDic, this.tableData[0])
+        .then(res => {
+          if (res.data.status == 1) {
+            this.$message.success("保存成功！");
+            this.close();
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
     handleCurrentChange(row, event, column) {
       console.log(row, event, column, event.currentTarget);
     },
@@ -104,12 +149,24 @@ export default {
     //table 删除
     deltable(index) {
       this.tableData.remove(index);
+      console.log(index);
+      console.log(this.tableData);
     },
     //table 添加
     addRow() {
-      let row = { name: "", con: "" };
-      this.tableData.push(row);
-      this.$refs.singleTable.setCurrentRow(row);
+      if ((this.tableData.length < 1)) {
+        let row = {
+          outCode: "",
+          lisGrpNum: "",
+          lisTubeName: "",
+          lisSampleType: "",
+          lisCheckType: ""
+        };
+        this.tableData.push(row);
+        this.$refs.singleTable.setCurrentRow(row);
+      }else{
+        this.$message.error("只允许有一条对接属性");
+      }
     }
   }
 };

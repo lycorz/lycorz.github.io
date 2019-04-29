@@ -106,6 +106,7 @@
 						</template>
 					</el-table-column>
           <el-table-column prop="status" label="订单状态" width="100px"></el-table-column>
+          <el-table-column prop="status" label="是否弃检" width="100px"></el-table-column>
           <el-table-column prop="isReped" label="替检状态" width="100px">
 						<template slot-scope="scope">
 							{{scope.row.isReped ? '替检' : '未替检'}}
@@ -174,7 +175,7 @@
             <el-table-column prop="status" label="项目状态"></el-table-column>
           </el-table>
 					<div slot="footer" class="dialog-footer">
-            <el-button @click="orderInfoModal = false;itemsData.items = [];">关 闭</el-button>
+            <el-button @click="orderInfoModal = false;itemsData = [];">关 闭</el-button>
           </div>
         </el-dialog>
 				<!-- 替检 -->
@@ -189,7 +190,7 @@
               <el-button type="primary" plain style @click="getIdentity">刷身份证</el-button>
             </el-form-item>
             <el-form-item label="体检卡号" prop="CardNum" :label-width="formLabelWidth">
-              <el-input v-model="peopleInfo.NewCustomer.CardNum" autocomplete="off"></el-input>
+              <el-input v-model="peopleInfo.NewCustomer.CardNum" maxlength="20" autocomplete="off"></el-input>
             </el-form-item>
             <el-form-item label="姓名" prop="CustomerName" :label-width="formLabelWidth">
               <el-input v-model="peopleInfo.NewCustomer.CustomerName" autocomplete="off"></el-input>
@@ -279,7 +280,7 @@
             </el-table>
           </div>
 					<div slot="footer" class="dialog-footer">
-            <el-button @click="currentOrderModal = false;itemsData.items = ''">关 闭</el-button>
+            <el-button @click="currentOrderModal = false;itemsData = []">关 闭</el-button>
           </div>
         </el-dialog>
       </div>
@@ -675,6 +676,7 @@ export default {
 		},
 		//删除订单
 		delBtn(data){
+			console.log(data)
 			if (data.paidStatus) {
 				this.$alert('<span>该订单已经缴费，不可删除！</span><br /><i style="color:#8F9399;">订单已缴费不可删除</i>', '提醒：', {
 					confirmButtonText: '关闭',
@@ -689,7 +691,7 @@ export default {
           type: 'warning'
 				}).then(() => {
 					this.$axios.post(this.$api.DeleteOrder, {  //订单删除
-						OrderCode: data.OrderCode
+						OrderCode: data.orderCode
 					}).then(res => {
 						if (res.data.status === 1) {
 							this.$message.success('删除成功！');

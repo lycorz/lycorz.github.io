@@ -28,11 +28,11 @@
               <el-select v-model="fromData.typeCode" placeholder="请选择">
                 <el-option
                   v-for="item in typeItems"
-                  :key="item.value"
-                  :label="item.name"
-                  :value="item.value"
+                  :key="item.typeCode"
+                  :label="item.typeName"
+                  :value="item.typeCode"
                   filter-placement="bottom-end"
-                >{{item.name}}</el-option>
+                >{{item.typeName}}</el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="所属科室" :label-width="formLabelWidth" prop="deptCode">
@@ -76,7 +76,7 @@
         <el-tab-pane label="包含子项目" name="second">
           <el-table
             ref="singleTable"
-            :data="fromData.dicRptSubItems"
+            :data="tableData"
             @selection-change="handleSelectionChange"
             v-loading="loading"
             style="width: 100%"
@@ -107,7 +107,7 @@
         :titles="['选择列表', '添加列表']"
         style="text-align: left; display: inline-block"
         filter-placeholder="请输入"
-        :props="{key: 'value',label: 'desc'}"
+        :props="{key: 'subItemCode',label: 'subItemName'}"
         :data="transferData"
       ></el-transfer>
       <div slot="footer" class="dialog-footer">
@@ -138,7 +138,6 @@ export default {
         inputType: 1,
         orderNum: "",
         isEnable: true, // bool
-        dicRptSubItems: []
       },
       boolItems: [
         {
@@ -174,7 +173,7 @@ export default {
       /* 子窗体 */
       editIsShow: false,
       transferData: [],
-      transferValue: ""
+      transferValue: [],
     };
   },
   created() {
@@ -201,19 +200,30 @@ export default {
       }
     },
     submitForm() {
-      this.$refs.createFrom.validate(valid => {
+      let that = this;
+      that.$refs.createFrom.validate(valid => {
         if (valid) {
           //   this.fromData.OldItemCode = this.Code;
           //子项目赋值
-          this.$axios
-            .post(this.$api.SaveRptItem, this.fromData)
+          that.$axios
+            .post(that.$api.SaveRptItem, that.fromData)
             .then(res => {
               if (res.status == 200 && res.data.status == 1) {
-                this.$message.success("保存成功！");
-                this.close();
-                this.getData();
+                let reqdic = {itemCode : that.fromData.itemCode,subItemCodes:that.transferValue}
+                that.$axios.post(that.$api.UpdateItemVsSubItem,reqdic)
+                .then(response=>{
+                  if(res.data.status==1){
+                     that.$message.success("保存成功！");
+                     that.close();
+                     that.getData();
+                  }else{
+                    that.$message.error(res.data.message);
+                  }
+                }) .catch(err => {
+              console.error(err);
+            });
               } else {
-                this.$message.error(res.data.message);
+                that.$message.error(res.data.message);
               }
             })
             .catch(err => {
@@ -222,6 +232,7 @@ export default {
         } else {
           document.getElementById('tab-first').click();
         }
+         
       });
     },
     close() {
@@ -236,9 +247,11 @@ export default {
         typeCode: "",
         deptCode: "",
         inputType: 1,
-        orderNum: "",
+        orderNum: 1,
         isEnable: true // bool
       };
+      this.tableData = [];
+      this.multipleSelection = [];
     },
     /*  tab1 */
     //获取所属科室下拉
@@ -265,9 +278,19 @@ export default {
     },
     //获取项目类型
     getrptItemTypeItems() {
-      this.$getType("RptItemType").then(res => {
-        this.typeItems = res.data.entity;
-      });
+      let that = this;
+      that.$axios
+        .post(that.$api.GetDicRptItemType)
+        .then(res => {
+          if (res.status == 200 && res.data.status == 1) {
+            this.typeItems = res.data.entity;
+          } else {
+            console.log(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
     },
     /*  tab2  */
     //table选中
@@ -321,24 +344,51 @@ export default {
       if (that.multipleSelection.length <= 0) {
         return;
       }
-      that.multipleSelection.forEach((el, index) => {
-        let oldIndex = that.tableData.findIndex(z => z == el);
-        let moveItem = that.tableData[oldIndex - 1];
-        originalArr.splice(oldIndex - 1, 1);
-        originalArr.splice(oldIndex, 0, moveItem);
+        this.tableData.forEach((element, index) => {
+        this.multipleSelection.forEach((ele, ind) => {
+          //位置互换
+          if (element.subItemCode == ele.subItemCode) {
+            that.tableDataUp(that.tableData, that.tableData[index], index);
+            return false;
+          }
+        });
       });
+    },
+    tableDataUp(tableData, currRow, currRowIndex) {
+      if (currRowIndex > 0) {
+        let upData = tableData[currRowIndex - 1];
+        tableData.splice(currRowIndex - 1, 1);
+        tableData.splice(currRowIndex, 0, upData);
+      }
     },
     //下移
     downMove() {
-      let that = this;
-      if (that.multipleSelection.length <= 0) {
+        let that = this;
+      let arr = [];
+      //如果选中的不为空
+      if (this.multipleSelection.length == 0) {
         return;
       }
-      that.multipleSelection.forEach((el, index) => {
-        let oldIndex = that.tableData.findIndex(z => z == el);
-        let moveItem = that.tableData[oldIndex + 1];
-        originalArr.splice(oldIndex + 1, 1);
-        originalArr.splice(oldIndex, 0, moveItem);
+      this.tableData.forEach((element, index) => {
+        this.multipleSelection.forEach((ele, ind) => {
+          //位置互换
+          if (element.subItemCode == ele.subItemCode) {
+            let obj = {};
+            obj.currRow = that.tableData[index];
+            obj.currRowIndex = index;
+            arr.push(obj);
+          }
+        });
+      });
+      this.tableDataDown(this.tableData, arr);
+    },
+    tableDataDown(tableData, arr) {
+      arr.reverse().forEach((ele, index) => {
+        if (ele.currRowIndex.index !== tableData.length - 1) {
+          let downData = tableData[ele.currRowIndex];
+          tableData.splice(ele.currRowIndex, 1);
+          tableData.splice(ele.currRowIndex + 1, 0, downData);
+        }
       });
     },
     //修改按钮,弹出子窗体。
@@ -347,14 +397,32 @@ export default {
     },
     /* 子窗体 */
     //加载穿梭框数据。
-    editInit() {},
+    editInit() {
+       this.$axios
+        .get(this.$api.GetAllRptSubItemList)
+        .then(res => {
+          if (res.data.status == 1) {
+            this.transferData = res.data.entity;
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+        this.transferValue = this.tableData.map(z=>z.subItemCode);
+    },
     editClose() {
       this.transferData = new Array();
-      this.transferValue = new Array();
+      // this.transferValue = new Array();
       this.editIsShow = false;
     },
     editSubmit() {
-      this.fromData.dicRptSubItems = this.transferValue;
+      this.tableData = new Array();
+      this.transferValue.forEach(el=>{
+        let item = this.transferData.find(z=>z.subItemCode==el);
+        this.tableData.push(item);
+      });
       this.editClose();
     }
   }

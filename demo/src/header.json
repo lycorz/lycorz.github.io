@@ -213,10 +213,99 @@
             "part": "424",
             "icon": "el-icon-edit-outline",
             "gotoUrl": "/xt/exception"
+          },
+          {
+            "name": "主检医学建议",
+            "part": "425",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/exception"
+          },
+          {
+            "name": "驳回原因",
+            "part": "426",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/exception"
+          },
+          {
+            "name": "报告项目显示方式",
+            "part": "427",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/exception"
           }
         ]
+      },
+      {
+        "name": "短信字典",
+        "part": "43",
+        "path":"",
+        "icon": "el-icon-edit-outline",
+        "childrenNodes":[
+          {
+            "name": "短信类型",
+            "part": "431",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/openorder"
+          },
+          {
+            "name": "危急值短信模版",
+            "part": "432",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/setmeal"
+          }
+        ]
+      },
+      {
+        "name": "管理字典",
+        "part": "44",
+        "path":"",
+        "icon": "el-icon-edit-outline",
+        "childrenNodes":[
+          {
+            "name": "加班字典",
+            "part": "441",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/openorder"
+          },
+          {
+            "name": "成本字典",
+            "part": "442",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/setmeal"
+          }
+        ]
+      },
+      {
+        "name": "系统字典",
+        "part": "45",
+        "path":"",
+        "icon": "el-icon-edit-outline",
+        "childrenNodes":[
+          {
+            "name": "功能项目字典",
+            "part": "451",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/funcitems"
+          },
+          {
+            "name": "科室字典",
+            "part": "452",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/section"
+          },
+          {
+            "name": "角色字典",
+            "part": "453",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/setmeal"
+          }
+        ]
+      },
+      {
+        "name": "用户管理",
+        "part": "46",
+        "path":"/xt/user",
+        "icon": "el-icon-edit-outline"
       }
-
     ]
   }
 ]

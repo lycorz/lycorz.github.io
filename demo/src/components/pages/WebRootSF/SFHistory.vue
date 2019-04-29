@@ -6,11 +6,11 @@
     <div style="flex:1;overflow: hidden;display: flex;flex-direction: column;">
       <div class="peopleData">
         <div class="propleSearch">
-          <el-input placeholder="请搜索" v-model="tradeName" class="arcRadius" style="width: 150px;">
+          <el-input placeholder="请搜索" v-model="tradeName" class="arcRadius" style="width: 130px;">
             <i slot="prefix" class="el-input__icon el-icon-search"></i>
           </el-input>
-          <div class="searchItem" style="display: inline-block;margin: 0 16px;">
-            <el-select v-model="tradeType" clearable placeholder="交易类型">
+          <div class="searchItem" style="display: inline-block;margin: 0 8px;">
+            <el-select v-model="tradeType" clearable  placeholder="交易类型">
               <el-option
                 v-for="item in TradeEnum.TradeTypeEnum"
                 :key="item.value"
@@ -20,7 +20,7 @@
               >{{item.name}}</el-option>
             </el-select>
           </div>
-          <div class="searchItem" style="display: inline-block;margin: 0 16px;">
+          <div class="searchItem" style="display: inline-block;margin: 0 8px;">
             <el-select v-model="tradeForm" clearable placeholder="业务类型">
               <el-option
                 v-for="item in TradeEnum.TradeFormEnum"
@@ -42,7 +42,7 @@
             ></el-date-picker>
           </div>
           <div class="searchItem" style="display: inline-block;margin: 0 16px;">
-            <el-select v-model="person" clearable placeholder="经手人">
+            <el-select v-model="person" filterable clearable placeholder="经手人">
               <el-option
                 v-for="item in TradeEnum.personEnum"
                 :key="item.operatorCode"
@@ -65,8 +65,6 @@
           label="业务类型"
           width="120"
           align="center"
-          :sortable="true"
-          :sort-method="transactionSort"
           :formatter="typeformatter"
         ></el-table-column>
         <el-table-column
@@ -82,8 +80,6 @@
           label="交易类型"
           width="120"
           align="center"
-          :sortable="true"
-          :sort-method="businessSort"
           :formatter="formformatter"
         ></el-table-column>
         <el-table-column property="operatorName" label="经手人" width="120" align="center"></el-table-column>

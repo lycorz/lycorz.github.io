@@ -96,7 +96,7 @@
       <el-button style="float:left;">打 印</el-button>
       <el-button @click="FJCheckVisible = false">关 闭</el-button>
     </span>
-<dialoglisedit ref="dialoglisedit"></dialoglisedit>
+<dialoglisedit ref="dialoglisedit" @submit="getChildValue"></dialoglisedit>
   </el-dialog>
 </template>
 
@@ -195,9 +195,14 @@ export default {
     edit(row,index){
       this.$refs.dialoglisedit.dialogVisible = true;
       this.$refs.dialoglisedit.data = Object.assign(row,{});
+      this.$refs.dialoglisedit.isAbnormal = row.resultType;
     },
 hide(row,index){
 
+},
+//获取子界面更新后的值(逻辑也可以放在子界面，熟悉emit是否可以传多值)
+getChildValue(value1,value2){
+  value2.resultType = value1;
 }
   }
 };

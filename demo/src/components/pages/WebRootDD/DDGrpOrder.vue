@@ -43,13 +43,17 @@
 													{{scope.row.createTime | formatDate('YYYY-MM-DD')}}
 												</template>
 											</el-table-column>
-											<el-table-column prop="operator" label="创建人"></el-table-column>
+											<el-table-column prop="creator" label="创建人"></el-table-column>
 											<el-table-column prop="closeTime" label="是否关闭">
 												<template slot-scope="scope">
 													{{scope.row.closeTime ? '是' : '否'}}
 												</template>
 											</el-table-column>
-											<el-table-column prop="creator" label="备单人数"></el-table-column>
+											<el-table-column prop="creator" label="备单人数">
+												<template  slot-scope="scope">
+													暂无数据
+												</template>
+											</el-table-column>
 											<el-table-column label="操作" fixed="right">
 												<template slot-scope="scope">
 													<el-button type="text" @click="createOrderBtn(scope.row)">导入人员</el-button>
@@ -216,9 +220,9 @@
 								</el-table-column>
 								<el-table-column prop="DeptName" label="部门"></el-table-column>
 								<el-table-column prop="TeamName" label="组别"></el-table-column>
-								<el-table-column prop="DIYFlag" label="定制类型">
+								<el-table-column prop="DiyFlag" label="定制类型">
 									<template slot-scope="scope">
-										{{scope.row.DIYFlag === 1 ? '个性化（有限）': scope.row.DIYFlag === 2 ? '个性化（无限）': scope.row.DIYFlag === 0 ? '固定套餐' : ''}}
+										{{scope.row.DiyFlag === 1 ? '个性化（有限）': scope.row.DiyFlag === 2 ? '个性化（无限）': scope.row.DiyFlag === 0 ? '固定套餐' : ''}}
 									</template>
 								</el-table-column>
 								<el-table-column prop="PackageName" label="套餐名称"></el-table-column>
@@ -231,7 +235,7 @@
 								<el-table-column prop="Remark" label="备注"></el-table-column>
 								<el-table-column prop="OrderMoney" label="金额">
 									<template slot-scope="scope">
-										{{scope.row.DIYFlag === 0 ? scope.row.OrderMoney : ''}}
+										{{scope.row.DiyFlag === 0 ? scope.row.OrderMoney : ''}}
 									</template>
 								</el-table-column>
 								<el-table-column prop="FeeType" fixed="right" label="操作">
@@ -313,7 +317,7 @@
 									<el-button type="primary" plain style @click="getIdentity">刷身份证</el-button>
 								</el-form-item>
 								<el-form-item label="体检卡号" prop="CardNum" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.CardNum" autocomplete="off"></el-input>
+									<el-input v-model="peopleInfo.Customer.CardNum" maxlength="20" autocomplete="off"></el-input>
 								</el-form-item>
 								<el-form-item label="姓名" prop="CustomerName" :label-width="formLabelWidth">
 									<el-input v-model="peopleInfo.Customer.CustomerName" autocomplete="off"></el-input>
@@ -377,7 +381,7 @@
 								<el-button type="primary" @click="addPeopleBtn(peopleInfo.Customer.IdcardNum)" >确定</el-button>
 							</div>
 						</el-dialog>
-						<orderDetails :optionsModal="optionsModal"></orderDetails>
+						<orderDetails ref="orderDetail"></orderDetails>
         </div>
     </el-row>
   </div>
@@ -392,10 +396,6 @@ import orderDetails from './orderDetails.vue'
 		components: {orderDetails},
     data() {
       return{
-				optionsModal: {
-					isOpen: false,
-					data: {}
-				},
 				isMoreOrder: false,//是否允许单位同时存在多个订单
 				url: 'http://localhost:7417' + this.$api.ImportCustomer, // 上传路径需修改
 				timeRange: [
@@ -533,7 +533,7 @@ import orderDetails from './orderDetails.vue'
 							PaidMoney: 0,
 							PaidStatus: true,
 							UnitPayMoney: 0,// 无限  传0   有限：输入金额；固定 OrderMoney
-							DIYFlag: 0,
+							DiyFlag: 0,
 							Items: [
 								// {
 								// 	ItemCode: "",
@@ -686,15 +686,16 @@ import orderDetails from './orderDetails.vue'
 			},
 			// 提交团检订单
 			submitImportBtn(){
-				if(this.importData.length === 0) {
+				if(this.importAllData.length === 0) {
 					this.$message.error('请先导入人员后提交');
+					return;
 				}
 				for(let key of this.importAllData) {
 					if (!key.Items || key.Items.length === 0) {
 						this.$message.error('请对所有人员配置套餐');
 						return;
 					}
-					if (!key.DIYFlag && key.DIYFlag != 0) {
+					if (!key.DiyFlag && key.DiyFlag != 0) {
 						this.$message.error('请对所有人员选择定制类型');
 						return;
 					}
@@ -989,10 +990,9 @@ import orderDetails from './orderDetails.vue'
 				})
 			},
 			openOrderDetail(data) {
-				this.optionsModal = {
-					isOpen: true,
-					data
-				}
+				this.$refs.orderDetail.orderDetailsModal = true;
+				this.$refs.orderDetail.orderParams = data;
+				this.$refs.orderDetail.subOrderParams.GroupOrderCode = data.orderCode;
 			},
 			// 创建单位窗口关闭
 			unitCancel(){
@@ -1125,22 +1125,22 @@ import orderDetails from './orderDetails.vue'
 							this.importData[index].PackageCode = this.package.PackageCode;
 							this.importData[index].PackageName = this.package.PackageName;
 							this.importData[index].OrderMoney = 0;
-							if(!this.diy) {
-								this.importData[index].DIYFlag = 0;
+							if(!this.diy && !this.importData[index].DiyFlag) {
+								this.importData[index].DiyFlag = 0;
 							}
-							if(!this.package.PackageType) {
+							if(!this.package.PackageType && !this.importData[index].OrderType) {
 								this.importData[index].OrderType = 0;
-							} else {
+							} else if (!this.importData[index].OrderType && this.package.PackageType){
 								this.importData[index].OrderType = this.package.PackageType;
 							}
 							this.selectedLeft.forEach(y => {
 								this.importData[index].OrderMoney += y.exePrice;
 							})
-							if(this.diy === 0) {
+							if(this.importData[index].DiyFlag === 0) {
 								this.importData[index].UnitPayMoney = this.importData[index].OrderMoney;
-							} else if (this.diy === 1) {
+							} else if (this.importData[index].DiyFlag === 1) {
 								this.importData[index].UnitPayMoney = this.diyPrice;
-							} else if (this.diy === 2) {
+							} else if (this.importData[index].DiyFlag === 2) {
 								this.importData[index].UnitPayMoney = 0;
 							}
 							this.$set(this.importData, index , y);
@@ -1159,7 +1159,7 @@ import orderDetails from './orderDetails.vue'
 					this.multipleSelection.forEach(x => {
 						this.importData.forEach((y, index) => {
 							if (x.IdcardNum === y.IdcardNum) {
-								this.importData[index].DIYFlag = this.diy;
+								this.importData[index].DiyFlag = this.diy;
 								this.importData[index].OrderMoney = 0;
 								this.selectedLeft.forEach(y => {
 									this.importData[index].OrderMoney += y.exePrice;

@@ -64,7 +64,7 @@ const router = new Router({
 				},
 				{
 					path: 'fjdanger',
-					component: resolve => require(['pages/WebRootSF/SFHistory.vue'], resolve),
+					component: resolve => require(['pages/WebRootFJ/FJDanger.vue'], resolve),
 					meta: { title: '危急值管理' },
 				},
 			]
@@ -206,9 +206,19 @@ const router = new Router({
 					meta: { title: '异常字典' },
 				},
 				{
+					path: 'funcitems',
+					component: resolve => require(['../components/pages/WebRootXT/System/FuncItems/Index.vue'], resolve),
+					meta: { title: '功能项目字典' },
+				},
+				{
+					path: 'section',
+					component: resolve => require(['../components/pages/WebRootXT/System/Section/Index.vue'], resolve),
+					meta: { title: '功能项目字典' },
+				},
+				{
 					path: 'user',
 					component: resolve => require(['../components/pages/WebRootXT/User.vue'], resolve),
-					meta: { title: '个检' }
+					meta: { title: '用户管理' }
 				},
 				// {
 				// 	path: 'upload',

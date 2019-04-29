@@ -19,24 +19,24 @@
           @row-click="handleCurrentChange"
         >
           <el-table-column type="index"></el-table-column>
-          <el-table-column label="名称关键词" align="left">
+          <el-table-column label="外部子项目编号" align="left">
             <template slot-scope="scope">
               <el-input
-                v-model="scope.row.name"
+                v-model="scope.row.outRptSubItemCode"
                 placeholder="请输入内容"
                 @change="handleEdit(scope.$index, scope.row)"
               ></el-input>
-              <span>{{scope.row.name}}</span>
+              <span>{{scope.row.outRptSubItemCode}}</span>
             </template>
           </el-table-column>
-          <el-table-column label="结论关键词" align="left">
+          <el-table-column label="外部组合项目编号" align="left">
             <template slot-scope="scope">
               <el-input
-                v-model="scope.row.con"
+                v-model="scope.row.outRptItemCode"
                 placeholder="请输入内容"
                 @change="handleEdit(scope.$index, scope.row)"
               ></el-input>
-              <span>{{scope.row.con}}</span>
+              <span>{{scope.row.outRptItemCode}}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" width="80px" align="center">
@@ -73,28 +73,54 @@ export default {
       Code: "",
       isShow: false,
       loading: false,
-      tableData: [
-        {
-          name: "我是名称关键词",
-          con: "我是项目关键词"
-        },
-        {
-          name: "我是名称关键词",
-          con: "我是项目关键词"
-        },
-        {
-          name: "我是名称关键词",
-          con: "我是项目关键词"
-        }
-      ]
+      tableData: []
     };
   },
   methods: {
-    Init() {},
+    Init() {
+       this.$axios
+        .get(this.$api.GetRptSubItemVs3rd, { params: { rptSubItemCode: this.Code } })
+        .then(res => {
+          if (res.data.status == 1) {
+            this.tableData = res.data.entity;
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
     close() {
+      this.tableData = [];
       this.isShow = false;
     },
-    submit() {},
+    submit() {
+      let vs3rdData = new Array();
+      this.tableData.forEach(el=>{
+        let item = {
+          outRptSubItemCode : el.outRptSubItemCode,
+          outRptItemCode : el.outRptItemCode,
+          rptSubItemCode : this.Code,
+          lastModifyTime : new Date(),
+        };
+        vs3rdData.push(item);
+      });
+      let data = {RptSubItemCode:this.Code,IfsDicRptSubItemVs3rdList:vs3rdData};
+       this.$axios
+        .post(this.$api.SaveRptSubItemVs3rd, data)
+        .then(res => {
+          if (res.data.status == 1) {
+            this.$message.success("保存成功！");
+            this.close();
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
     handleCurrentChange(row, event, column) {
       console.log(row, event, column, event.currentTarget);
     },
@@ -107,7 +133,7 @@ export default {
     },
     //table 添加
     addRow() {
-      let row = { name: "", con: "" };
+      let row = { outRptSubItemCode: "", outRptItemCode: "" };
       this.tableData.push(row);
       this.$refs.singleTable.setCurrentRow(row);
     }

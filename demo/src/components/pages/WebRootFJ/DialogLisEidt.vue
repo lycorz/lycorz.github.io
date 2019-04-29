@@ -27,7 +27,7 @@
       <li>
         <span class="itemname">结果类型</span>
         <span>
-          <el-select v-model="data.resultType" placeholder="请选择">
+          <el-select v-model="isAbnormal" placeholder="请选择">
             <el-option :key="0" label="↑" value="H"></el-option>
             <el-option :key="1" label="正常" value="N"></el-option>
             <el-option :key="2" label="↓" value="L"></el-option>
@@ -47,7 +47,8 @@ export default {
   data() {
     return {
       dialogVisible: false,
-      data: {}
+      data: {},
+      isAbnormal:""
     };
   },
   methods: {
@@ -56,13 +57,12 @@ export default {
       this.$axios
         .post(this.$api.UpdateLisSubItemResultType, {  
           "innerCode": that.data.innerCode,
-          "resultType":that.data.resultType})
+          "resultType":that.isAbnormal})
         .then(function(response) {
           if (response.data.status == 1) {
             that.$message.success("类型修改成功");
+            that.$emit('submit', that.isAbnormal,that.data);
               that.dialogVisible = false;
-           
-            
           } else {
             that.$message.error(`错误：${response.data.message}`);
             reject(false);

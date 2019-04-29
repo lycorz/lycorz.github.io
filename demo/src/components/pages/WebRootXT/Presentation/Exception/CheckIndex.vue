@@ -86,7 +86,7 @@
               style="width: 100%"
             >
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column property="subItemCode" label="报告子项目" align="left"></el-table-column>
+              <el-table-column property="rptSubItemName" label="报告子项目" align="left"></el-table-column>
               <el-table-column property="upperLimit" label="上限" align="width"></el-table-column>
               <el-table-column property="lowerLimit" label="下限" align="width"></el-table-column>
               <el-table-column label="操作" align="width">
@@ -182,13 +182,13 @@ export default {
       let keys = new Array();
       switch (val) {
         case 1:
-          keys = this.multipleSelection1.map(z => z.abnormalCode);
+          keys = this.multipleSelection1.map(z => z.ruleCode);
           break;
         case 2:
-          keys = this.multipleSelection2.map(z => z.abnormalCode);
+          keys = this.multipleSelection2.map(z => z.ruleCode);
           break;
         case 3:
-          keys = this.multipleSelection3.map(z => z.abnormalCode);
+          keys = this.multipleSelection3.map(z => z.ruleCode);
           break;
       }
       if (keys.length <= 0) {
@@ -210,7 +210,7 @@ export default {
           .then(res => {
             if (res.status == 200 && res.data.status == 1) {
               this.$message.success("删除成功！");
-              this.getData();
+              this.init(val);
             } else {
               this.$message.error(res.data.message);
             }

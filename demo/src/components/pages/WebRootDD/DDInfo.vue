@@ -90,7 +90,7 @@
 									<el-button type="primary" plain style @click="getIdentity">刷身份证</el-button>
 								</el-form-item>
 								<el-form-item label="体检卡号" prop="CardNum" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.CardNum" autocomplete="off"></el-input>
+									<el-input v-model="peopleInfo.Customer.CardNum" maxlength="20" autocomplete="off"></el-input>
 								</el-form-item>
 								<el-form-item label="姓名" prop="CustomerName" :label-width="formLabelWidth">
 									<el-input v-model="peopleInfo.Customer.CustomerName" autocomplete="off"></el-input>

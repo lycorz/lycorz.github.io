@@ -27,10 +27,10 @@
             <div class="ul-con">
               <ul v-for="(item,index) in sonItems" :key="index">
                 <li class="item1">
-                  <div class="item-list">{{item.no }}</div>
+                  <div class="item-list">{{item.rptSubItemCode }}</div>
                 </li>
                 <li class="item2">
-                  <div class="item-list">{{item.name}}</div>
+                  <div class="item-list">{{item.rptSubItemName}}</div>
                 </li>
               </ul>
             </div>
@@ -47,7 +47,7 @@
               highlight-current-row
               @row-click="handleCurrentChange"
             >
-            <el-table-column type="index"></el-table-column>
+              <el-table-column type="index"></el-table-column>
               <el-table-column label="名称关键词" align="left">
                 <template slot-scope="scope">
                   <el-input
@@ -105,15 +105,14 @@
       <el-transfer
         v-model="transferValue"
         filterable
-        :filter-method="filterSearch"
         :titles="['选择列表', '添加列表']"
-        style="text-align: left; display: inline-block"
+        style="text-align: left; display: inline-block;"
         filter-placeholder="请输入"
-        :props="{key: 'value',label: 'desc'}"
+        :props="{key: 'rptSubItemCode',label: 'rptSubItemName'}"
         :data="transferData"
       ></el-transfer>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="editIsShow = false">取消</el-button>
+        <el-button @click="editClose">取消</el-button>
         <el-button type="primary" @click="editSubmit">确定</el-button>
       </div>
     </el-dialog>
@@ -135,38 +134,12 @@ export default {
       return data;
     };
     return {
-      Code: "",
+      orderItemCode: "",
       isShow: false,
       activeName: "first",
 
       //first
-      sonItems: [
-        {
-          no: "HGIIG",
-          name:
-            "我是子项目的名称我是子项目的名称我是子项目的名称我是子项目的名称我是子项目的名称我是子项目的名称我是子项目的名称我是子项目的名称我是子项目的名称我是子项目的名称我是子项目的名称我是子项目的名称"
-        },
-        {
-          no: "HGIIG",
-          name: "我是子项目的名称"
-        },
-        {
-          no: "HGIIG",
-          name: "我是子项目的名称"
-        },
-        {
-          no: "HGIIG",
-          name: "我是子项目的名称"
-        },
-        {
-          no: "HGIIG",
-          name: "我是子项目的名称"
-        },
-        {
-          no: "HGIIG",
-          name: "我是子项目的名称"
-        }
-      ],
+      sonItems: [],
       //second
       loading: false,
       tableData: [
@@ -185,14 +158,29 @@ export default {
       ],
       //edit子窗体
       editIsShow: false,
-      transferData: generateData(),
-      transferValue: ""
+      transferData: [],
+      transferValue: []
     };
   },
   created() {},
   filters: {},
   methods: {
-    firstInit() {},
+    firstInit() {
+      this.$axios
+        .get(this.$api.GetDicRptSubItem, {
+          params: { OrderItemCode: this.orderItemCode }
+        })
+        .then(res => {
+          if (res.data.status == 1) {
+            this.sonItems = res.data.entity;
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
     secondInit() {},
     //切换tabl事件，按需加载
     handleClick(val, e) {
@@ -211,10 +199,25 @@ export default {
     //一级页面关闭
     close() {
       this.isShow = false;
+      this.sonItems = [];
     },
 
     //一级页面提交 同时提交关键项目和关键词
-    submit() {},
+    submit() {
+      //提交报告项目
+      this.$axios
+        .post(this.$api.SaveDicRptSubItem, this.sonItems)
+        .then(res => {
+          if (res.data.status == 1) {
+            this.$message.success("保存成功！");
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
     //table编辑
     handleCurrentChange(row, event, column) {
       console.log(row, event, column, event.currentTarget);
@@ -238,10 +241,39 @@ export default {
     },
     //二级页面搜索
     filterSearch() {},
-    editInit() {},
-    editClose() {},
+    editInit() {
+      this.$axios
+        .get(this.$api.GetAllDicRptSubItem)
+        .then(res => {
+          if (res.data.status == 1) {
+            this.transferData = res.data.entity;
+            if (this.sonItems.length > 0) {
+              this.sonItems.forEach(element => {
+                this.transferValue.push(element.rptSubItemCode);
+              });
+            }
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
+    editClose() {
+      this.editIsShow = false;
+      this.transferData = [];
+      this.transferValue = [];
+    },
     //修改弹出层提交事件
-    editSubmit() {}
+    editSubmit() {
+      this.sonItems = [];
+      this.transferValue.forEach(el => {
+        let item = this.transferData.find(z => z.rptSubItemCode == el);
+        this.sonItems.push(item);
+      });
+      this.editClose();
+    }
 
     //数组对象扩展方法
   }

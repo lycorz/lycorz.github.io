@@ -13,7 +13,6 @@
         :model="fromData1"
         ref="createFrom1"
         label-width="50px"
-        :rules="rules1"
         class="demo-ruleForm"
         label-position="left"
       >
@@ -58,7 +57,6 @@
         :model="fromData2"
         ref="createFrom2"
         label-width="50px"
-        :rules="rules2"
         class="demo-ruleForm"
         label-position="left"
       >
@@ -66,11 +64,11 @@
           <el-select filterable v-model="fromData2.rptSubItemCode" placeholder="请选择">
             <el-option
               v-for="item in rptSubItem"
-              :key="item.itemCode"
-              :label="item.itemName"
-              :value="item.itemCode"
+              :key="item.subItemCode"
+              :label="item.subItemName"
+              :value="item.subItemCode"
               filter-placement="bottom-end"
-            >{{item.itemName}}</el-option>
+            >{{item.subItemName}}</el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="关键词" :label-width="formLabelWidth" prop="abnormalName">
@@ -109,21 +107,20 @@
     >
       <el-form
         :model="fromData3"
-        ref="createFrom2"
+        ref="createFrom3"
         label-width="50px"
-        :rules="rules3"
         class="demo-ruleForm"
         label-position="left"
       >
-        <el-form-item label="报告组合项目" :label-width="formLabelWidth" prop="rptSubItemCode">
+        <el-form-item label="报告组合项目" :label-width="formLabelWidth">
           <el-select filterable v-model="fromData3.rptSubItemCode" placeholder="请选择">
             <el-option
               v-for="item in rptSubItem"
-              :key="item.itemCode"
-              :label="item.itemName"
-              :value="item.itemCode"
+              :key="item.subItemCode"
+              :label="item.subItemName"
+              :value="item.subItemCode"
               filter-placement="bottom-end"
-            >{{item.itemName}}</el-option>
+            >{{item.subItemName}}</el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="上限" :label-width="formLabelWidth">
@@ -346,6 +343,11 @@ export default {
     },
     tsubmitForm() {
       this.$refs.createFrom3.validate(valid => {
+        let up = decimal.Parse(this.fromData3.upperLimit);
+        let low = decimal.Parse(this.fromData3.lowerLimit);
+        if(low>up){
+          this.$message.error("下限不得高于上限");
+        }
         if (valid) {
           this.fromData3.ruleCode = this.Code;
           this.$axios

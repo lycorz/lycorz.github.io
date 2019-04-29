@@ -28,6 +28,7 @@ const api = {
 	SaveCustomer: '/api/DD/SaveCustomer',//保存客户信息
 	CreateGroupOrder: '/api/DD/CreateGroupOrder',//创建团检订单
 	SubmitGroupOrder: '/api/DD/SubmitGroupOrder',//提交团检订单
+	GetGroupOrder: '/api/DD/GetGroupOrder',//获取团检订单详情
 
   ///DD End////////////////
    /*          分检检查-分检结论录入  start         */
@@ -220,7 +221,7 @@ const api = {
   SaveOrderItemIfsDic:'/api/DIC/SaveOrderItemIfsDic',   //保存开单项目外部对接信息
   GetDicRptSubItem:'/api/DIC/GetDicRptSubItem', //获取一个开单组合项目对应的所有报告子项目集合
   SaveDicRptSubItem:'/api/DIC/SaveDicRptSubItem',   //保存一个开单组合项目对应的所有报告子项目关系
-
+  GetAllDicRptSubItem:'/api/DIC/GetAllDicRptSubItem', //获取所有报告子项目集合
 
   GetDeptList:'/api/DIC/GetDeptList',    //  获取科室列表接口
   GetDept:'/api/DIC/GetDept',   //获取一条科室记录
@@ -263,7 +264,7 @@ const api = {
   GetAbnormalRuleLisList:'/api/DIC/GetAbnormalRuleLisList',   //根据异常编号获取某个异常相关的检验项目发现规则
   GetRuleLisByRuleCode:'/api/DIC/GetRuleLisByRuleCode',     //根据ruleCode获取一个检验项目发现规则
   SaveAbnormalRuleLis:'/api/DIC/SaveAbnormalRuleLis',   //保存某个异常的一条检验项目发现规则
-  BatchDeleteAbnormalRuleLis:'/api/DIC.BatchDeleteAbnormalRuleLis', //批量删除某个异常的检验项目发现规则
+  BatchDeleteAbnormalRuleLis:'/api/DIC/BatchDeleteAbnormalRuleLis', //批量删除某个异常的检验项目发现规则
 
   //非检验异常发现规则
   GetAbnormalRuleNotLisList:'/api/DIC/GetAbnormalRuleNotLisList',   //根据异常编号获取某个异常相关的非检验项目发现规则
@@ -280,6 +281,19 @@ const api = {
   BatchDeleteAbnormalRulePaper:'/api/DIC/BatchDeleteAbnormalRulePaper', //批量删除某个异常的问卷发现规则
 
 
+  GetFuncList:'/api/DIC/GetFuncList',  //获取功能项列表接口
+  GetFunc:'/api/DIC/GetFunc',   //获取一条功能项记录
+  SaveFunc:'/api/DIC/SaveFunc',   //保存一条功能项记录的接口
+  BatchDeleteFunc:'/api/DIC/BatchDeleteFunc',   //批量删除功能项记录
+  GetFuncNamesByCodes:'/api/DIC/GetFuncNamesByCodes',   //根据功能项代码字符串获取功能项名称字符串
+  GetAllFunc:'/api/DIC/GetAllFunc',   //获取所有的功能项(未结构化)
+  GetAllFuncSort:'/api/DIC/GetAllFuncSort',   //获取所有的功能项(结构化)
+
+
+  GetRole:'/api/DIC/GetRole',   //获取一条角色记录
+  GetRoleList:'/api/DIC/GetRoleList',   //获取角色列表接口
+  SaveRole:'/api/DIC/SaveRole',   //保存一条角色记录的接口
+  BatchDeleteRole:'/api/DIC/BatchDeleteRole',   //批量删除角色记录
 
 }
 

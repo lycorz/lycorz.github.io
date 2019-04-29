@@ -1374,7 +1374,7 @@ export default {
       let that = this;
       //如果选中的不为空
       if (this.multipleSelection1.length == 0) {
-        this.$message.error("至少选中一个项目");
+        this.$message.error("至少选中一个项目");  
         return;
       }
       this.tableData2.forEach((element, index) => {

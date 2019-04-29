@@ -136,8 +136,8 @@
                     <el-button @click="addProjectModal = true" :disabled="isEdit" icon="el-icon-plus">添加项目</el-button>
                     <el-button @click="delModal" :disabled="isEdit" icon="el-icon-delete">删除</el-button>
                     <el-button @click="discountBtn" :disabled="isEdit">打折</el-button>
-                    <div class="right">
-                        <span class="subitem">总金额： ￥<span class="labelColor ftArial">{{ submitParams.Order.OrderMoney.toFixed(2) }}</span></span>
+                   <div class="right">
+                      <span class="subitem">总金额： ￥<span class="labelColor ftArial">{{ submitParams.Order.OrderMoney.toFixed(2) }}</span></span>
                         <span class="subitem">单位付费： ￥<span class="labelColor ftArial">{{ submitParams.Order.UnitPayMoney.toFixed(2) }}</span></span>
                         <span class="subitem">个人已付： ￥<span class="labelColor ftArial">{{ submitParams.Order.PaidMoney.toFixed(2) }}</span></span>
                         <span class="subitem">本次应收： ￥<span class="labelColor ftArial">{{ (submitParams.Order.OrderMoney - submitParams.Order.UnitPayMoney - submitParams.Order.PaidMoney).toFixed(2) }}</span></span>
@@ -717,10 +717,10 @@ export default {
 		submitOrder() {//提交订单
 		 this.$refs.submitInfo.validate((valid) => {
 			 if(valid) {
-				if (this.tableData.length === 0) {
-					this.$message.error('请添加项目后提交');
-					return;
-				}
+				// if (this.tableData.length === 0) {
+				// 	this.$message.error('请添加项目后提交');
+				// 	return;
+				// }
 				this.isSubmit = true;
 				let loading = this.$loading({
 					lock: true,
@@ -741,7 +741,7 @@ export default {
 				this.tableData.forEach(x => {
 					this.submitParams.Order.Items.push(this.$handleUpperCase(x));
 				});
-				this.submitParams.Order.OrderMoney = this.exePrice;
+				this.submitParams.Order.OrderMoney = this.exePrice || 0;
 				this.submitParams.Order.Birthday = moment(this.submitParams.Order.Birthday).format('YYYY-MM-DD');
 				this.$axios.post('/api/DD/SubmitOrder', this.submitParams).then(res => {
 					if (res.data.status === 1 && res.data.entity) {
@@ -1004,7 +1004,6 @@ export default {
 				if (res.data.entity && res.data.status === 1) {
 					let obj = res.data.entity;
 					this.setCustomer(obj);
-					console.log(this.submitParams.Order)
 				} else {
 					this.$message.error(res.data.message);
 					this.load.close();
@@ -1028,23 +1027,6 @@ export default {
 				this.$message.error(err.data.message);
 			})
 		},
-		//获取套餐项内容
-		// getPackageItemList(){
-		// 	this.$axios.get(this.$api.GetPackage, {
-		// 		params: {
-		// 			PackageCode: this.submitParams.Order.PackageCode
-		// 		}
-		// 	}).then(res => {
-		// 		if (res.status === 200 && res.data.status === 1) {
-		// 			// this.orderList = res.data.entity;
-		// 			// console.log(res)
-		// 		} else {
-		// 			this.$message.error(res.data.message);
-		// 		}
-		// 	}).catch(err => {
-		// 		this.$message.error(err.data.message);
-		// 	})
-		// },
 		//获取检查项目字典
 		getDicItemList(){
 			this.$axios.get(this.$api.GetItemList).then(res => {
@@ -1129,13 +1111,12 @@ export default {
 		// tree - 反选
 		toogleTreeSelection(source, target){
 			let toogle = this[source].filter(x => {
-				return this.$refs[target].getCheckedNodes().every(y => y.id != x.id)
+				return this.$refs[target].getCheckedNodes().every(y => y.id != x.id);
 			})
 			this.$refs[target].setCheckedKeys([]);
 			this.$refs[target].setCheckedNodes(toogle);
 		},
 		viewOrder(data){
-			// console.log(data)
 			this.viewData = data;
 			this.currentOrderModal = true;
 
@@ -1198,29 +1179,6 @@ export default {
 			this.submitParams.Order.ReportTakeWay = 0
 		},
 		setCustomer(obj){ // obj 客户信息
-			// for(let key in obj) {
-			// 	if (obj.hasOwnProperty(key) && key !== 'createOrderTime' && key !== 'orderCode') {
-			// 		let key2 = '';
-			// 		if (key.length > 0) {
-			// 			key2 = key.substr(0,1).toUpperCase() + key.substr(1);
-			// 		}
-			// 		if (obj[key] && key2) this.submitParams.Order[key2] = obj[key];
-			// 	}
-			// }
-			// if (key === 'createOrderTime') {
-			// 	this.submitParams.Order.CreateOrderTime = moment(obj.createOrderTime).format('YYYY-MM-DD');
-			// } else if(key === 'orderCode' && obj.orderCode !=='00000000-0000-0000-0000-000000000000') {
-			// 	this.submitParams.Order.OrderCode = obj.orderCode;
-			// } else if (key === 'createOrderTime') {
-			// 	if (obj.createOrderTime) {
-			// 		this.submitParams.Order.CreateOrderTime = moment(obj.createOrderTime).format('YYYY-MM-DD');
-			// 	} else {
-			// 		this.submitParams.Order.CreateOrderTime = moment().format('YYYY-MM-DD');
-			// 	}
-			// } else if (key === 'birthday') {
-			// 	this.submitParams.Order.Birthday = new Date(obj.birthday);
-			// }
-			// console.log(this.submitParams.Order)
 			let key = 'submitParams';
 			this[key].Order.CustomerName = obj.customerName;
 			this[key].Order.CustomerCode = obj.customerCode;
@@ -1244,10 +1202,11 @@ export default {
 			this[key].Order.Remark = obj.remark;
 			this[key].Order.ReportTakeWay = obj.reportTakeWay;
 			this[key].Order.IsLock = obj.isLock;//锁定状态
-			this[key].Order.OrderMoney = obj.orderMoney;//订单金额
+			this[key].Order.OrderMoney = obj.orderMoney || 0;//订单金额
 			this[key].Order.PaidMoney = obj.paidMoney;//已支付金额
 			this[key].Order.UnitPayMoney = obj.unitPayMoney;//单位付费进
 			if(obj.orderCode && obj.orderCode !=='00000000-0000-0000-0000-000000000000') this[key].Order.OrderCode = obj.orderCode;// //订单号
+			this.$set(this.submitParams.Order, 0, this.submitParams.Order);
 			if (obj.isLock) {
 				this.$alert('该订单已经提交，可能会出现修改失败', '提醒：', {
 					confirmButtonText: '关闭',
@@ -1269,7 +1228,7 @@ export default {
 			api.getIdcard(this.setIdentity);
 		},
 		setPhoto(picBase64Code) {
-			this.submitParams.Order.PhotoBase64Code = picBase64Code;
+			this.submitParams.Order.Photo = picBase64Code;
 		},
 		getShot () {
 			api.shot(this.setPhoto);
@@ -1436,17 +1395,6 @@ export default {
 		}
 	},
 	watch: {
-		// submitParams: {
-		// 	handler: function(val, oldVal){
-		// 		if (JSON.stringify(val) != "{}" && _.isEqual(val, oldVal)) {
-		// 			this.changeIsGoto(false);
-		// 		} else {
-		// 			this.changeIsGoto(true);
-		// 		}
-		// 	},
-		// 	deep: true,
-		// 	immediate: false
-		// },
 		'submitParams.Order.IdcardNum': function(val, oldVal) {
 			if (val !== oldVal && val.length === 18) {
 				this.clearCustomer();
@@ -1478,6 +1426,7 @@ export default {
 		'peopleInfo.IdcardNum': function(val, oldVal) {
 			if (val !== oldVal && val.length === 18) {
 				this.getCustomer('peopleInfo');
+
 			}
 		},
 		filterPackage(val) {
