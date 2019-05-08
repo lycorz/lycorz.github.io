@@ -261,6 +261,7 @@ export default {
               }
               that.age = response.data.entity.resultData[0].age;
               //获取已检未检项目
+              console.log(55555,response.data.entity)
               that.getCheckedNoCheckedItems(response.data.entity.resultData[0].orderCode);
               //cardinfo显示此人信息
               that.cardInfoShow();
@@ -277,10 +278,12 @@ export default {
           });
       }
     },
-    getCheckedNoCheckedItems(orderCode){
+    getCheckedNoCheckedItems(OrderCode){
       let that = this;
       this.$axios
-        .get(this.$api.GetOrderChargeItemInspectionState, {orderCode})
+        .get(this.$api.GetOrderChargeItemInspectionState, {
+          params:{OrderCode}
+          })
         .then(function(response) {
           that.loading = false;
           console.log(388, response);

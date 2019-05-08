@@ -10,6 +10,7 @@
             placeholder="异常名/首拼"
             v-model="searchParams.abnormalName"
             class="arcRadius"
+             @keyup.enter.native="getData()"
             style="width: 150px;"
           >
             <i slot="prefix" class="el-input__icon el-icon-search"></i>

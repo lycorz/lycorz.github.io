@@ -9,6 +9,7 @@
           <el-input
             placeholder="项目名称/首拼"
             v-model="searchParams.subItemName"
+             @keyup.enter.native="getData()"
             class="arcRadius"
             style="width: 150px;"
           >

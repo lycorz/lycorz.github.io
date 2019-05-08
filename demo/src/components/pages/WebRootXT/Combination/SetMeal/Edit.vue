@@ -140,6 +140,9 @@ export default {
   inject: ["getData"],
   methods: {
     init() {
+       if (this.$refs.createFrom !== undefined) {
+        this.$refs.createFrom.resetFields();
+      }
       let that = this;
       this.getResItems();
       if (this.Code != "") {

@@ -1,7 +1,7 @@
 <template>
   <div class="content SectionIndex">
     <div class="topTitle">
-      <span>功能项目字典</span>
+      <span>科室字典</span>
     </div>
     <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
@@ -10,6 +10,7 @@
             placeholder="科室名/首拼"
             v-model="searchParams.deptName"
             class="arcRadius"
+             @keyup.enter.native="getData()"
             style="width: 150px;"
           >
             <i slot="prefix" class="el-input__icon el-icon-search"></i>

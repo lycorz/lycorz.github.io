@@ -213,13 +213,23 @@ const router = new Router({
 				{
 					path: 'section',
 					component: resolve => require(['../components/pages/WebRootXT/System/Section/Index.vue'], resolve),
-					meta: { title: '功能项目字典' },
+					meta: { title: '科室字典' },
+				},
+				{
+					path: 'role',
+					component: resolve => require(['../components/pages/WebRootXT/System/Role/Index.vue'], resolve),
+					meta: { title: '角色字典' },
 				},
 				{
 					path: 'user',
-					component: resolve => require(['../components/pages/WebRootXT/User.vue'], resolve),
-					meta: { title: '用户管理' }
+					component: resolve => require(['../components/pages/WebRootXT/User/Index.vue'], resolve),
+					meta: { title: '用户管理' },
 				},
+				// {
+				// 	path: 'user',
+				// 	component: resolve => require(['../components/pages/WebRootXT/User.vue'], resolve),
+				// 	meta: { title: '用户管理' }
+				// },
 				// {
 				// 	path: 'upload',
 				// 	component: resolve => require(['pages/WebRootXT/upload.vue'], resolve),

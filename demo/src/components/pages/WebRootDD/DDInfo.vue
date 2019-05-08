@@ -399,11 +399,22 @@ export default {
 			//点击选中
 			handleSelectionChange(val) {
 				this.multipleSelection = val;
+			},
+			// 根据身份证号自动填写年龄和性别
+			getAgeBrith(id){
+				if (!id) return;
+				let year = id.substr(6, 4);
+				let month = id.substr(10, 2);
+				let day = id.substr(12, 2);
+				let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
+				this.peopleInfo.Customer.Birthday = new Date(birthday);
+				this.peopleInfo.Customer.Sex = id.substr(16, 1) % 2 ? 1: 2;
 			}
 		},
 		watch: {
 			'peopleInfo.Customer.IdcardNum': function(val, oldVal) {
 				if (val !== oldVal && val.length === 18) {
+					this.getAgeBrith(val);
 					this.getCustomer();
 				} else {
 					this.clearPropleInfo();

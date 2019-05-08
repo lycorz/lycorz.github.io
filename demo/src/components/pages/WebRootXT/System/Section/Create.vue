@@ -3,7 +3,7 @@
     <el-dialog
       class="infoucs"
       width="460px"
-      title="新建"
+      title="科室字典"
       :visible.sync="isShow"
       :before-close="close"
       @open="init"
@@ -83,6 +83,9 @@ export default {
   inject: ["getData"],
   methods: {
     init() {
+       if (this.$refs.createFrom !== undefined) {
+        this.$refs.createFrom.resetFields();
+      }
       if (this.Code) {
         this.$axios
           .get(this.$api.GetDept, { params: { key: this.Code } })

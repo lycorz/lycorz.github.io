@@ -211,7 +211,8 @@ export default {
           if (res.data.status == 1) {
             this.$message.success("保存成功！");
           } else {
-            this.$message.error(res.data.message);
+            this.$message.error("保存失败，请重试。");
+            console.error(res.data.message);
           }
         })
         .catch(err => {

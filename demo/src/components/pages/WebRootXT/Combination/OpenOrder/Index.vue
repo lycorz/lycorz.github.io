@@ -9,6 +9,7 @@
           <el-input
             placeholder="项目名称"
             v-model="searchParams.itemName"
+             @keyup.enter.native="getData()"
             class="arcRadius"
             style="width: 150px;"
           >
@@ -227,7 +228,7 @@ export default {
     getDeptItems() {
       let that = this;
       that.$axios
-        .get(that.$api.GetDeptList)
+        .get(that.$api.GetAllDeptList)
         .then(res => {
           if (res.status == 200 && res.data.status == 1) {
             that.deptItems = res.data.entity;

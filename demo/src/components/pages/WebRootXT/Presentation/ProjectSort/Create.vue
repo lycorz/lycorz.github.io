@@ -137,7 +137,7 @@ export default {
         deptCode: "",
         inputType: 1,
         orderNum: "",
-        isEnable: true, // bool
+        isEnable: true // bool
       },
       boolItems: [
         {
@@ -173,7 +173,7 @@ export default {
       /* 子窗体 */
       editIsShow: false,
       transferData: [],
-      transferValue: [],
+      transferValue: []
     };
   },
   created() {
@@ -209,19 +209,24 @@ export default {
             .post(that.$api.SaveRptItem, that.fromData)
             .then(res => {
               if (res.status == 200 && res.data.status == 1) {
-                let reqdic = {itemCode : that.fromData.itemCode,subItemCodes:that.transferValue}
-                that.$axios.post(that.$api.UpdateItemVsSubItem,reqdic)
-                .then(response=>{
-                  if(res.data.status==1){
-                     that.$message.success("保存成功！");
-                     that.close();
-                     that.getData();
-                  }else{
-                    that.$message.error(res.data.message);
-                  }
-                }) .catch(err => {
-              console.error(err);
-            });
+                let reqdic = {
+                  itemCode: that.fromData.itemCode,
+                  subItemCodes: that.transferValue
+                };
+                that.$axios
+                  .post(that.$api.UpdateItemVsSubItem, reqdic)
+                  .then(response => {
+                    if (res.data.status == 1) {
+                      that.$message.success("保存成功！");
+                      that.close();
+                      that.getData();
+                    } else {
+                      that.$message.error(res.data.message);
+                    }
+                  })
+                  .catch(err => {
+                    console.error(err);
+                  });
               } else {
                 that.$message.error(res.data.message);
               }
@@ -230,9 +235,8 @@ export default {
               console.error(err);
             });
         } else {
-          document.getElementById('tab-first').click();
+          document.getElementById("tab-first").click();
         }
-         
       });
     },
     close() {
@@ -344,7 +348,7 @@ export default {
       if (that.multipleSelection.length <= 0) {
         return;
       }
-        this.tableData.forEach((element, index) => {
+      this.tableData.forEach((element, index) => {
         this.multipleSelection.forEach((ele, ind) => {
           //位置互换
           if (element.subItemCode == ele.subItemCode) {
@@ -363,7 +367,7 @@ export default {
     },
     //下移
     downMove() {
-        let that = this;
+      let that = this;
       let arr = [];
       //如果选中的不为空
       if (this.multipleSelection.length == 0) {
@@ -398,7 +402,7 @@ export default {
     /* 子窗体 */
     //加载穿梭框数据。
     editInit() {
-       this.$axios
+      this.$axios
         .get(this.$api.GetAllRptSubItemList)
         .then(res => {
           if (res.data.status == 1) {
@@ -410,7 +414,7 @@ export default {
         .catch(err => {
           console.error(err);
         });
-        this.transferValue = this.tableData.map(z=>z.subItemCode);
+      this.transferValue = this.tableData.map(z => z.subItemCode);
     },
     editClose() {
       this.transferData = new Array();
@@ -419,8 +423,8 @@ export default {
     },
     editSubmit() {
       this.tableData = new Array();
-      this.transferValue.forEach(el=>{
-        let item = this.transferData.find(z=>z.subItemCode==el);
+      this.transferValue.forEach(el => {
+        let item = this.transferData.find(z => z.subItemCode == el);
         this.tableData.push(item);
       });
       this.editClose();

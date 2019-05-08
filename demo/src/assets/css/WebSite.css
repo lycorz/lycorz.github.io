@@ -344,7 +344,7 @@ label {
     margin: 0;
 }
 .el-table {
-    overflow-y: auto;
+		overflow-y: auto;
 }
 .el-tabs__nav-scroll {
     padding-left: 16px;
@@ -392,8 +392,9 @@ label {
 	margin-left: 0;
 	padding: 0 5px;
 }
-.iptNum .modal-con .item span {
+.modal-con .iptNum span {
 	width: 30px;
+	float: none;
 }
 .iptNum .el-input-number {
 	line-height: 26px;
@@ -461,7 +462,7 @@ label {
 }
 ::-webkit-scrollbar-track-piece
 {
-    background-color: #CCCCCC;
+    background-color: #fff;
     -webkit-border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:vertical
@@ -473,6 +474,6 @@ label {
 ::-webkit-scrollbar-thumb:horizontal
 {
     width: 5px;
-    background-color: #CCCCCC;
+    background-color: #B2B2B2;
     -webkit-border-radius: 6px;
 }

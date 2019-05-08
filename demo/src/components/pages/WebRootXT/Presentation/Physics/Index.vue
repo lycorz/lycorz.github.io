@@ -9,6 +9,7 @@
           <el-input
             placeholder="请搜索"
             v-model="searchParams.searchValue"
+             @keyup.enter.native="getData()"
             class="arcRadius"
             style="width: 150px;"
           >

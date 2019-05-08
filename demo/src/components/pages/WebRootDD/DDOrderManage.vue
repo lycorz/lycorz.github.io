@@ -179,8 +179,8 @@
           </div>
         </el-dialog>
 				<!-- 替检 -->
-        <el-dialog title="客户信息" :visible.sync="peopleInfoModal" width="1000px" :close-on-click-modal="false" class="peopleInfoForm">
-          <el-form :model="peopleInfo.NewCustomer" :rules="rules"  ref="peopleForm" :inline="true" label-width="50px" style="max-height: 250px;overflow-y: auto;">
+        <el-dialog title="客户信息" :visible.sync="peopleInfoModal" width="1000px" :close-on-click-modal="false" class="peopleInfoForm" @close="clearPropleInfo;peopleInfo.NewCustomer.IdcardNum = ''">
+          <el-form :model="peopleInfo.NewCustomer" :rules="rules"  ref="peopleForm" :inline="true" label-width="50px" style="max-height: 250px;overflow-y: auto;overflow-x:hidden;">
             <el-form-item label="身份证号" prop="IdcardNum" :label-width="formLabelWidth">
               <el-input
                 v-model="peopleInfo.NewCustomer.IdcardNum"
@@ -233,16 +233,10 @@
             <el-form-item label="班组" prop="TeamName" :label-width="formLabelWidth">
               <el-input v-model="peopleInfo.NewCustomer.TeamName"></el-input>
             </el-form-item>
-            <el-form-item label="VIP属性" prop="VipFlag" :label-width="formLabelWidth">
-              <el-radio-group v-model="peopleInfo.NewCustomer.VipFlag">
-                <el-radio :label="1">是</el-radio>
-                <el-radio :label="0">否</el-radio>
-              </el-radio-group>
-            </el-form-item>
 						<el-form-item label="单位" prop="UnitName" :label-width="formLabelWidth">
               <el-input v-model="peopleInfo.NewCustomer.UnitName"></el-input>
             </el-form-item>
-            <el-form-item label="地址" prop="Addr" class="w65" :label-width="formLabelWidth">
+            <el-form-item label="地址" prop="Addr" class="w100" :label-width="formLabelWidth">
               <el-input v-model="peopleInfo.NewCustomer.Addr"></el-input>
             </el-form-item>
             <el-form-item label="备注信息" prop="Remark" class="w100" :label-width="formLabelWidth">
@@ -397,7 +391,7 @@ export default {
 			itemsData: [],// 编辑客户数据
 			multipleSelection: [],//首页选中
 			qjSelection: [],// 弃检选中
-			orderVipFlag: false,
+			// orderVipFlag: false,
 			// 替检客户信息
       peopleInfo: {
 				OrderCode: '',
@@ -410,7 +404,7 @@ export default {
 					Nation: "",
 					IdcardNum: "",
 					Birthday: "",
-					Photo:"https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2161523157,1298941018&fm=26&gp=0.jpg",
+					Photo:"",
 					MaritalStatus: '',
 					VipFlag: 0,
 					Occupation: "",
@@ -419,7 +413,8 @@ export default {
 					TeamName: "",
 					Tele: "",
 					Addr: "",
-					Remark: ""
+					Remark: "",
+					LastModifyTime: new Date()
 				}
       },
       rules: {
@@ -439,9 +434,9 @@ export default {
 				Birthday: [
 						{ required: true, message: '请选择时间', trigger: 'change' }
 				],
-				VipFlag: [
-						{  required: true, message: '请选择Vip属性', trigger: 'blur' }
-				],
+				// VipFlag: [
+				// 		{  required: true, message: '请选择Vip属性', trigger: 'blur' }
+				// ],
 				Tele: [
 						{ required: true, message: '请输入联系电话', trigger: 'blur' }
 				]
@@ -676,7 +671,6 @@ export default {
 		},
 		//删除订单
 		delBtn(data){
-			console.log(data)
 			if (data.paidStatus) {
 				this.$alert('<span>该订单已经缴费，不可删除！</span><br /><i style="color:#8F9399;">订单已缴费不可删除</i>', '提醒：', {
 					confirmButtonText: '关闭',
@@ -773,6 +767,16 @@ export default {
 		printCheck(){
 			alert('打印检验条码')
 		},
+		// 根据身份证号自动填写年龄和性别
+		getAgeBrith(id){
+			if (!id) return;
+			let year = id.substr(6, 4);
+			let month = id.substr(10, 2);
+			let day = id.substr(12, 2);
+			let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
+			this.peopleInfo.NewCustomer.Birthday = new Date(birthday);
+			this.peopleInfo.NewCustomer.Sex = id.substr(16, 1) % 2 ? 1: 2;
+		}
 	},
 	watch: {
 		multipleSelection: function(val, oldVal) {
@@ -780,23 +784,24 @@ export default {
 				this.selectedTotal = val.length;
 			}
 		},
-		'peopleInfo.Birthday': function(val, oldVal) {
+		'peopleInfo.NewCustomer.Birthday': function(val, oldVal) {
 			if (val !== oldVal) {
 				this.age = moment().year() - moment(val).year();
 			}
 		},
-		'peopleInfo.NewCustomer.VipFlag': function(val, oldVal) {
-			if (val !== oldVal) {
-				this.orderVipFlag = val === 1 ? true : false;
-			}
-		},
-		orderVipFlag: function(val, oldVal) {
-			if (val !== oldVal) {
-				this.peopleInfo.NewCustomer.VipFlag = val ? 1 : 0;
-			}
-		},
+		// 'peopleInfo.NewCustomer.VipFlag': function(val, oldVal) {
+		// 	if (val !== oldVal) {
+		// 		this.orderVipFlag = val === 1 ? true : false;
+		// 	}
+		// },
+		// orderVipFlag: function(val, oldVal) {
+		// 	if (val !== oldVal) {
+		// 		this.peopleInfo.NewCustomer.VipFlag = val ? 1 : 0;
+		// 	}
+		// },
 		'peopleInfo.NewCustomer.IdcardNum': function(val, oldVal){
 			if (val !== oldVal && val.length === 18) {
+				this.getAgeBrith(val);
 				this.getCustomer();
 			} else {
 				this.clearPropleInfo();

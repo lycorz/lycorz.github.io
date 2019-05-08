@@ -153,6 +153,9 @@ export default {
   inject: ["getData"],
   methods: {
     init() {
+       if (this.$refs.createFrom !== undefined) {
+        this.$refs.createFrom.resetFields();
+      }
       this.getResItems();
     },
     //获取性别下拉

@@ -40,6 +40,7 @@ const api = {
    GetOrderChargeItemInspectionState:"/api/FJ/GetOrderChargeItemInspectionState",//获取订单已检查项目未检查项目
    SaveCommonSubItemResult:"/api/FJ/SaveCommonSubItemResult",//提交结论
    UpdateLisSubItemResultType:"/api/FJ/UpdateLisSubItemResultType",//更新检验结果类型
+   SaveVisitConent:"/api/FJ/SaveVisitConent",//提交回访
     /*          分检检查-分检结论录入  end         */
   InvoiceQuery: '/api/SF/InvoiceQuery', // 获取财务-展示列表
   ReturnInvoiceStateEnum: '/api/SF/ReturnInvoiceStateEnum', // 获取财务-发票管理-状态类型
@@ -52,6 +53,9 @@ const api = {
   SaveCommonSubItemResult:"/api/FJ/SaveCommonSubItemResult",//保存一般检查
   GetCommonSubItemResultHistory:"/api/FJ/GetCommonSubItemResultHistory",//获取历史对比
   GetLisSubItemResult:"/api/FJ/GetLisSubItemResult",//获取所有lis检验结果
+  GetCrisis: "/api/FJ/GetCrisis",//获取危急值用户列表
+  UpdateSmsContent:"/api/FJ/UpdateSmsContent",//修改短信内容
+  SendCrisisSms:"/api/FJ/SendCrisisSms",//发送短信
   /*          财务收费-交易管理  start         */
   TransactionQuery: '/api/SF/TransactionQuery', //交易管理-获取财务收退费客户列表
   ReturnTradeTypeEnum: '/api/SF/ReturnTradeTypeEnum', //交易管理-获取类型枚举
@@ -177,11 +181,16 @@ const api = {
 
 	// 报告
 	ReportQuery: '/api/BG/ReportQuery',//个人体检报告查询
-	ReturnTakeTypeEnum: '/api/BG/ReturnTakeTypeEnum',//获取领取方式
-	ReturnReportTimeTypeEnum: '/api/BG/ReturnReportTimeTypeEnum',//获取报告时间类型
-	ReturnSendStatusEnum: '/api/BG/ReturnSendStatusEnum',//获取发送状态
   ReportPrint: '/api/BG/ReportPrint',//个人体检报告打印/预览
+  MakeReportByReturnValue: '/api/BG/MakeReportByReturnValue',//生成体检报告(有返回值)
+  ReportTake: '/api/BG/ReportTake',//报告领取
+  SendSmsModByReportQuery: '/api/BG/SendSmsModByReportQuery',//报告管理界面的发送短信接口
+	SendSmsModBySMSQuery: '/api/BG/SendSmsModBySMSQuery',//短信管理界面的发送短信接口
   MakeReport:'/api/BG/MakeReport',//生成体检报告
+  ReturnSMSType: '/api/BG/ReturnSMSType',//获取所有短信类型
+  SMSSendQuery: '/api/BG/SMSSendQuery',//短信查询
+  UnitReportQuery: '/api/BG/UnitReportQuery',//团检报告查询
+	MarkUnitReport: '/api/BG/MarkUnitReport',//团检报告生成
 
 
 
@@ -224,6 +233,7 @@ const api = {
   GetAllDicRptSubItem:'/api/DIC/GetAllDicRptSubItem', //获取所有报告子项目集合
 
   GetDeptList:'/api/DIC/GetDeptList',    //  获取科室列表接口
+  GetAllDeptList:'/api/DIC/GetAllDeptList', //获取所有科室list
   GetDept:'/api/DIC/GetDept',   //获取一条科室记录
   SaveDept:'/api/DIC/SaveDept',   // 保存一条科室记录的接口
   BatchDeleteDept:'/api/DIC/BatchDeleteDept',    //批量删除科室记录接口
@@ -291,10 +301,23 @@ const api = {
 
 
   GetRole:'/api/DIC/GetRole',   //获取一条角色记录
+  GetAllRoleList:'/api/DIC/GetAllRoleList', //获取所有角色list
   GetRoleList:'/api/DIC/GetRoleList',   //获取角色列表接口
   SaveRole:'/api/DIC/SaveRole',   //保存一条角色记录的接口
   BatchDeleteRole:'/api/DIC/BatchDeleteRole',   //批量删除角色记录
 
+
+  GetUser:'/api/XT/GetUser',  //获取系统用户接口
+  GetUserList:'/api/XT/GetUserList',  //获取系统用户列表
+  SaveUser:'/api/XT/SaveUser',    //保存一个系统用户记录
+  BatchDeleteUser:'/api/XT/BatchDeleteUser',    //批量删除系统用户
+  ResetUserPassword:'/api/XT/ResetUserPassword',    //重置系统系统用户密码
+
+
+  GetUserCert:'/api/XT/GetUserCert',    //获取一条用户岗位证书记录
+  GetUserCertList:'/api/XT/GetUserCertList',    //获取一个用户的所有证书列表
+  SaveUserCert:'/api/XT/SaveUserCert' ,     //保存一条岗位证书记录
+  BatchDeleteUserCert:'/api/XT/BatchDeleteUserCert',    //删除一条用户的证书记录
 }
 
 export default api;

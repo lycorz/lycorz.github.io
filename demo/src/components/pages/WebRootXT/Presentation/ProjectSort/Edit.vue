@@ -26,7 +26,7 @@
               <el-input v-model="fromData.itemName"></el-input>
             </el-form-item>
             <el-form-item label="项目类型" :label-width="formLabelWidth" prop="typeCode">
-                <el-select v-model="fromData.typeCode" placeholder="请选择">
+              <el-select v-model="fromData.typeCode" placeholder="请选择">
                 <el-option
                   v-for="item in typeItems"
                   :key="item.typeCode"
@@ -138,7 +138,7 @@ export default {
         deptCode: "",
         inputType: 1,
         orderNum: "",
-        isEnable: true, // bool
+        isEnable: true // bool
       },
       boolItems: [
         {
@@ -174,7 +174,7 @@ export default {
       /* 子窗体 */
       editIsShow: false,
       transferData: [],
-      transferValue: [],
+      transferValue: []
     };
   },
   created() {
@@ -184,11 +184,14 @@ export default {
   },
   inject: ["getData"],
   methods: {
-      Init(){
-          //加载fromdata和tabledata
-            let that = this;
+    Init() {
+       if (this.$refs.createFrom !== undefined) {
+        this.$refs.createFrom.resetFields();
+      }
+      //加载fromdata和tabledata
+      let that = this;
       that.$axios
-        .get(that.$api.GetRptItem,{params:{key:this.Code}})
+        .get(that.$api.GetRptItem, { params: { key: this.Code } })
         .then(res => {
           if (res.status == 200 && res.data.status == 1) {
             that.fromData = res.data.entity;
@@ -201,7 +204,7 @@ export default {
         .catch(err => {
           console.error(err);
         });
-      },
+    },
     // firstInit() {},
     // secondInit() {},
     //切换tab事件，按需加载
@@ -219,7 +222,7 @@ export default {
       }
     },
     submitForm() {
-        let that = this;
+      let that = this;
       that.$refs.createFrom.validate(valid => {
         if (valid) {
           that.fromData.OldItemCode = that.Code;
@@ -228,19 +231,24 @@ export default {
             .post(that.$api.SaveRptItem, that.fromData)
             .then(res => {
               if (res.status == 200 && res.data.status == 1) {
-                let reqdic = {itemCode : that.fromData.itemCode,subItemCodes:that.transferValue}
-                that.$axios.post(that.$api.UpdateItemVsSubItem,reqdic)
-                .then(response=>{
-                  if(res.data.status==1){
-                     that.$message.success("保存成功！");
-                     that.close();
-                     that.getData();
-                  }else{
-                    that.$message.error(res.data.message);
-                  }
-                }) .catch(err => {
-              console.error(err);
-            });
+                let reqdic = {
+                  itemCode: that.fromData.itemCode,
+                  subItemCodes: that.transferValue
+                };
+                that.$axios
+                  .post(that.$api.UpdateItemVsSubItem, reqdic)
+                  .then(response => {
+                    if (res.data.status == 1) {
+                      that.$message.success("保存成功！");
+                      that.close();
+                      that.getData();
+                    } else {
+                      that.$message.error(res.data.message);
+                    }
+                  })
+                  .catch(err => {
+                    console.error(err);
+                  });
               } else {
                 that.$message.error(res.data.message);
               }
@@ -249,9 +257,8 @@ export default {
               console.error(err);
             });
         } else {
-          document.getElementById('tab-first').click();
+          document.getElementById("tab-first").click();
         }
-         
       });
     },
     close() {
@@ -297,7 +304,7 @@ export default {
     },
     //获取项目类型
     getrptItemTypeItems() {
-       let that = this;
+      let that = this;
       that.$axios
         .post(that.$api.GetDicRptItemType)
         .then(res => {
@@ -363,7 +370,7 @@ export default {
       if (that.multipleSelection.length <= 0) {
         return;
       }
-        this.tableData.forEach((element, index) => {
+      this.tableData.forEach((element, index) => {
         this.multipleSelection.forEach((ele, ind) => {
           //位置互换
           if (element.subItemCode == ele.subItemCode) {
@@ -373,7 +380,7 @@ export default {
         });
       });
     },
-      tableDataUp(tableData, currRow, currRowIndex) {
+    tableDataUp(tableData, currRow, currRowIndex) {
       if (currRowIndex > 0) {
         let upData = tableData[currRowIndex - 1];
         tableData.splice(currRowIndex - 1, 1);
@@ -382,7 +389,7 @@ export default {
     },
     //下移
     downMove() {
-        let that = this;
+      let that = this;
       let arr = [];
       //如果选中的不为空
       if (this.multipleSelection.length == 0) {
@@ -401,7 +408,7 @@ export default {
       });
       this.tableDataDown(this.tableData, arr);
     },
-      tableDataDown(tableData, arr) {
+    tableDataDown(tableData, arr) {
       arr.reverse().forEach((ele, index) => {
         if (ele.currRowIndex.index !== tableData.length - 1) {
           let downData = tableData[ele.currRowIndex];
@@ -417,7 +424,7 @@ export default {
     /* 子窗体 */
     //加载穿梭框数据。
     editInit() {
-       this.$axios
+      this.$axios
         .get(this.$api.GetAllRptSubItemList)
         .then(res => {
           if (res.data.status == 1) {
@@ -429,17 +436,17 @@ export default {
         .catch(err => {
           console.error(err);
         });
-        this.transferValue = this.tableData.map(z=>z.subItemCode);
+      this.transferValue = this.tableData.map(z => z.subItemCode);
     },
     editClose() {
       this.transferData = new Array();
-    //   this.transferValue = new Array();
+      //   this.transferValue = new Array();
       this.editIsShow = false;
     },
     editSubmit() {
-        this.tableData = new Array();
-      this.transferValue.forEach(el=>{
-        let item = this.transferData.find(z=>z.subItemCode==el);
+      this.tableData = new Array();
+      this.transferValue.forEach(el => {
+        let item = this.transferData.find(z => z.subItemCode == el);
         this.tableData.push(item);
       });
       this.editClose();

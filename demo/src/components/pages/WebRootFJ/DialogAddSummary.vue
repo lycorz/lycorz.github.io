@@ -4,8 +4,8 @@
     id="summary"
     title="新增小结"
     :visible.sync="adviceEditVisible"
-    :modal="modal"
     width="500px"
+    append-to-body
   >
     <el-input type="textarea" v-model="summary" rows="6"></el-input>
     <div slot="footer" class="dialog-footer">
@@ -19,7 +19,6 @@
 export default {
   data() {
     return {
-      modal: false,
       adviceEditVisible: false,
       summary: "",
       index: ""

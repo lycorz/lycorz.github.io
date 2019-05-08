@@ -28,7 +28,7 @@
               <el-button type="primary" @click="getData(0, true)">查询</el-button>
               <div class="right">
                 <el-button type="primary" @click="dialogFormVisible = true">发票入库</el-button>
-                <el-button type="primary" @click="invalid">发票作废</el-button>
+                <el-button type="warning" @click="invalid">发票作废</el-button>
               </div>
             </div>
           </div>

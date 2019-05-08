@@ -51,7 +51,7 @@
 											</el-table-column>
 											<el-table-column prop="creator" label="备单人数">
 												<template  slot-scope="scope">
-													暂无数据
+													{{scope.row.orders.length || 0}}
 												</template>
 											</el-table-column>
 											<el-table-column label="操作" fixed="right">
@@ -1260,11 +1260,22 @@ import orderDetails from './orderDetails.vue'
 				this.searchParams.PageIndex = 1;
 				this.getData();
 			},
+			// 根据身份证号自动填写年龄和性别
+			getAgeBrith(id){
+				if (!id) return;
+				let year = id.substr(6, 4);
+				let month = id.substr(10, 2);
+				let day = id.substr(12, 2);
+				let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
+				this.submitParams.Order.Birthday = new Date(birthday);
+				this.submitParams.Order.Sex = id.substr(16, 1) % 2 ? 1: 2;
+			}
 		},
 		watch: {
 			'peopleInfo.Customer.IdcardNum': function(val, oldVal) {
 				 if (this.peopleInfo.Customer.CustomerName) return;
 				if (val !== oldVal && val.length === 18) {
+					this.getAgeBrith(val)
 					this.getCustomer();
 				} else {
 					this.clearPropleInfo();

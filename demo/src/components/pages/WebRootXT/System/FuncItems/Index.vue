@@ -9,6 +9,7 @@
           <el-input
             placeholder="功能项名称 "
             v-model="searchParams.funcName"
+             @keyup.enter.native="getData()"
             class="arcRadius"
             style="width: 150px;"
           >

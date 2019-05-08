@@ -4,8 +4,8 @@
     id="summary"
     title="编辑小结"
     :visible.sync="EditVisible"
-    :modal="modal"
     width="500px"
+    append-to-body
   >
     <el-input type="textarea" v-model="content" rows="6"></el-input>
     <div slot="footer" class="dialog-footer">
@@ -19,7 +19,6 @@
 export default {
   data() {
     return {
-      modal: false,
       EditVisible: false,
       content: "",
       index: ""

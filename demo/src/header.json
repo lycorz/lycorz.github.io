@@ -296,14 +296,14 @@
             "name": "角色字典",
             "part": "453",
             "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/setmeal"
+            "gotoUrl": "/xt/role"
           }
         ]
       },
       {
         "name": "用户管理",
         "part": "46",
-        "path":"/xt/user",
+        "gotoUrl":"/xt/user",
         "icon": "el-icon-edit-outline"
       }
     ]

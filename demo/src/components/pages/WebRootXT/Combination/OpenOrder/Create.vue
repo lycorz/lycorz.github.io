@@ -26,7 +26,7 @@
         <!-- </el-col>
         <el-col :span="12">-->
         <el-form-item
-          class="is-request"
+          class="is-required"
           label="项目原价"
           autocomplete="off"
           :label-width="formLabelWidth"
@@ -62,7 +62,7 @@
         <el-col :span="12">-->
         <el-form-item
           label="执行价格"
-          class="is-request"
+          class="is-required"
           :label-width="formLabelWidth"
           autocomplete="off"
           prop="exePrice"
@@ -75,7 +75,7 @@
         <el-col :span="12">-->
         <el-form-item
           label="最低价格"
-          class="is-request"
+          class="is-required"
           :label-width="formLabelWidth"
           autocomplete="off"
           prop="lowestPrice"
@@ -90,7 +90,7 @@
         <el-col :span="12">-->
         <el-form-item
           label="成本价格"
-          class="is-request"
+          class="is-required"
           :label-width="formLabelWidth"
           autocomplete="off"
           prop="costPrice"
@@ -107,10 +107,10 @@
             <el-option
               v-for="item in sexItems"
               :key="item.value"
-              :label="item.label"
+              :label="item.name"
               :value="item.value"
               filter-placement="bottom-end"
-            >{{item.label}}</el-option>
+            >{{item.name}}</el-option>
           </el-select>
         </el-form-item>
         <!-- </el-col>
@@ -173,7 +173,12 @@
 
         <el-row>
         <el-col :span="24">-->
-        <el-form-item class="el-area" label="检查目的及意义" :label-width="formLabelWidth">
+        <el-form-item
+          class="el-area"
+          label="检查目的及意义"
+          :label-width="formLabelWidth"
+          prop="inspectPurpose"
+        >
           <el-input
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 4}"
@@ -200,18 +205,21 @@
 <script>
 export default {
   name: "CombinationCreate",
-  data(priceName) {
-    var checkDecimal3 = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error("输入不能为空"));
-      }
-      var re = /^\d+(?=\.{0,1}\d+$|$)/;
-      if (!re.test(value)) {
-        callback(new Error("请输入整数或者小数"));
+  data() {
+    var checkDic = (rule, value, callback) => {
+      if (value != "") {
+        // var re = /^[0-9]+([.]{1}[0-9]+){0,3}$/;
+        var re = /^-?\d+(\.\d{1,3})?$/;
+        if (!re.test(value)) {
+          callback(new Error("整数或小数(小数点后最多三位)"));
+        }
+        if (value.length > 10) {
+          callback(new Error("最多支持十位数输入"));
+        }
       } else {
-        value = ((value * 10) / 10).toFixed(1);
-        this.fromData[priceName] = value;
+        callback(new Error("请输入"));
       }
+      callback();
     };
     return {
       Code: "",
@@ -227,7 +235,7 @@ export default {
         virginDisabled: true,
         isFee: true,
         isEmpty: true,
-        isSelectAll: null,
+        isSelectAll: true,
         fullPrice: null,
         exePrice: null,
         costPrice: null,
@@ -238,38 +246,23 @@ export default {
       },
       rules: {
         itemCode: [
-          { required: true, message: "请输入项目编号", trigger: "blur" }
-          //   { min: 1, max: 50, message: "最大支持50个字符输入", trigger: "blur" }
+          { required: true, message: "请输入项目编号", trigger: "blur" },
+          { max: 10, message: "最大支持10个字符输入", trigger: "blur" }
         ],
         itemName: [
-          { required: true, message: "请输入项目编号", trigger: "blur" }
-          //   { min: 1, max: 50, message: "最大支持50个字符输入", trigger: "blur" }
+          { required: true, message: "请输入项目名称", trigger: "blur" },
+          { max: 50, message: "最大支持50个字符输入", trigger: "blur" }
         ],
-        deptCode: [{ required: true, message: "请选择科室", trigger: "change" }]
-        // fullPrice: [
-        //   {
-        //     validator: checkDecimal3,
-        //     trigger: "blur"
-        //   }
-        // ],
-        // exePrice: [
-        //   {
-        //     validator: checkDecimal3,
-        //     trigger: "blur"
-        //   }
-        // ],
-        // costPrice: [
-        //   {
-        //     validator: checkDecimal3,
-        //     trigger: "blur"
-        //   }
-        // ],
-        // lowestPrice: [
-        //   {
-        //     validator: checkDecimal3,
-        //     trigger: "blur"
-        //   }
-        // ]
+        deptCode: [
+          { required: true, message: "请选择科室", trigger: "change" }
+        ],
+        inspectPurpose: [
+          { max: 500, message: "最大支持500个字符输入", trigger: "blur" }
+        ],
+        fullPrice: [{ validator: checkDic, trigger: "blur" }],
+        exePrice: [{ validator: checkDic, trigger: "blur" }],
+        costPrice: [{ validator: checkDic, trigger: "blur" }],
+        lowestPrice: [{ validator: checkDic, trigger: "blur" }]
       },
       deptItems: [],
       boolItems: [
@@ -292,6 +285,9 @@ export default {
   inject: ["getData"],
   methods: {
     init() {
+      if (this.$refs.createFrom !== undefined) {
+        this.$refs.createFrom.resetFields();
+      }
       let that = this;
       if (this.Code != "") {
         that.$axios
@@ -306,10 +302,10 @@ export default {
           .catch(err => {
             console.error(err);
           });
-      }else{
+      } else {
         // this.$nextTick(() => {
-      //   this.$refs["fromData"].resetFields();
-      // });
+        //   this.$refs["fromData"].resetFields();
+        // });
       }
     },
     //获取性别下拉
@@ -340,7 +336,8 @@ export default {
                 this.close();
                 this.getData();
               } else {
-                this.$message.error(res.data.message);
+                console.error(res.data.message);
+                this.$message.error("新增失败，请重试。");
               }
             })
             .catch(err => {
@@ -355,7 +352,7 @@ export default {
     getDeptItems() {
       let that = this;
       that.$axios
-        .get(that.$api.GetDeptList)
+        .get(that.$api.GetAllDeptList)
         .then(res => {
           if (res.status == 200 && res.data.status == 1) {
             that.deptItems = res.data.entity;
@@ -384,7 +381,7 @@ export default {
         virginDisabled: true,
         isFee: true,
         isEmpty: true,
-        isSelectAll: null,
+        isSelectAll: true,
         fullPrice: null,
         exePrice: null,
         costPrice: null,

@@ -57,7 +57,7 @@
       <div class="middleContainer" id="resizable">
         <div class="subTitle" style="text-align:right;">
           <span style="float:left;">报告项目数据录入</span>
-          <el-button>查看其他项目</el-button>
+          <el-button @click="watchOther()">查看其他项目</el-button>
           <el-select
             v-model="compare"
             placeholder="历次对比"
@@ -72,54 +72,107 @@
             ></el-option>
           </el-select>
         </div>
-        <div class="bgxmsjlr" style>
-          <div class="leftInput">
-            <!-- 左侧：本次要录入的 -->
-            <div :key="index" v-for="(item,index) in xiaojieSelect">
-              <div class="subTitle" style="text-align:right;border:1px solid #DCDFE5;">
-                <span style="float:left;">{{item.subItemName}}</span>
-                <span v-if="item.length!=0">
-                  <!-- 点击下拉菜单时获取该选中组合项目下所有的子项目 所见和小结，用subresulttemplate函数筛选出当前子项目的下拉菜单option，并将结果存在该子项目对象里 -->
-                  <el-select
-                    v-model="item.chooseFinding"
-                    value-key="tmplCode"
-                    filterable
-                    placeholder="请搜索所见"
-                    style="width:150px;display:inline-block;margin-left:10px;"
-                    @change="appendFinding($event,index)"
-                  >
-                    <el-option
-                      v-for="it in item.resSubResultTemplates"
-                      :key="it.tmplCode"
-                      :label="it.finding"
-                      :value="it"
-                    ></el-option>
-                  </el-select>
-                  <el-select
-                    v-model="item.resultType"
-                    placeholder="是否异常"
-                    style="width:100px;display:inline-block;margin-left:10px;"
-                  >
-                    <el-option label="正常" value="N"></el-option>
-                    <el-option label="异常" value="H"></el-option>
-                  </el-select>
-                </span>
+        <div class="middleCt">
+          <div class="bgxmsjlr">
+            <div class="leftInput">
+              <!-- 左侧：本次要录入的 -->
+              <div v-if="choosedObj.xx == 1">
+                <div :key="index" v-for="(item,index) in xiaojieSelect">
+                  <div class="subTitle" style="text-align:right;border:1px solid #DCDFE5;">
+                    <span style="float:left;">{{item.subItemName}}</span>
+                    <span v-if="item.length!=0">
+                      <!-- 点击下拉菜单时获取该选中组合项目下所有的子项目 所见和小结，用subresulttemplate函数筛选出当前子项目的下拉菜单option，并将结果存在该子项目对象里 -->
+                      <el-select
+                        v-model="item.chooseFinding"
+                        value-key="tmplCode"
+                        filterable
+                        placeholder="请搜索所见"
+                        style="width:150px;display:inline-block;margin-left:10px;"
+                        @change="appendFinding($event,index)"
+                      >
+                        <el-option
+                          v-for="it in item.resSubResultTemplates"
+                          :key="it.tmplCode"
+                          :label="it.finding"
+                          :value="it"
+                        ></el-option>
+                      </el-select>
+                      <el-select
+                        v-model="item.resultType"
+                        placeholder="是否异常"
+                        style="width:100px;display:inline-block;margin-left:10px;"
+                      >
+                        <el-option label="正常" value="N"></el-option>
+                        <el-option label="异常" value="H"></el-option>
+                      </el-select>
+                    </span>
+                  </div>
+                  <el-input
+                    type="textarea"
+                    v-model="item.defaultResSubResultTemplate.finding"
+                    rows="3"
+                  ></el-input>
+                </div>
               </div>
-              <el-input type="textarea" v-model="item.defaultResSubResultTemplate.finding" rows="3"></el-input>
+              <!-- 辅助检查界面 -->
+              <!-- 辅助检查 -->
+              <div v-else>
+                <div class="fzjc" :key="index" v-for="(item,index) in fzjc">
+                  <div class="subTitle">
+                    <!-- <img class="jpgPic" :key="inx" v-for="(it,inx) in item.images" src="./login-bg.jpg" />  -->
+                    <span>辅助检查（{{item.itemname}}）</span>
+                    <div class="fzjcRight">
+                      <!-- 图片图标 -->
+                      <i class="el-icon-picture picture jpgPic" @click="showimg(imgitem)"></i>
+                      <el-button @click="addSummary">上传</el-button>
+                      <el-button @click="delSummary">删除</el-button>
+                    </div>
+                  </div>
+                  <div>
+                    <!-- 所见 -->
+                    <div class="fzjcFinding fzjcDiv">
+                      <div class="divTitle">所见：</div>
+                      <div class="divContent">{{item.finding}}</div>
+                    </div>
+                    <div class="fzjcSummary fzjcDiv">
+                      <div class="divTitle">小结：</div>
+                      <div class="divContent">{{item.summary}}</div>
+                    </div>
+                    <div class="fzjcYc">
+                      <span>结果类型：</span> &nbsp;
+                      <el-select v-model="choosedAbnormal" placeholder="请选择" class="resultSelect">
+                        <el-option label="正常" value="N"></el-option>
+                        <el-option label="异常" value="H"></el-option>
+                      </el-select>
+                    </div>
+                    <!-- 医生 -->
+                    <div class="ybjcDoc">
+                      <section>报告医生:{{item.reportDoc}}</section>
+                      <section>报告时间:{{item.reportDate}}</section>
+                      <section>审核医生:{{item.reviewDoc}}</section>
+                      <section>审核时间:{{item.reviewDate}}</section>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧：历史订单结果 -->
+            <div class="rightInput" v-if="ifShowCompare">
+              <div ref="history" :key="index" v-for="(item,index) in xiaojieSelect">
+                <div class="subTitle" style="text-align:right;border:1px solid #DCDFE5;">
+                  <span style="float:left;">{{item.subItemName}}</span>
+                </div>
+                <div
+                  type="textarea"
+                  class="suojiandiv"
+                  style
+                >{{item.defaultResSubResultTemplate.finding}}</div>
+              </div>
             </div>
           </div>
-          <!-- 右侧：历史订单结果 -->
-          <div class="rightInput" v-if="ifShowCompare">
-            <div ref="history" :key="index" v-for="(item,index) in xiaojieSelect">
-              <div class="subTitle" style="text-align:right;border:1px solid #DCDFE5;">
-                <span style="float:left;">{{item.subItemName}}</span>
-              </div>
-              <div
-                type="textarea"
-                class="suojiandiv"
-                style
-              >{{item.defaultResSubResultTemplate.finding}}</div>
-            </div>
+          <div style="text-align:center">
+            <el-button @click="delSummary">上传</el-button>
           </div>
         </div>
       </div>
@@ -171,18 +224,23 @@
     <bigpic ref="bigpic"></bigpic>
     <dialogaddsummary ref="dialogaddsummary" @postSummary="addNewSummary"></dialogaddsummary>
     <dialogeditsummary ref="dialogeditsummary" @posSummary="editNewSummary"></dialogeditsummary>
+    <dialogresultwatch ref="dialogresultwatch"></dialogresultwatch>
   </el-dialog>
 </template>
 
 <script>
 import bigpic from "./showPic.vue";
 import dialogaddsummary from "./DialogAddSummary.vue";
+//编辑小结
 import dialogeditsummary from "./DialogEditSummary.vue";
+//查看其他项目结果
+import dialogresultwatch from "./DialogResultWatch.vue";
 export default {
   components: {
     bigpic,
     dialogaddsummary,
-    dialogeditsummary
+    dialogeditsummary,
+    dialogresultwatch
   },
   data() {
     return {
@@ -228,10 +286,24 @@ export default {
       //选中组合项目下所有子项目对应的小结集合
       historyxiaojieSelect: [],
       //请求报告后根据有无对比报告数据确定是否显示出对比报告
-      ifShowCompare:false,
+      ifShowCompare: false,
       //切换组合项目时是否需要请求对比报告，该订单点击过历史订单就将该字段置1
-      ifAsk:false,
-
+      ifAsk: false,
+      //辅助检查结果
+      fzjc: [
+        {
+          itemname: "测试",
+          summary: "我是小结内容",
+          reportDoc: "啥子",
+          reportDate: "2018-12-19",
+          reviewDoc: "不知道",
+          reviewDate: "2018-12-13",
+          finding: "所见内容",
+          resultType: "H",
+          images: []
+        }
+      ],
+      choosedAbnormal: "N"
     };
   },
   methods: {
@@ -310,7 +382,7 @@ export default {
       //获取该组合项目下所有子项目所见和小结
       this.getAllSubResultTemplate();
       //如果需要获取则获取对比报告
-      if(this.ifAsk){
+      if (this.ifAsk) {
         this.getAllCompareData();
       }
       //提交该项目所见和小结，提交后清除其下拉菜单choosesummary值以及content值
@@ -436,12 +508,12 @@ export default {
     appendFinding(value, index) {
       console.log(value);
       //若不为空且不重复,添加所选所见的对应小结
-      if(value.summary!=""&&value.summary!=null){
-        let ifSame = this.dataTable.filter((item,index)=>{
+      if (value.summary != "" && value.summary != null) {
+        let ifSame = this.dataTable.filter((item, index) => {
           return item.summary == value.summary;
         });
         console.log(ifSame);
-        if(ifSame.length==0){
+        if (ifSame.length == 0) {
           this.dataTable.push(value);
         }
       }
@@ -579,7 +651,7 @@ export default {
           orderCode
         })
         .then(function(response) {
-          console.log(response.data.entity);
+          console.log(654, response.data.entity);
           that.loading = false;
           if (response.data.status == 1) {
             if (response.data.entity.length != 0) {
@@ -633,6 +705,10 @@ export default {
           });
       });
       return pro;
+    },
+    //查看其它检查项目结论
+    watchOther() {
+      this.$refs.dialogresultwatch.resultwatch = true;
     }
   }
 };
@@ -692,8 +768,7 @@ export default {
 }
 .bgxmsjlr {
   padding: 12px;
-  flex: 0 0 418px;
-  border-bottom: 1px solid #dcdfe5;
+
   overflow-y: auto;
   display: flex;
 }
@@ -784,5 +859,49 @@ export default {
   background: #eee;
   border-color: #ccc;
   text-decoration: none;
+}
+.fzjc {
+  border: 1px solid rgba(220, 223, 230, 1);
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+  margin-bottom: 10px;
+}
+.fzjcDiv {
+  padding: 8px 16px;
+  font-size: 12px;
+  border-bottom: 1px solid #dcdfe6;
+  min-height: 70px;
+  display: flex;
+}
+.fzjcYc {
+  padding: 8px 16px;
+  font-size: 12px;
+  border-bottom: 1px solid #dcdfe6;
+}
+.ybjcDoc {
+  font-size: 12px;
+  font-family: Microsoft YaHei;
+  font-weight: 400;
+  line-height: 16px;
+  color: rgba(144, 147, 152, 1);
+  opacity: 1;
+}
+.ybjcDoc section {
+  display: inline-block;
+  text-align: center;
+  width: 24%;
+  height: 32px;
+  line-height: 32px;
+}
+#fjcheck .resultSelect {
+  display: inline-block;
+  width: 100px;
+}
+.fzjcRight {
+  display: inline-block;
+  float: right;
+}
+.middleCt{
+  flex: 0 0 429px;border-bottom: 1px solid #dcdfe5;
 }
 </style>

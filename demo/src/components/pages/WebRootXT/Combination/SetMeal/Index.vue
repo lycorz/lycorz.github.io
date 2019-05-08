@@ -9,6 +9,7 @@
           <el-input
             placeholder="请输入套餐名称"
             v-model="searchParams.packageName"
+             @keyup.enter.native="getData()"
             class="arcRadius"
             style="width: 150px;"
           >
