@@ -5,15 +5,16 @@
       title="退费确认"
       :visible.sync="dialogPayBackVisible"
       @open="getinit"
-      width="900px"
+      width="600px"
       :before-close="unLock"
+      :close-on-click-modal="false"
     >
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="退费信息" name="first">
           <div class="infomation">
             <el-form ref="form" :inline="true">
               <el-form-item class="firstline" label="退费金额：">
-                <span class="span">￥{{Math.abs(money)}} 元</span>
+                <span class="span">￥{{Math.abs(money)}}</span>
               </el-form-item>
 
               <el-form-item label="作废发票：" label-width="80">
@@ -38,7 +39,10 @@
               </el-form-item>
             </el-form>
           </div>
-          <div class="customerName">客户信息</div>
+          <div>
+            <div class="customerName"></div>
+            <span class="vertical">新开发票</span>
+          </div>
           <div class="infomation">
             <el-form ref="form" label-width="80px" :inline="true">
               <el-form-item label="新开发票号：" label-width="80">
@@ -52,7 +56,10 @@
               </el-form-item>
             </el-form>
           </div>
-          <div class="customerName">退费方式</div>
+          <div>
+            <div class="customerName"></div>
+            <span class="vertical">退费方式</span>
+          </div>
           <div class="paytype">
             <el-form ref="form1" label-width="80px" :inline="true">
               <div v-for="(item,index) in MoneyDatas" :key="index" class="typecontainer">
@@ -80,18 +87,19 @@
                   <span>&nbsp;元</span>
                 </el-form-item>
               </div>
-              <div class="typecontainer">
+              <!-- 用什么方式缴费，只能用该种方式退费，故隐藏自添加 -->
+              <!-- <div class="typecontainer">
                 <el-form-item>
                   <el-button plain class="btnplain" @click="addNewPay">+</el-button>
                 </el-form-item>
-              </div>
+              </div>-->
             </el-form>
           </div>
         </el-tab-pane>
         <el-tab-pane label="支付信息" name="second">
           <el-row>
-            <el-col :span="3" class="modal-con lht">订单金额：</el-col>
-            <el-col :span="21" class="modal-con">
+            <el-col :span="5" class="modal-con lht">订单金额：</el-col>
+            <el-col :span="19" class="modal-con">
               <div>
                 <ul>
                   <li class="item">
@@ -103,8 +111,8 @@
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="3" class="modal-con lht">支付详情：</el-col>
-            <el-col :span="21" class="modal-con">
+            <el-col :span="5" class="modal-con lht">支付详情：</el-col>
+            <el-col :span="19" class="modal-con">
               <div v-for="(item,index) in MoneyDatas" :key="index">
                 <ul>
                   <li class="item">
@@ -120,8 +128,8 @@
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="3" class="modal-con lht">发票列表：</el-col>
-            <el-col :span="21" class="modal-con">
+            <el-col :span="5" class="modal-con lht">发票列表：</el-col>
+            <el-col :span="19" class="modal-con">
               <el-table
                 border
                 :data="usedInvoices"
@@ -153,10 +161,10 @@
           </el-row>
         </el-tab-pane>
       </el-tabs>
-      <span slot="footer" class="dialog-footer">
-        <el-button  @click="unLock">取 消</el-button>
-        <el-button>打印发票</el-button>
-        <el-button type="primary" @click="goPay">确定缴费</el-button>
+      <span slot="footer" class="dialog-footer" v-if="activeName == 'first'">
+        <!-- <el-button @click="unLock">取 消</el-button> -->
+        <el-button :disabled="printMoney <= 0">打印发票</el-button>
+        <el-button type="primary" @click="goPay">确定退费</el-button>
       </span>
     </el-dialog>
   </div>
@@ -309,14 +317,14 @@ export default {
           that.$message.error(`错误：${error}`);
         });
     },
-    addNewPay() {
-      let obj = {};
-      obj.values = "";
-      obj.moneycount = 0;
-      obj.init = "";
-      obj.hanzi = "";
-      this.MoneyDatas.push(obj);
-    },
+    // addNewPay() {
+    //   let obj = {};
+    //   obj.values = "";
+    //   obj.moneycount = 0;
+    //   obj.init = "";
+    //   obj.hanzi = "";
+    //   this.MoneyDatas.push(obj);
+    // },
     // getPrice(ev, index) {
     //   let all = this.money;
     //   this.MoneyDatas.forEach((element, idex) => {
@@ -350,12 +358,12 @@ export default {
         //parsefloat无法转换空字符串，加上math.abs
         moneys += parseFloat(Math.abs(element.init));
       });
-      if (that.value11.length == 0) {
-        this.$message.error("至少选择一张作废发票");
-        return;
-      }
+      // if (that.value11.length == 0) {
+      //   this.$message.error("至少选择一张作废发票");
+      //   return;
+      // }
       if (Math.abs(parseFloat(moneys)) != Math.abs(this.money)) {
-        this.$message.error("相加金额不等，请重新计算");
+        this.$message.error("退费金额与应退金额不一致，请重新核对！");
         return;
       }
       //提交
@@ -385,7 +393,8 @@ export default {
           if (response.data.status == 1) {
             if (response.data.entity == true) {
               that.$message.success("退费成功");
-              that.dialogPayBackVisible = false;
+              that.$parent.getUser();
+              // that.dialogPayBackVisible = false;
             }
           } else {
             that.$message.error(`错误：${response.data.message}`);
@@ -406,6 +415,7 @@ export default {
           }
         });
       });
+      that.printMoney = parseFloat(that.money) + parseFloat(that.selectedMoney);
     }
   }
 };
@@ -413,14 +423,14 @@ export default {
 
 <style scoped>
 #infocus .customerName {
+  background: #409fff;
+  width: 5px;
   height: 16px;
-  background: rgba(246, 246, 246, 1);
-  opacity: 1;
-  border-radius: 4px;
-  font-size: 14px;
-  line-height: 16px;
-  padding: 16px;
-  color: #606266;
+  margin-right: 10px;
+  display: inline-block;
+}
+.vertical {
+  vertical-align: top;
 }
 #infocus .info {
   color: #606266;
@@ -439,7 +449,9 @@ export default {
 #infocus .infomation input {
   width: 220px;
 }
-
+#infocus .typecontainer .el-form-item:nth-child(2) {
+  width: 110px;
+}
 #infocus .paytype .el-form-item {
   margin-right: 0px;
 }

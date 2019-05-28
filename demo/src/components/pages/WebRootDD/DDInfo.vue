@@ -125,7 +125,7 @@
 									</el-select>
 								</el-form-item>
 								<el-form-item label="手机号" prop="Tele" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.Tele" autocomplete="off"></el-input>
+									<el-input v-model="peopleInfo.Customer.Tele" autocomplete="off" maxlength="11"></el-input>
 								</el-form-item>
 								<el-form-item label="部门" prop="DeptName" :label-width="formLabelWidth">
 									<el-input v-model="peopleInfo.Customer.DeptName" autocomplete="off"></el-input>
@@ -164,7 +164,28 @@ import moment from 'moment';
 export default {
     name: 'DDOrder',
     data() {
+			var validateId = (rule, value, callback) => {
+				if(value.length === 18) {
+					callback();
+					return;
+				}
+				if (this.isPeopleSave) {
+					this.$confirm('身份证位数不合法，是否继续操作？', '提示', {
+						confirmButtonText: '确定',
+						cancelButtonText: '取消',
+						type: 'warning'
+					}).then(() => {
+						this.clearPropleInfo();
+						this.isPeopleSave = false;
+						this.getCustomer();
+						callback();
+					})
+				} else {
+					callback();
+				}
+			};
       return {
+				isPeopleSave: true,
 				value: '',
 				total: 0,// 总条数
 				loading: false,
@@ -225,13 +246,13 @@ export default {
 					Operator: '001',
 					Customer: {
 						CustomerCode: "00000000-0000-0000-0000-000000000000",
-						CardNum: "00000000-0000-0000-0000-000000000000",
+						CardNum: "",
 						CustomerName: "",
 						Sex: '',
 						Nation: "",
 						IdcardNum: "",
 						Birthday: "",
-						Photo:"https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2161523157,1298941018&fm=26&gp=0.jpg",
+						Photo:"",
 						MaritalStatus: 1,
 						VipFlag: 0,
 						Occupation: "",
@@ -256,7 +277,7 @@ export default {
 					],
 					IdcardNum: [
 							{ required: true, message: '请输入身份证号', trigger: 'blur' },
-							{ max: 18, min: 18, message: '与身份证号码位数不符', trigger: 'blur' }
+							{ mmin: 1, max: 18, validator: validateId, trigger: 'blur' }
 					],
 					Birthday: [
 							{ required: true, message: '请选择时间', trigger: 'change' }
@@ -265,7 +286,8 @@ export default {
 							{  required: true, message: '请选择Vip属性', trigger: 'blur' }
 					],
 					Tele: [
-							{ required: true, message: '请输入联系电话', trigger: 'blur' }
+							{ required: true, message: '请输入联系电话', trigger: 'blur' },
+							{ max: 11, min: 11, message: '请输入正确的手机号码', trigger: 'blur' }
 					]
 				},
       }
@@ -340,7 +362,7 @@ export default {
 			// 清空客户信息
 			clearPropleInfo() {
 				this.peopleInfo.Customer.Sex = '',
-				this.peopleInfo.Customer.CardNum = '00000000-0000-0000-0000-000000000000',
+				this.peopleInfo.Customer.CardNum = '',
 				this.peopleInfo.Customer.CustomerName = '',
 				this.peopleInfo.Customer.Nation = '',
 				this.peopleInfo.Customer.Birthday = '',
@@ -403,11 +425,6 @@ export default {
 			// 根据身份证号自动填写年龄和性别
 			getAgeBrith(id){
 				if (!id) return;
-				let year = id.substr(6, 4);
-				let month = id.substr(10, 2);
-				let day = id.substr(12, 2);
-				let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
-				this.peopleInfo.Customer.Birthday = new Date(birthday);
 				this.peopleInfo.Customer.Sex = id.substr(16, 1) % 2 ? 1: 2;
 			}
 		},
@@ -417,6 +434,7 @@ export default {
 					this.getAgeBrith(val);
 					this.getCustomer();
 				} else {
+					this.isPeopleSave = true;
 					this.clearPropleInfo();
 				}
 			},
@@ -438,7 +456,20 @@ export default {
 		}
 }
 </script>
-<style>
+<style scoped>
+.peopleInfoForm >>> .el-form-item__label {
+	text-align: left;
+}
+.content >>> .el-select {
+	display: inline-block;
+}
+.importIpt {
+	width: 50px;
+	display: inline-block;
+}
+.content .peopleInfoForm >>> .el-form-item__content, .content .peopleInfoForm >>> .el-form-item__content .el-select {
+	width: 220px;
+}
 .DDInfo .right > * {
     display: inline-block;
 }

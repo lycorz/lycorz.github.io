@@ -37,7 +37,7 @@
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column property="questionContent" show-overflow-tooltip label="题目" align="left"></el-table-column>
           <el-table-column property="answerContent" show-overflow-tooltip label="答案" align="center"></el-table-column>
-          <el-table-column label="操作" align="center" width="100px">
+          <el-table-column label="操作" align="center"  fixed="right" width="100px">
             <template slot-scope="scope">
               <el-button type="text" @click="showEditDialog(scope.$index,scope.row)">编辑</el-button>
             </template>

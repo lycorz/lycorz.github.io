@@ -1,7 +1,7 @@
 <template>
   <div class="content ExceptionIndex">
     <div class="topTitle">
-      <span>异常字典</span>
+      <span>异常</span>
     </div>
     <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
@@ -51,13 +51,13 @@
         <el-table-column property="isCrisis" label="是否危急值" align="center">
           <template slot-scope="scope">{{scope.row.isCrisis | boolFilter}}</template>
         </el-table-column>
-        <el-table-column label="操作" align="center" width="230px">
+        <el-table-column label="操作" align="center"  fixed="right" width="230px">
           <template slot-scope="scope">
             <el-popover trigger="click" placement="bottom">
               <div style="display:flex;flex-direction: column;">
                 <el-button type="text" @click="ShowQuestion(scope.$index,scope.row)">问卷结果获取异常规则</el-button>
-                <el-button type="text" @click="ShowCheck(scope.$index,scope.row)">检查项目获取异常规则</el-button>
-                <el-button type="text" @click="ShowNotCheck(scope.$index,scope.row)">非检查项目获取异常规则</el-button>
+                <el-button type="text" @click="ShowCheck(scope.$index,scope.row)">检验项目获取异常规则</el-button>
+                <el-button type="text" @click="ShowNotCheck(scope.$index,scope.row)">非检验项目获取异常规则</el-button>
               </div>
 
               <el-button type="text" slot="reference">异常发现规则</el-button>
@@ -73,8 +73,9 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+           :page-sizes="[10,20,50,100]"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>

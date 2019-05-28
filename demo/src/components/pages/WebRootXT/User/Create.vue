@@ -4,7 +4,7 @@
       class="infoucs"
       width="760px"
       height="600px"
-      title="用户字典"
+      title="用户管理"
       :visible.sync="isShow"
       :before-close="close"
       @open="init"
@@ -29,7 +29,12 @@
                 <el-input v-model="fromData.userName"></el-input>
               </el-form-item>
               <el-form-item label="所属角色" :label-width="formLabelWidth" prop="roleCode">
-                <el-select clearable v-model="fromData.roleCode" placeholder="请选择">
+                <el-select
+                  @change="roleChange"
+                  clearable
+                  v-model="fromData.roleCode"
+                  placeholder="请选择"
+                >
                   <el-option
                     v-for="item in roleList"
                     :key="item.roleCode"
@@ -47,6 +52,9 @@
               >
                 <el-input v-model="fromData.discountLowLimit"></el-input>
               </el-form-item>
+              <el-form-item label="优惠自由" :label-width="formLabelWidth">
+                <el-checkbox v-model="fromData.canExcItemLimit"></el-checkbox>
+              </el-form-item>
               <el-form-item label="身份证号" :label-width="formLabelWidth">
                 <el-input v-model="fromData.idcardNum"></el-input>
               </el-form-item>
@@ -60,7 +68,7 @@
                 <el-input
                   type="textarea"
                   :autosize="{ minRows: 2, maxRows: 4}"
-                  v-model="fromData.inspectPurpose"
+                  v-model="fromData.remark"
                   autocomplete="off"
                   maxlength="200"
                 ></el-input>
@@ -87,10 +95,12 @@
             <el-form-item style="margin-left:20px" label="本人照片" :label-width="formLabelWidth">
               <el-upload
                 class="avatar-uploader"
+                :action="uploadPath"
                 :show-file-list="false"
-                action="https://jsonplaceholder.typicode.com/posts/"
+                :on-error="upLoadError"
                 :on-success="handleAvatarSuccess"
                 :before-upload="beforeAvatarUpload"
+                :on-change="onChange"
               >
                 <img v-if="imageUrl" :src="imageUrl" class="avatar">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -100,21 +110,30 @@
               <el-upload
                 class="avatar-uploader"
                 :show-file-list="false"
-                action="https://jsonplaceholder.typicode.com/posts/"
+                :action="uploadPath"
                 :on-success="handleAvatarSuccess1"
-                :before-upload="beforeAvatarUpload1"
+                :before-upload="beforeAvatarUpload"
+                :on-change="onChange1"
+                :on-error="upLoadError1"
               >
                 <img v-if="imageUrl1" :src="imageUrl1" class="avatar">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </el-upload>
             </el-form-item>
+            <div style="margin:10px 20px;color: #F56C6C;font-size: 10px;">图片大小不得超过 2MB</div>
           </el-tab-pane>
           <el-tab-pane label="账户信息" name="third">
             <div style="margin-bottom: 20px">
               <el-form-item style="margin-left:20px" label="账号" label-width="50px" prop="loginName">
                 <el-input v-model="fromData.loginName"></el-input>
               </el-form-item>
-              <el-form-item style="margin-left:20px" label="密码" label-width="50px" prop="pwd">
+              <el-form-item
+                style="margin-left:20px"
+                label="密码"
+                show-password
+                label-width="50px"
+                prop="pwd"
+              >
                 <el-input v-model="fromData.pwd"></el-input>
               </el-form-item>
             </div>
@@ -130,11 +149,13 @@
 </template>
 
 <script>
+import { resolve, reject } from "q";
+import consts from "../../../../utils/const";
 export default {
   name: "UserCreate",
   data() {
     var checkDic = (rule, value, callback) => {
-      if (value != "") {
+      if (value || value == 0) {
         var re = /^(0.\d+|0|1)$/;
         if (!re.test(value)) {
           callback(new Error("请输入0-1之间的小数(包括0和1)"));
@@ -147,13 +168,19 @@ export default {
     return {
       activeName: "first",
       Code: "",
-      imageUrl: "",
-      imageUrl1: "",
+      fileList: [],
       isShow: false,
       formLabelWidth: "100px",
       treeOptions: [],
       treeDefaultCheckd: [],
+      imageUrl: "",
+      imageUrl1: "",
+      photoPath: "",
+      uploadPath: consts.IMG_UPLOAD_URL,
+      basePath: consts.IMG_BASE_PATH,
+      signaturePath: "",
       roleList: [],
+      delImagePath: [],
       defaultProps: {
         children: "childrenNodes",
         label: "funcName"
@@ -168,13 +195,14 @@ export default {
         pwd: "",
         tele: "",
         roleCode: "",
-        discountLowLimit: 0,
+        discountLowLimit: null,
         funcItems: "",
         deptCodes: "",
         photo: "",
         signature: "",
         deleted: false,
-        remark: ""
+        remark: "",
+        canExcItemLimit:false,   //是否突破最低价打折,2019/05/23，经由颜寒通知进行增加。
       },
       rules: {
         operatorCode: [
@@ -200,40 +228,66 @@ export default {
       }
     };
   },
-  created() {},
   inject: ["getData"],
   methods: {
-    handleClick() {},
+    roleChange(val) {
+      let role = this.roleList.find(z => z.roleCode == val);
+      if (role) {
+        this.fromData.discountLowLimit = role.discountLowLimit;
+        this.treeDefaultCheckd = new Array();
+        this.$refs.tree.setCheckedKeys([]);
+        this.treeDefaultCheckd = role.funcCodes.split(",");
+      }
+    },
+    handleClick(val) {
+      // if (val == 2) {
+      //   this.getImageByPath(this.fromdata.photo).then(res=>{
+      //     this.imageUrl = res;
+      //   });
+      //     this.getImageByPath(this.fromdata.signature).then(res=>{
+      //     this.imageUrl1 = res;
+      //   })
+      // }
+    },
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
+      this.photoPath = res.entity[0];
+      this.delImagePath.push(res.entity[0]);
+      console.log("上传头像成功");
+    },
+    onChange(file) {
+      // this.fromData.photo = URL.createObjectURL(file.raw);
+      console.log(file);
+    },
+    onChange1(file) {
+      // this.fromData.signature = URL.createObjectURL(file.raw);
+    },
+    //文件上传失败时的钩子
+    upLoadError(response, file, fileList) {
+      console.log("上传头像失败");
+    },
+    upLoadError1(response, file, fileList) {
+      console.log("上传签名照失败");
     },
     beforeAvatarUpload(file) {
-      // const isJPG = file.type === "image/jpeg";
+      // const isJPG = file.type === "image/jpeg" || "jpg" || "png";
       const isLt2M = file.size / 1024 / 1024 < 2;
 
       // if (!isJPG) {
-      //   this.$message.error("上传头像图片只能是 JPG 格式!");
+      //   this.$message.error("上传图片只能是 JPG/PNG 格式!");
       // }
       if (!isLt2M) {
-        this.$message.error("上传头像图片大小不能超过 2MB!");
+        this.$message.error("上传图片大小不能超过 2MB!");
       }
       return isLt2M;
     },
     handleAvatarSuccess1(res, file) {
       this.imageUrl1 = URL.createObjectURL(file.raw);
+      this.signaturePath = res.entity[0];
+      this.delImagePath.push(res.entity[0]);
+      console.log("上传签名照成功");
     },
-    beforeAvatarUpload1(file) {
-      // const isJPG = file.type === "image/jpeg";
-      const isLt2M = file.size / 1024 / 1024 < 2;
 
-      // if (!isJPG) {
-      //   this.$message.error("上传头像图片只能是 JPG 格式!");
-      // }
-      if (!isLt2M) {
-        this.$message.error("上传头像图片大小不能超过 2MB!");
-      }
-      return isLt2M;
-    },
     init() {
       if (this.$refs.createFrom !== undefined) {
         if (this.$refs.createFrom !== undefined) {
@@ -249,6 +303,11 @@ export default {
             if (res.data.status == 1) {
               this.fromData = res.data.entity;
               this.treeDefaultCheckd = res.data.entity.funcItems.split(",");
+              this.imageUrl = this.basePath + res.data.entity.photo;
+              this.imageUrl1 = this.basePath + res.data.entity.signature;
+              this.photoPath = res.data.entity.photo;
+              this.signaturePath = res.data.entity.signature;
+              this.delImagePath.push(this.photoPath, this.signaturePath);
             } else {
               this.$message.error(res.data.message);
             }
@@ -257,6 +316,15 @@ export default {
             console.error(err);
           });
       }
+    },
+    getImageByPath(imagePath) {
+      return new Promise((resolve, reject) => {
+        this.$axios
+          .get(this.$api.GetImage, { params: { imgPath: imagePath } })
+          .then(res => {
+            resolve(res);
+          });
+      });
     },
     //报告功能项目分级树形
     GetAllFuncSort() {
@@ -300,11 +368,14 @@ export default {
         });
     },
     submitForm() {
-      let checkValue = this.$refs.tree.getCheckedKeys();
-      this.fromData.funcItems = checkValue.join(",");
-      this.fromData.oldOperatorCode = this.Code;
       this.$refs.createFrom.validate(valid => {
         if (valid) {
+          this.delImage();
+          this.fromData.photo = this.photoPath;
+          this.fromData.signature = this.signaturePath;
+          let checkValue = this.$refs.tree.getCheckedKeys();
+          this.fromData.funcItems = checkValue.join(",");
+          this.fromData.oldOperatorCode = this.Code;
           this.$axios
             .post(this.$api.SaveUser, this.fromData)
             .then(res => {
@@ -335,7 +406,14 @@ export default {
         }
       });
     },
+    delImage() {
+      this.delImagePath.splice(this.delImagePath.indexOf(this.photoPath), 1);
+      this.delImagePath.splice(this.delImagePath.indexOf(this.signaturePath));
+      let fileNames = this.delImagePath;
+      this.$axios.post(this.$api.FileDelete, fileNames);
+    },
     close() {
+      this.delImage();
       this.isShow = false;
       if (this.$refs["fromData"] !== undefined) {
         this.$refs["fromData"].resetFields();
@@ -349,19 +427,22 @@ export default {
         pwd: "",
         tele: "",
         roleCode: "",
-        discountLowLimit: 0,
+        discountLowLimit: null,
         funcItems: "",
         deptCodes: "",
         photo: "",
         signature: "",
         deleted: false,
-        remark: ""
+        remark: "",
+        canExcItemLimit:false
       };
-      this.imageUrl = this.imageUrl1 = "";
       this.activeName = "first";
       this.treeOptions = new Array();
       this.treeDefaultCheckd = new Array();
       this.Code = "";
+      this.imageUrl = this.imageUrl1 = "";
+      this.delImagePath = new Array();
+      this.photoPath = this.signaturePath = "";
     }
   }
 };

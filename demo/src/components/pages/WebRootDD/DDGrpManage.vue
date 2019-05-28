@@ -38,9 +38,6 @@
                 <el-table-column prop="customerName" label="单位名称">
                 </el-table-column>
                 <el-table-column prop="sex" label="创建时间" width="50">
-									<template slot-scope="scope">
-										{{scope.row.sex === 1 ?'男': '女'}}
-									</template>
                 </el-table-column>
                 <el-table-column prop="tele" label="体检开始时间" width="130">
                 </el-table-column>
@@ -428,7 +425,7 @@ export default {
 					Operator: '001',
 					NewCustomer: {
 						CustomerCode: "00000000-0000-0000-0000-000000000000",
-						CardNum: "00000000-0000-0000-0000-000000000000",
+						CardNum: "",
 						CustomerName: "",
 						Sex: '',
 						Nation: "",
@@ -467,7 +464,8 @@ export default {
 							{  required: true, message: '请选择Vip属性', trigger: 'blur' }
 					],
 					Tele: [
-							{ required: true, message: '请输入联系电话', trigger: 'blur' }
+							{ required: true, message: '请输入联系电话', trigger: 'blur' },
+							{ max: 11, min: 11, message: '请输入正确的手机号码', trigger: 'blur' }
 					]
 				},
       }
@@ -577,7 +575,7 @@ export default {
 			// 清空客户信息
 			clearPropleInfo() {
 				this.peopleInfo.NewCustomer.Sex = '',
-				this.peopleInfo.NewCustomer.CardNum = '00000000-0000-0000-0000-000000000000',
+				this.peopleInfo.NewCustomer.CardNum = '',
 				this.peopleInfo.NewCustomer.CustomerName = '',
 				this.peopleInfo.NewCustomer.Nation = '',
 				this.peopleInfo.NewCustomer.Birthday = '',
@@ -640,7 +638,7 @@ export default {
 		}
 }
 </script>
-<style scope>
+<style scoped>
 .right > * {
     display: inline-block;
 }

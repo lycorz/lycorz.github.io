@@ -3,7 +3,8 @@
   title="图片"
   :visible.sync="dialogVisible"
     :modal="modal"
-   width="500px">
+   width="500px"
+   append-to-body>
   <img :src="src">
 </el-dialog>
 
@@ -23,7 +24,7 @@ export default {
 
 <style scoped>
 img{
-    width: 465px;
+    width: 440px;
     height: 400px;
 }
 </style>

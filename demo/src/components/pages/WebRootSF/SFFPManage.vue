@@ -92,8 +92,7 @@
               >
                 <i slot="prefix" class="el-input__icon el-icon-search"></i>
               </el-input>
-              <el-select v-model="params2.InvoiceStatus" placeholder="发票状态">
-                <el-option label="全部" value></el-option>
+              <el-select v-model="params2.InvoiceStatus" placeholder="发票状态" clearable>
                 <el-option
                   v-for="item in options[0]"
                   :key="item.value"
@@ -101,7 +100,7 @@
                   :value="item.value"
                 ></el-option>
               </el-select>
-              <el-select v-model="params2.DateType" placeholder="时间类型">
+              <el-select v-model="params2.DateType" placeholder="时间类型" clearable>
                 <el-option
                   v-for="item in options[1]"
                   :key="item.value"

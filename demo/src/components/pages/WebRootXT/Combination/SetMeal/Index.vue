@@ -77,7 +77,7 @@
           width="120px"
           align="left"
         ></el-table-column>
-        <el-table-column label="操作" align="center" width="200px">
+        <el-table-column label="操作" align="center"  fixed="right" width="100px">
           <template slot-scope="scope">
             <el-button type="text" @click="edit(scope.$index,scope.row)">编辑</el-button>
           </template>
@@ -90,8 +90,9 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+            :page-sizes="[10,20,50,100]"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>

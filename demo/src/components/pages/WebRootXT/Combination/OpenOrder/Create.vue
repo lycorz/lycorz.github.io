@@ -32,7 +32,7 @@
           :label-width="formLabelWidth"
           prop="fullPrice"
         >
-          <el-input v-model="fromData.fullPrice">
+          <el-input @change="fullChange" v-model="fromData.fullPrice">
             <!--  <template slot="append">元</template> -->
           </el-input>
         </el-form-item>
@@ -207,7 +207,7 @@ export default {
   name: "CombinationCreate",
   data() {
     var checkDic = (rule, value, callback) => {
-      if (value != "") {
+    if (value||value==0) {
         // var re = /^[0-9]+([.]{1}[0-9]+){0,3}$/;
         var re = /^-?\d+(\.\d{1,3})?$/;
         if (!re.test(value)) {
@@ -284,6 +284,11 @@ export default {
   },
   inject: ["getData"],
   methods: {
+    fullChange(val){
+      if (val||value==0) {
+        this.fromData.exePrice = val;
+      }
+    },
     init() {
       if (this.$refs.createFrom !== undefined) {
         this.$refs.createFrom.resetFields();

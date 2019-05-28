@@ -185,7 +185,7 @@ export default {
   inject: ["getData"],
   methods: {
     Init() {
-       if (this.$refs.createFrom !== undefined) {
+      if (this.$refs.createFrom !== undefined) {
         this.$refs.createFrom.resetFields();
       }
       //加载fromdata和tabledata
@@ -284,7 +284,7 @@ export default {
     getDeptItems() {
       let that = this;
       that.$axios
-        .get(that.$api.GetDeptList)
+        .get(that.$api.GetAllDeptList)
         .then(res => {
           if (res.status == 200 && res.data.status == 1) {
             that.deptItems = res.data.entity;
@@ -425,7 +425,9 @@ export default {
     //加载穿梭框数据。
     editInit() {
       this.$axios
-        .get(this.$api.GetAllRptSubItemList)
+        .get(this.$api.GetAllRptSubItemList, {
+          params: { itemCode: this.Code }
+        })
         .then(res => {
           if (res.data.status == 1) {
             this.transferData = res.data.entity;

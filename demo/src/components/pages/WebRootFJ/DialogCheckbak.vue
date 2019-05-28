@@ -7,6 +7,7 @@
     :visible.sync="FJCheckVisible"
     width="1000px"
     @open="getInit"
+    :close-on-click-modal="false"
   >
     <div class="container" style="display:flex;flex-direction:row;">
       <div style class="leftContainer" id="resizable">

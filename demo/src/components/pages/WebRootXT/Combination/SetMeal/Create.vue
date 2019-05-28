@@ -34,7 +34,7 @@
         </el-form-item>
         <el-form-item
           label="执行价格"
-          class="is-request"
+          class="is-required"
           :label-width="formLabelWidth"
           autocomplete="off"
           prop="exePrice"
@@ -52,7 +52,7 @@
             >{{item.name}}</el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="筛选条件" :label-width="formLabelWidth">
+        <el-form-item label="筛选条件" :label-width="formLabelWidth" prop="filterType">
           <el-select clearable v-model="fromData.filterType" placeholder="请选择">
             <el-option
               v-for="item in filterItems"
@@ -95,29 +95,33 @@
 export default {
   name: "SetmealCreat",
   data() {
-    // const generateData = _ => {
-    //   const data = [];
-    //   for (let i = 1; i <= 15; i++) {
-    //     data.push({
-    //       value: i,
-    //       desc: `备选项 ${i}`
-    //       // disabled: i % 4 === 0
-    //     });
-    //   }
-    //   return data;
-    // };
+    var checkDic = (rule, value, callback) => {
+    if (value||value==0) {
+        // var re = /^[0-9]+([.]{1}[0-9]+){0,3}$/;
+        var re = /^-?\d+(\.\d{1,3})?$/;
+        if (!re.test(value)) {
+          callback(new Error("整数或小数(小数点后最多三位)"));
+        }
+        if (value.length > 10) {
+          callback(new Error("最多支持十位数输入"));
+        }
+      } else {
+        callback(new Error("请输入"));
+      }
+      callback();
+    };
     return {
       Code: "",
       isShow: false,
       formLabelWidth: "100px",
       fromData: {
         packageName: "",
-        exePrice: 0,
+        exePrice: null,
         packageType: 0,
         sexType: 0,
         filterType: null,
         InspectPurpose: "",
-        brunchCode:"001", //医院编码 默认001
+        brunchCode: "001", //医院编码 默认001
         dicPackageItemList: []
       },
       rules: {
@@ -125,15 +129,15 @@ export default {
           { required: true, message: "请输入套餐名称", trigger: "blur" },
           { min: 1, max: 50, message: "最大支持50个字符输入", trigger: "blur" }
         ],
-        exePrice: [
-          { required: true, message: "请输入执行价格", trigger: "blur" },
-          { min: 1, max: 50, message: "最大支持10个字符输入", trigger: "blur" }
-        ],
+        exePrice: [{ validator: checkDic, trigger: "blur" }],
         packageType: [
           { required: true, message: "请选择套餐类型", trigger: "change" }
         ],
         sexType: [
           { required: true, message: "请选择适用性别", trigger: "change" }
+        ],
+        filterType: [
+          { required: true, message: "请选择筛选条件", trigger: "change" }
         ]
       },
       sexItems: [],
@@ -153,7 +157,7 @@ export default {
   inject: ["getData"],
   methods: {
     init() {
-       if (this.$refs.createFrom !== undefined) {
+      if (this.$refs.createFrom !== undefined) {
         this.$refs.createFrom.resetFields();
       }
       this.getResItems();
@@ -203,6 +207,9 @@ export default {
             let item = this.transferData.find(z => z.itemCode == val);
             this.fromData.dicPackageItemList.push(item);
           });
+          if (this.fromData.dicPackageItemList.length <= 0) {
+            return this.$message.warning("套餐内必须含有子项目");
+          }
           this.$axios
             .post(this.$api.SavePackage, this.fromData)
             .then(res => {
@@ -229,10 +236,11 @@ export default {
       }
       this.fromData = {
         packageName: "",
-        exePrice: 0,
+        exePrice: null,
         packageType: 0,
         sexType: 0,
         filterType: null,
+        brunchCode: "001", //医院编码 默认001
         InspectPurpose: "",
         dicPackageItemList: []
       };

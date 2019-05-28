@@ -3,7 +3,7 @@
     <el-dialog
       class="infoucs"
       width="460px"
-      title="功能项目字典"
+      title="菜单功能项"
       :visible.sync="isShow"
       :before-close="close"
       @open="init"

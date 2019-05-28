@@ -1,11 +1,11 @@
 <template>
-    <div class="sidebar isGoto">
+    <div class="sidebar">
         <div class="sideInfo" :class="{sideMini: collapse}">
-            <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1752813724,2836321587&fm=26&gp=0.jpg" alt="">
-            <span>用户名</span>
-            <div class="right">
-                <el-button type="text" style="color: #909398">设置</el-button>
-            </div>
+					<i class="toggle-icon" :class="[collapse ? 'el-icon-s-unfold' : 'el-icon-s-fold']" @click="changeCollapse(!collapse)"></i>
+					<span>{{USERINFO.userName || '未登录'}}</span>
+					<div class="right">
+						<img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1752813724,2836321587&fm=26&gp=0.jpg" alt="">
+					</div>
         </div>
         <div class="sideBar-con" ref="sideBar">
             <el-menu class="sidebar-el-menu" background-color="#fff" text-color="#606266" active-text-color="#419FFF" unique-opened :default-active="$route.path"  :default-openeds="openList"
@@ -44,57 +44,70 @@
             </div>
             <p>V3.0</p>
         </div>
+				<div class="isGoto" @click="GotoHandle" v-show="!isGoto"></div>
     </div>
 </template>
 
 <script>
-    import {mapState, mapGetters} from 'vuex'
+    import {mapState, mapGetters,mapMutations} from 'vuex'
     export default {
         methods: {
-            handleSelect (key) {
-               if (key == this.$route.path) {
-                    return;
-                }
-            }
+					...mapMutations([
+						'GotoHandle',
+						'changeCollapse'
+					]),
+					handleSelect (key) {
+							if (key == this.$route.path) {
+									return;
+							}
+					}
         },
         computed:{
-            ...mapState([
-                'collapse',
-                'sideBarMenus',
-                'openList'
-            ])
+					...mapState([
+							'collapse',
+							'sideBarMenus',
+							'openList',
+							'isGoto',
+							'USERINFO'
+					])
         }
     }
 </script>
 
 <style scoped>
-    .sidebar{
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        left: 0;
-        top: 60px;
-        bottom:0;
-        overflow-y: scroll;
-        border-right: 1px solid #DCDFE5;
-    }
-    .sidebar::-webkit-scrollbar{
-        width: 0;
-    }
-    .sidebar-el-menu:not(.el-menu--collapse){
-        width: 240px;
-    }
-    .sidebar > ul {
-        height:100%;
-    }
-    .sideBar-con {
-        flex: 1;
-        overflow-y: auto;
-    }
-    .sideInfo {
-        flex: 0 0 57px;
-    }
-    .copyright {
-        flex: 0 0 40px;
-    }
+	.toggle-icon {
+		font-size: 18px;
+		padding: 0 4px;
+		cursor: pointer;
+	}
+	.sidebar{
+			display: flex;
+			flex-direction: column;
+			position: absolute;
+			left: 0;
+			top: 60px;
+			bottom:0;
+			overflow-y: scroll;
+			border-right: 1px solid #DCDFE5;
+	}
+	.sidebar::-webkit-scrollbar{
+			width: 0;
+	}
+	.sidebar-el-menu:not(.el-menu--collapse){
+			width: 240px;
+	}
+	.sidebar > ul {
+			height:100%;
+	}
+	.sideBar-con {
+			max-width: 240px;
+			flex: 1;
+			overflow-y: auto;
+	}
+	.sideInfo {
+			flex: 0 0 48px;
+	}
+	.copyright {
+			flex: 0 0 40px;
+	}
 </style>

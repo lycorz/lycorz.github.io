@@ -120,7 +120,7 @@
                 </div>
             </el-dialog>
 						<!-- 导入人员 -->
-						<el-dialog title="导入人员" :visible.sync="importCustomerModal" class="importCustom" width="1000px" :close-on-click-modal="false">
+						<el-dialog title="导入人员" :visible.sync="importCustomerModal" class="importCustom" width="1000px" :close-on-click-modal="false" @close="importClear">
 							<div class="peopleData">
 								<div class="searchParams">
 									<el-input
@@ -172,7 +172,8 @@
 										</el-input>
 									</div>
 									<div class="right">
-										<el-button @click="filterData">查询</el-button>
+										<el-button @click="filterData" type="primary">查询</el-button>
+										<el-button @click="reset">重置</el-button>
 									</div>
 								</div>
 								<div class="searchParams">
@@ -352,7 +353,7 @@
 									</el-select>
 								</el-form-item>
 								<el-form-item label="手机号" prop="Tele" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.Tele" autocomplete="off"></el-input>
+									<el-input v-model="peopleInfo.Customer.Tele" autocomplete="off" maxlength="11"></el-input>
 								</el-form-item>
 								<el-form-item label="部门" prop="DeptName" :label-width="formLabelWidth">
 									<el-input v-model="peopleInfo.Customer.DeptName" autocomplete="off"></el-input>
@@ -395,9 +396,30 @@ import orderDetails from './orderDetails.vue'
 		name: 'DDGrpOrder',
 		components: {orderDetails},
     data() {
+			var validateId = (rule, value, callback) => {
+				if(value.length === 18) {
+					callback();
+					return;
+				}
+				if (this.isPeopleSave) {
+					this.$confirm('身份证位数不合法，是否继续操作？', '提示', {
+						confirmButtonText: '确定',
+						cancelButtonText: '取消',
+						type: 'warning'
+					}).then(() => {
+						this.clearPropleInfo();
+						this.getCustomer();
+						this.isPeopleSave = false;
+						callback();
+					})
+				} else {
+					callback();
+				}
+			};
       return{
+				isPeopleSave: true,
 				isMoreOrder: false,//是否允许单位同时存在多个订单
-				url: 'http://localhost:7417' + this.$api.ImportCustomer, // 上传路径需修改
+				url: 'http://192.168.0.254:8889' + this.$api.ImportCustomer, // 上传路径需修改
 				timeRange: [
 					moment()
 						.subtract(1, 'year')
@@ -591,7 +613,7 @@ import orderDetails from './orderDetails.vue'
 					],
 					IdcardNum: [
 							{ required: true, message: '请输入身份证号', trigger: 'blur' },
-							{ max: 18, min: 18, message: '与身份证号码位数不符', trigger: 'blur' }
+							{ mmin: 1, max: 18, validator: validateId, trigger: 'blur' }
 					],
 					Birthday: [
 							{ required: true, message: '请选择时间', trigger: 'change' }
@@ -600,7 +622,8 @@ import orderDetails from './orderDetails.vue'
 							{  required: true, message: '请选择Vip属性', trigger: 'blur' }
 					],
 					Tele: [
-							{ required: true, message: '请输入联系电话', trigger: 'blur' }
+							{ required: true, message: '请输入联系电话', trigger: 'blur' },
+							{ max: 11, min: 11, message: '请输入正确的手机号码', trigger: 'blur' }
 					]
 				},
 				load: '',
@@ -661,7 +684,6 @@ import orderDetails from './orderDetails.vue'
 			},
 			//获取单位团检订单号
 			subOrders(UnitCode){
-				console.log(UnitCode)
 				this.$axios.post(this.$api.CreateGroupOrder, {
 					UnitCode,
   				OperatorCode: "001"
@@ -705,6 +727,12 @@ import orderDetails from './orderDetails.vue'
 					}
 				}
 				this.subOrderParams.Orders = this.importAllData;
+				let loading = this.$loading({
+          lock: true,
+          text: '提交订单中...',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
 				this.$axios.post(this.$api.SubmitGroupOrder, this.subOrderParams).then(res => {
 					if (res.data.status === 1) {
 						this.$message.success('订单创建成功！');
@@ -713,9 +741,34 @@ import orderDetails from './orderDetails.vue'
 					} else {
 						this.$message.error(res.data.message);
 					}
+					loading.close();
 				}).catch(err => {
+					loading.close();
 					this.$message.error(err.data.message);
 				})
+
+			},
+			//提交订单弹窗消失后清空数据
+			importClear(){
+				this.importAllData = this.importData = [];
+				this.importParams.filter = '';
+				this.importParams.Sex = '';
+				this.importParams.MaritalStatus = '';
+				this.importParams.DeptName = '';
+				this.importParams.TeamName = '';
+				this.importParams.Age1 = '';
+				this.importParams.Age2 = '';
+			},
+			//提交订单重置清空数据
+			reset(){
+				this.importParams.filter = '';
+				this.importParams.Sex = '';
+				this.importParams.MaritalStatus = '';
+				this.importParams.DeptName = '';
+				this.importParams.TeamName = '';
+				this.importParams.Age1 = '';
+				this.importParams.Age2 = '';
+				this.filterData();
 			},
 			//创建订单按钮
 			createOrderBtn(data){
@@ -727,7 +780,7 @@ import orderDetails from './orderDetails.vue'
 				} else {
 					if (data.orders.length > 0) {
 						if(this.isMoreOrder) {
-							this.message.error('存在历史订单，不能新建订单！')
+							this.message.error('存在历史订单，不能新建订单！');
 						} else {
 							this.$confirm('存在历史订单，是否新建？', '提示', {
 								confirmButtonText: '确定',
@@ -934,7 +987,7 @@ import orderDetails from './orderDetails.vue'
 			clearPropleInfo() {
 				// 暂时共14项
 				this.peopleInfo.Customer.Sex = '',
-				this.peopleInfo.Customer.CardNum = '00000000-0000-0000-0000-000000000000',
+				this.peopleInfo.Customer.CardNum = '',
 				this.peopleInfo.Customer.CustomerName = '',
 				this.peopleInfo.Customer.Nation = '',
 				this.peopleInfo.Customer.Birthday = '',
@@ -957,6 +1010,7 @@ import orderDetails from './orderDetails.vue'
 			addPeopleBtn(id){
 				this.$refs.peopleForm.validate((valid) => {
 					if(valid) {
+						this.peopleInfoModal = false;
 						let index = this.importData.findIndex(x => x.IdcardNum === id);
 						if (index !== -1) {
 							for(let key in this.peopleInfo.Customer) {
@@ -983,7 +1037,7 @@ import orderDetails from './orderDetails.vue'
 							this.importAllData.push(this.importData[this.importData.length-1])
 						}
 						this.importData = this.importData;
-						this.peopleInfoModal = false;
+
 					} else {
 						return;
 					}
@@ -1263,21 +1317,17 @@ import orderDetails from './orderDetails.vue'
 			// 根据身份证号自动填写年龄和性别
 			getAgeBrith(id){
 				if (!id) return;
-				let year = id.substr(6, 4);
-				let month = id.substr(10, 2);
-				let day = id.substr(12, 2);
-				let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
-				this.submitParams.Order.Birthday = new Date(birthday);
-				this.submitParams.Order.Sex = id.substr(16, 1) % 2 ? 1: 2;
+				this.peopleInfo.Customer.Sex = id.substr(16, 1) % 2 ? 1: 2;
 			}
 		},
 		watch: {
 			'peopleInfo.Customer.IdcardNum': function(val, oldVal) {
-				 if (this.peopleInfo.Customer.CustomerName) return;
 				if (val !== oldVal && val.length === 18) {
+					this.clearPropleInfo();
 					this.getAgeBrith(val)
 					this.getCustomer();
 				} else {
+					this.isPeopleSave = true;
 					this.clearPropleInfo();
 				}
 			},

@@ -3,7 +3,7 @@
     <el-dialog
       class="infoucs"
       width="460px"
-      title="科室字典"
+      title="科室"
       :visible.sync="isShow"
       :before-close="close"
       @open="init"

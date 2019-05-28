@@ -8,8 +8,8 @@
         <div class="propleSearch">
           <el-input
             placeholder="项目名称/首拼"
-            v-model="searchParams.subItemName"
-             @keyup.enter.native="getData()"
+            v-model="searchParams.itemName"
+            @keyup.enter.native="getData()"
             class="arcRadius"
             style="width: 150px;"
           >
@@ -55,7 +55,7 @@
         </div>
       </div>
       <el-table ref="singleTable" :data="tableData" v-loading="loading" style="width: 100%">
-        <el-table-column type="index" width="55"></el-table-column>
+        <el-table-column type="index" label="序号" width="55"></el-table-column>
         <el-table-column property="itemCode" label="报告项目分类编号" align="center"></el-table-column>
         <el-table-column property="itemName" label="报告项目分类名称" align="center"></el-table-column>
         <el-table-column property="typeCodeName" label="类型" align="center"></el-table-column>
@@ -64,7 +64,7 @@
         <el-table-column property="isEnable" label="是否启用" align="center">
           <template slot-scope="scope">{{scope.row.isEnable | boolFilter}}</template>
         </el-table-column>
-        <el-table-column label="操作" align="center" width="200px">
+        <el-table-column label="操作" align="center"  fixed="right" width="80px">
           <template slot-scope="scope">
             <el-button type="text" @click="edit(scope.$index,scope.row)">编辑</el-button>
           </template>
@@ -77,8 +77,9 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+             :page-sizes="[10,20,50,100]"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>
@@ -95,7 +96,7 @@ import ProjectSortEdit from "./Edit.vue";
 import { resolve, reject } from "q";
 export default {
   name: "ProjectSortIndex",
-    components: { ProjectSortCreate, ProjectSortEdit },
+  components: { ProjectSortCreate, ProjectSortEdit },
   data() {
     return {
       name: "",
@@ -107,7 +108,7 @@ export default {
         itemName: "",
         typeCode: "",
         deptCode: "",
-        isEnable: null, //bool  是否分类
+        isEnable: null,
         pageSize: 10,
         pageIndex: 1
       },
@@ -182,7 +183,7 @@ export default {
     getDeptItems() {
       let that = this;
       that.$axios
-        .get(that.$api.GetDeptList)
+        .get(that.$api.GetAllDeptList)
         .then(res => {
           if (res.status == 200 && res.data.status == 1) {
             that.deptItems = res.data.entity;

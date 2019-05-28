@@ -15,16 +15,6 @@
         <!--  -->
         <span>个检订单</span>
       </div>
-      <div class="customerName">
-        <section class="sec1">
-          <span>客户姓名：</span>
-          <span>{{name}}</span>
-        </section>
-        <section class="sec2">
-          <span>交易总金额：</span>
-          <span>￥{{allmoney}}元</span>
-        </section>
-      </div>
       <el-table
         :data="tableData"
         style="width: 100%"
@@ -48,6 +38,20 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="customerName">
+        <section class="sec1">
+          <span>客户姓名：</span>
+          <span>{{name}}</span>
+        </section>
+        <section class="sec2">
+          <span>费用合计：</span>
+          <span>￥{{allmoney}}</span>
+          元
+        </section>
+      </div>
+            <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false;" >关 闭</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
@@ -93,14 +97,15 @@ export default {
 };
 </script>
 <style>
-.customerName {
-  height: 16px;
+#dialogjy .customerName {
+  height: 32px;
   background: rgba(246, 246, 246, 1);
   opacity: 1;
   border-radius: 4px;
   font-size: 14px;
-  line-height: 16px;
-  padding: 16px;
+  line-height: 32px;
+  padding-left: 16px;
+  padding-right: 16px;
   color: #606266;
 }
 .sec1 {
@@ -115,5 +120,12 @@ export default {
 #dialogjy .el-table__body-wrapper {
   height: 400px;
   overflow-y: auto;
+}
+#dialogjy >>> .el-dialog__body{
+  padding: 20px 20px;
+}
+#dialogjy .el-table th{
+  padding: 0px!important;
+  background: rgba(246, 246, 246, 1);
 }
 </style>

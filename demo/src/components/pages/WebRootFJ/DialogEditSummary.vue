@@ -32,7 +32,8 @@ export default {
       this.$emit("posSummary", obj);
       this.EditVisible = false;
     },
-    getInit() {}
+    getInit() {
+    }
   }
 };
 </script>

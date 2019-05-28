@@ -461,8 +461,8 @@ export default {
       checkloading: true,
       //    end   //
 
-      checkBoxModal: ["一般检查", "异常汇总", "主检建议"],
-      checkBoxOptions: ["一般检查", "异常汇总", "主检建议"],
+      checkBoxModal: ["检查结果", "异常汇总", "总检建议"],
+      checkBoxOptions: ["检查结果", "异常汇总", "总检建议"],
       dialogmodalName: "",
       shdialogmodalName: "",
       curItem: "01",

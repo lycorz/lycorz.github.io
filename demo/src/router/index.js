@@ -41,6 +41,16 @@ const router = new Router({
 					path: 'ddgrpmanage',
 					component: resolve => require(['pages/WebRootDD/DDGrpManage.vue'], resolve),
 					meta: { title: '订单管理' }
+				},
+				{
+					path: 'ddcardstock',
+					component: resolve => require(['pages/WebRootDD/DDCardStock.vue'], resolve),
+					meta: { title: '库存' }
+				},
+				{
+					path: 'ddcardsales',
+					component: resolve => require(['pages/WebRootDD/DDCardSales.vue'], resolve),
+					meta: { title: '销售' }
 				}
 			]
 		},
@@ -161,6 +171,77 @@ const router = new Router({
 			]
 		},
 		{
+			path: '/tj',
+			component: resolve => require(['common/Home.vue'], resolve),
+			meta: { title: '统计分析' },
+			children: [
+				{
+					path: '',
+					redirect: 'income'
+				},
+				{
+					path: 'income',
+					component: resolve => require(['pages/WebRootTJ/Finance/TJIncome.vue'], resolve),
+					meta: { title: '收入概况' },
+				},
+				{
+					path: 'accountstatistics',
+					component: resolve => require(['pages/WebRootTJ/Finance/TJAccountStatistics.vue'], resolve),
+					meta: { title: '应收款统计' },
+				},
+				{
+					path: 'constprofit',
+					component: resolve => require(['pages/WebRootTJ/Finance/TJConstProfit.vue'], resolve),
+					meta: { title: '成本及利润统计' },
+				},
+				{
+					path: 'discount',
+					component: resolve => require(['pages/WebRootTJ/Finance/TJDiscount.vue'], resolve),
+					meta: { title: '折扣统计' },
+				},
+				{
+					path: 'branchdivision',
+					component: resolve => require(['pages/WebRootTJ/Finance/TJBranchDivision.vue'], resolve),
+					meta: { title: '科间分成统计' },
+				},
+				{
+					path: 'projectdivision',
+					component: resolve => require(['pages/WebRootTJ/Finance/TJProjectDivision.vue'], resolve),
+					meta: { title: '项目分成统计' },
+				},
+				{
+					path: 'doctorsworkload',
+					component: resolve => require(['pages/WebRootTJ/Work/TJDoctorsWorkload.vue'], resolve),
+					meta: { title: '医生工作量' },
+				},
+				{
+					path: 'managerworkload',
+					component: resolve => require(['pages/WebRootTJ/Work/TJManagerWorkload.vue'], resolve),
+					meta: { title: '健康管理师工作量' },
+				},
+				{
+					path: 'baseinfo',
+					component: resolve => require(['pages/WebRootTJ/Platform/TJBaseInfo.vue'], resolve),
+					meta: { title: '基础信息统计' },
+				},
+				{
+					path: 'peopletype',
+					component: resolve => require(['pages/WebRootTJ/Platform/TJPeopleType.vue'], resolve),
+					meta: { title: '人群类型统计' },
+				},
+				{
+					path: 'netconsultation',
+					component: resolve => require(['pages/WebRootTJ/Platform/TJNetConsultation.vue'], resolve),
+					meta: { title: '网络咨询统计' },
+				},
+				{
+					path: 'smssend',
+					component: resolve => require(['pages/WebRootTJ/Platform/TJSMSSend.vue'], resolve),
+					meta: { title: '短信发送统计' },
+				}
+			]
+		},
+		{
 			path: '/xt',
 			component: resolve => require(['../components/common/Home.vue'], resolve),
 			meta: { title: '系统' },
@@ -206,6 +287,41 @@ const router = new Router({
 					meta: { title: '异常字典' },
 				},
 				{
+					path: 'medicalAdvice',
+					component: resolve => require(['../components/pages/WebRootXT/Presentation/MedicalAdvice/Index.vue'], resolve),
+					meta: { title: '主检医学建议' },
+				},
+				{
+					path: 'rejectReason',
+					component: resolve => require(['../components/pages/WebRootXT/Presentation/RejectReason/Index.vue'], resolve),
+					meta: { title: '驳回原因' },
+				},
+				{
+					path: 'reportItemDisplay',
+					component: resolve => require(['../components/pages/WebRootXT/Presentation/ReportItemDisplay/Index.vue'], resolve),
+					meta: { title: '报告项目显示方式' },
+				},
+				{
+					path: 'smstype',
+					component: resolve => require(['../components/pages/WebRootXT/SMessage/Smstype/Index.vue'], resolve),
+					meta: { title: '短信类型' },
+				},
+				{
+					path: 'smsCriticalTemplate',
+					component: resolve => require(['../components/pages/WebRootXT/SMessage/SmsCriticalTemplate/Index.vue'], resolve),
+					meta: { title: '危急值短信模板' },
+				},
+				{
+					path: 'cost',
+					component: resolve => require(['../components/pages/WebRootXT/Administration/Cost/Index.vue'], resolve),
+					meta: { title: '成本字典' },
+				},
+				{
+					path: 'overTime',
+					component: resolve => require(['../components/pages/WebRootXT/Administration/OverTime/Index.vue'], resolve),
+					meta: { title: '加班字典' },
+				},
+				{
 					path: 'funcitems',
 					component: resolve => require(['../components/pages/WebRootXT/System/FuncItems/Index.vue'], resolve),
 					meta: { title: '功能项目字典' },
@@ -224,6 +340,21 @@ const router = new Router({
 					path: 'user',
 					component: resolve => require(['../components/pages/WebRootXT/User/Index.vue'], resolve),
 					meta: { title: '用户管理' },
+				},
+				{
+					path: 'schedulingpg',
+					component: resolve => require(['../components/pages/WebRootXT/Scheduling/SchedulingPG.vue'], resolve),
+					meta: { title: '主检排班' },
+				},
+				{
+					path: 'schedulingsh',
+					component: resolve => require(['../components/pages/WebRootXT/Scheduling/SchedulingSH.vue'], resolve),
+					meta: { title: '总检排班' },
+				},
+				{
+					path: 'upload',
+					component: resolve => require(['../components/pages/WebRootXT/User/upload.vue'], resolve),
+					meta: { title: '总检排班' },
 				},
 				// {
 				// 	path: 'user',

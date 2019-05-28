@@ -1,7 +1,7 @@
 <template>
   <div class="content PhysicsIndex">
     <div class="topTitle">
-      <span>报告项目分类</span>
+      <span>分检结论模板</span>
     </div>
     <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
@@ -27,7 +27,7 @@
             </el-select>
           </div>
           <div class="searchItem" style="display: inline-block;margin: 0 8px;">
-            <el-select clearable v-model="searchParams.isDefault" placeholder="是否默认选项">
+            <el-select style="width:130px" clearable v-model="searchParams.isDefault" placeholder="是否默认选项">
               <el-option
                 v-for="item in boolItems"
                 :key="item.value"
@@ -52,17 +52,17 @@
         style="width: 100%"
       >
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column property="tmplCode" label="模版编号" align="center"></el-table-column>
-        <el-table-column property="rptSubItemName" label="报告子项目" align="center"></el-table-column>
-        <el-table-column property="finding" show-overflow-tooltip label="模版所见内容" align="center"></el-table-column>
-        <el-table-column property="summary" show-overflow-tooltip label="模版小结" align="center"></el-table-column>
+        <el-table-column property="tmplCode" label="模版编号" align="left"></el-table-column>
+        <el-table-column property="rptSubItemName" label="报告子项目" align="left"></el-table-column>
+        <el-table-column property="finding" show-overflow-tooltip label="模版所见内容" align="left"></el-table-column>
+        <el-table-column property="summary" show-overflow-tooltip label="模版小结" align="left"></el-table-column>
         <el-table-column property="isAbnormal" label="是否异常" align="center">
           <template slot-scope="scope">{{scope.row.isAbnormal | boolFilter}}</template>
         </el-table-column>
         <el-table-column property="isDefault" label="是否默认选项" align="center">
           <template slot-scope="scope">{{scope.row.isDefault | boolFilter}}</template>
         </el-table-column>
-        <el-table-column label="操作" align="center" width="200px">
+        <el-table-column label="操作"  fixed="right" align="center" width="100px">
           <template slot-scope="scope">
             <el-button type="text" @click="edit(scope.$index,scope.row)">编辑</el-button>
           </template>
@@ -75,8 +75,9 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+             :page-sizes="[10,20,50,100]"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>

@@ -3,7 +3,7 @@
     <el-dialog
       title="报告对应关系"
       :visible.sync="isShow"
-      @open="firstInit"
+      @open="init"
       :close-on-click-modal="false"
       @close="close"
       width="700px"
@@ -41,49 +41,56 @@
             <el-table
               class="tb_edit"
               ref="singleTable"
-              :data="tableData"
+              :data="master_data.tableData"
               v-loading="loading"
               style="width:100%"
               highlight-current-row
-              @row-click="handleCurrentChange"
             >
               <el-table-column type="index"></el-table-column>
-              <el-table-column label="名称关键词" align="left">
+              <el-table-column
+                v-for="(item,index) in master_data.columns"
+                :prop="item.field"
+                :label="item.title"
+                :width="item.width"
+                :key="index"
+              >
                 <template slot-scope="scope">
-                  <el-input
-                    v-model="scope.row.name"
-                    placeholder="请输入内容"
-                    @change="handleEdit(scope.$index, scope.row)"
-                  ></el-input>
-                  <span>{{scope.row.name}}</span>
+                  <span v-if="scope.row.isSet">
+                    <el-input
+                      size="mini"
+                      placeholder="请输入内容"
+                      :maxlength="item.maxlength"
+                      v-model="master_data.sel[item.field]"
+                    ></el-input>
+                  </span>
+                  <span v-else>{{scope.row[item.field]}}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="结论关键词" align="left">
+              <el-table-column label="操作" width="120" align="center">
                 <template slot-scope="scope">
-                  <el-input
-                    v-model="scope.row.con"
-                    placeholder="请输入内容"
-                    @change="handleEdit(scope.$index, scope.row)"
-                  ></el-input>
-                  <span>{{scope.row.con}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="操作" width="80px" align="center">
-                <template slot-slot-scope="scope">
-                  <el-button
-                    type="danger"
-                    icon="el-icon-delete"
-                    size="medium"
-                    @click="deltable(scope.$index)"
-                    circle
-                    style="padding: 0px 1px"
-                  ></el-button>
+                  <span
+                    class="el-tag el-tag--info el-tag--mini"
+                    style="cursor: pointer;margin-right:5px"
+                    @click="change(scope.row,scope.$index,true)"
+                  >{{scope.row.isSet?'保存':"修改"}}</span>
+                  <span
+                    v-if="!scope.row.isSet"
+                    class="el-tag el-tag--danger el-tag--mini"
+                    style="cursor: pointer;"
+                    @click="remove(scope.row,scope.$index)"
+                  >删除</span>
+                  <span
+                    v-else
+                    class="el-tag el-tag--mini"
+                    style="cursor: pointer;"
+                    @click="change(scope.row,scope.$index,false)"
+                  >取消</span>
                 </template>
               </el-table-column>
             </el-table>
           </el-col>
           <el-col :span="24">
-            <div class="add-row" style="width: 99.2%;" @click="addRow()">
+            <div class="el-table-add-row" @click="add()">
               <span>+ 添加</span>
             </div>
           </el-col>
@@ -108,7 +115,7 @@
         :titles="['选择列表', '添加列表']"
         style="text-align: left; display: inline-block;"
         filter-placeholder="请输入"
-        :props="{key: 'rptSubItemCode',label: 'rptSubItemName'}"
+        :props="{key: 'subItemCode',label: 'subItemName'}"
         :data="transferData"
       ></el-transfer>
       <div slot="footer" class="dialog-footer">
@@ -119,43 +126,28 @@
   </div>
 </template>
 <script>
+import { resolve, reject } from "q";
 export default {
   name: "relationship",
   data() {
-    const generateData = _ => {
-      const data = [];
-      for (let i = 1; i <= 15; i++) {
-        data.push({
-          value: i,
-          desc: `备选项 ${i}`
-          // disabled: i % 4 === 0
-        });
-      }
-      return data;
-    };
     return {
       orderItemCode: "",
       isShow: false,
+      loading: false,
       activeName: "first",
 
       //first
       sonItems: [],
+      newSonItems: [],
       //second
-      loading: false,
-      tableData: [
-        {
-          name: "我是名称关键词",
-          con: "我是项目关键词"
-        },
-        {
-          name: "我是名称关键词",
-          con: "我是项目关键词"
-        },
-        {
-          name: "我是名称关键词",
-          con: "我是项目关键词"
-        }
-      ],
+      master_data: {
+        sel: null, //选中行
+        columns: [
+          { field: "nameKeyword", title: "名称关键词", maxlength: 10 },
+          { field: "resultKeyword", title: "结论关键词", maxlength: 50 }
+        ],
+        tableData: []
+      },
       //edit子窗体
       editIsShow: false,
       transferData: [],
@@ -165,6 +157,10 @@ export default {
   created() {},
   filters: {},
   methods: {
+    init() {
+      this.firstInit();
+      this.secondInit();
+    },
     firstInit() {
       this.$axios
         .get(this.$api.GetDicRptSubItem, {
@@ -181,60 +177,157 @@ export default {
           console.error(err);
         });
     },
-    secondInit() {},
+    secondInit() {
+      this.loading = true;
+      this.$axios
+        .get(this.$api.GetOrderItemKeywords, {
+          params: { itemCode: this.orderItemCode }
+        })
+        .then(res => {
+          if (res.data.status == 1) {
+            if (res.data.entity.length > 0) {
+              this.master_data.tableData = new Array();
+              res.data.entity.forEach(el => {
+                el["isSet"] = false;
+                this.master_data.tableData.push(el);
+              });
+            }
+          } else {
+            this.$message.error("加载失败，请重试。");
+            console.error(res.data.message);
+          }
+          this.loading = false;
+        })
+        .catch(err => {
+          console.error(err);
+          this.loading = false;
+        });
+    },
     //切换tabl事件，按需加载
     handleClick(val, e) {
-      switch (val.index) {
-        case "0":
-          this.firstInit();
-          break;
-        case "1":
-          this.secondInit();
-          break;
-        default:
-          this.firstInit();
-          break;
-      }
+      // switch (val.index) {
+      //   case "0":
+      //     this.firstInit();
+      //     break;
+      //   case "1":
+      //     this.secondInit();
+      //     break;
+      //   default:
+      //     this.firstInit();
+      //     break;
+      // }
     },
     //一级页面关闭
     close() {
       this.isShow = false;
       this.sonItems = [];
+      this.activeName = "first";
+      this.master_data.tableData = new Array();
+      this.master_data.sel = null;
     },
 
     //一级页面提交 同时提交关键项目和关键词
     submit() {
       //提交报告项目
-      this.$axios
-        .post(this.$api.SaveDicRptSubItem, this.sonItems)
-        .then(res => {
-          if (res.data.status == 1) {
-            this.$message.success("保存成功！");
-          } else {
-            this.$message.error("保存失败，请重试。");
-            console.error(res.data.message);
-          }
-        })
-        .catch(err => {
-          console.error(err);
-        });
+      for (let i of this.master_data.tableData) {
+        if (i.isSet) {
+          this.$message.warning("请先保存当前编辑项");
+          this.activeName = "second";
+          return;
+        }
+      }
+      this.master_data.tableData.forEach(el => {
+        delete el.isSet;
+      });
+      new Promise((resolve, reject) => {
+        this.$axios
+          .post(this.$api.SaveOrderItemKeywords, this.master_data.tableData)
+          .then(res => {
+            if (res.data.status != 1) {
+              this.$message.error("保存失败，请重试。");
+              console.error(res.data.message);
+            } else {
+              resolve(true);
+            }
+          })
+          .catch(err => {
+            console.error(err);
+          });
+      }).then(val => {
+        if (val) {
+          this.$axios
+            .post(this.$api.SaveDicRptSubItem, this.sonItems)
+            .then(res => {
+              if (res.data.status == 1) {
+                this.$message.success("保存成功！");
+                this.close();
+              } else {
+                this.$message.error("保存失败，请重试。");
+                console.error(res.data.message);
+              }
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        }
+      });
     },
-    //table编辑
-    handleCurrentChange(row, event, column) {
-      console.log(row, event, column, event.currentTarget);
-    },
-    handleEdit(index, row) {
-      console.log(index, row);
-    },
-    //table 删除
-    deltable(index) {
-      this.tableData.remove(index);
-    },
+    //关键词table编辑
     //table 添加
-    addRow() {
-      let row = { name: "", con: "" };
-      this.tableData.push(row);
-      this.$refs.singleTable.setCurrentRow(row);
+    add() {
+      let that = this;
+      for (let i of that.master_data.tableData) {
+        if (i.isSet) return that.$message.warning("请先保存当前编辑项");
+      }
+      let j = {
+        keywordCode: null,
+        itemCode: "",
+        resultKeyword: "",
+        nameKeyword: "",
+        priority: null, //TODO：优先级，未提供维护，先设置为null
+        isSet: true
+      };
+      that.master_data.tableData.push(j);
+      that.master_data.sel = JSON.parse(JSON.stringify(j));
+    },
+    change(row, index, cg) {
+      let that = this;
+      //点击修改 判断是否已经保存所有操作
+      for (let i of that.master_data.tableData) {
+        if (i.isSet && i.itemCode != row.itemCode) {
+          that.$message.warning("请先保存当前编辑项");
+          return false;
+        }
+      }
+      //是否是取消操作
+      if (!cg) {
+        if (!that.master_data.sel.itemCode)
+          that.master_data.tableData.splice(index, 1);
+        return (row.isSet = !row.isSet);
+      }
+      //提交数据
+      if (row.isSet) {
+        let data = JSON.parse(JSON.stringify(that.master_data.sel));
+        for (let k in data) {
+          if (k != "isSet" && k != "itemCode" && data[k] === "") {
+            return that.$message.warning("不可输入空值");
+          }
+          row[k] = data[k];
+        }
+        this.master_data.tableData.map(i => {
+          i.itemCode = this.orderItemCode;
+          return i;
+        });
+        row.isSet = false;
+      } else {
+        that.master_data.sel = JSON.parse(JSON.stringify(row));
+        row.isSet = true;
+      }
+    },
+    //table删除按钮，未启用。
+    remove(row, index) {
+      this.master_data.tableData.remove(index);
+      this.master_data.sel = null;
     },
     //修改弹出层
     edit() {
@@ -243,8 +336,8 @@ export default {
     //二级页面搜索
     filterSearch() {},
     editInit() {
-      this.$axios
-        .get(this.$api.GetAllDicRptSubItem)
+      this.$axios //GetAllDicRptSubItem
+        .get(this.$api.GetAllRptSubItemList)
         .then(res => {
           if (res.data.status == 1) {
             this.transferData = res.data.entity;
@@ -268,12 +361,19 @@ export default {
     },
     //修改弹出层提交事件
     editSubmit() {
-      this.sonItems = [];
-      this.transferValue.forEach(el => {
-        let item = this.transferData.find(z => z.rptSubItemCode == el);
-        this.sonItems.push(item);
+      let that = this;
+      that.sonItems = [];
+      that.transferValue.forEach(el => {
+        let item = that.transferData.find(z => z.subItemCode == el);
+        that.sonItems.push({
+          rptSubItemCode: item.subItemCode,
+          rptSubItemName: item.subItemName,
+          orderItemCode: that.orderItemCode,
+          lastModifyTime: new Date(),
+          Operator: "001" //TODO:操作人，默认001，待修改。
+        });
       });
-      this.editClose();
+      that.editClose();
     }
 
     //数组对象扩展方法
@@ -282,9 +382,9 @@ export default {
 </script>
 <style>
 /* table点击编辑 start */
-.add-row {
-  margin-top: 10px;
-  width: 100%;
+.relationship .el-table-add-row {
+  margin-top: 5px;
+  width: 99.5%;
   height: 34px;
   border: 1px dashed #c1c1cd;
   border-radius: 3px;
@@ -293,7 +393,7 @@ export default {
   display: flex;
   line-height: 34px;
 }
-.tb_edit .el-input {
+/* .tb_edit .el-input {
   display: none;
 }
 .tb_edit .current-row .el-input {
@@ -301,7 +401,7 @@ export default {
 }
 .tb_edit .current-row .el-input + span {
   display: none;
-}
+} */
 /* table点击编辑 end */
 .ul-title {
   padding: 8px 16px 16px;

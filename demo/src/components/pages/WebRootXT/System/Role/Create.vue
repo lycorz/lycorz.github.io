@@ -4,7 +4,7 @@
       class="infoucs"
       width="660px"
       height="600px"
-      title="角色字典"
+      title="角色"
       :visible.sync="isShow"
       :before-close="close"
       @open="init"
@@ -25,10 +25,15 @@
         <el-form-item label="角色名称" :label-width="formLabelWidth" prop="roleName">
           <el-input v-model="fromData.roleName"></el-input>
         </el-form-item>
-        <el-form-item label="最低折扣" class="is-required" :label-width="formLabelWidth" prop="discountLowLimit">
+        <el-form-item
+          label="最低折扣"
+          class="is-required"
+          :label-width="formLabelWidth"
+          prop="discountLowLimit"
+        >
           <el-input maxlength="4" v-model="fromData.discountLowLimit"></el-input>
         </el-form-item>
-        <el-form-item label="排序号" :label-width="formLabelWidth" >
+        <el-form-item label="排序号" :label-width="formLabelWidth">
           <el-input v-model="fromData.orderNum"></el-input>
         </el-form-item>
         <el-form-item label="功能项目集合" :label-width="formLabelWidth">
@@ -59,12 +64,12 @@ export default {
   name: "RoleCreate",
   data() {
     var checkDic = (rule, value, callback) => {
-      if (value != "") {
+      if (value||value==0) {
         var re = /^(0.\d+|0|1)$/;
         if (!re.test(value)) {
           callback(new Error("请输入0-1之间的小数(包括0和1)"));
         }
-      }else{
+      } else {
         callback(new Error("请输入折扣"));
       }
       callback();
@@ -84,7 +89,7 @@ export default {
         roleCode: "",
         roleName: "",
         funcCodes: "",
-        discountLowLimit: 0,
+        discountLowLimit: null,
         orderNum: 0
       },
       rules: {
@@ -105,9 +110,9 @@ export default {
   methods: {
     init() {
       if (this.$refs.createFrom !== undefined) {
-         if (this.$refs.createFrom !== undefined) {
-        this.$refs.createFrom.resetFields();
-      }
+        if (this.$refs.createFrom !== undefined) {
+          this.$refs.createFrom.resetFields();
+        }
       }
       this.GetAllFuncSort();
       if (this.Code) {

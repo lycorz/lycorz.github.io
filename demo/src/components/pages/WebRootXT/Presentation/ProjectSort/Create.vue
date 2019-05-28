@@ -262,7 +262,7 @@ export default {
     getDeptItems() {
       let that = this;
       that.$axios
-        .get(that.$api.GetDeptList)
+        .get(that.$api.GetAllDeptList)
         .then(res => {
           if (res.status == 200 && res.data.status == 1) {
             that.deptItems = res.data.entity;
@@ -403,7 +403,7 @@ export default {
     //加载穿梭框数据。
     editInit() {
       this.$axios
-        .get(this.$api.GetAllRptSubItemList)
+        .get(this.$api.GetAllRptSubItemList,{params:{itemCode:this.Code}})
         .then(res => {
           if (res.data.status == 1) {
             this.transferData = res.data.entity;
@@ -427,6 +427,7 @@ export default {
         let item = this.transferData.find(z => z.subItemCode == el);
         this.tableData.push(item);
       });
+      console.log(this.tableData);
       this.editClose();
     }
   }

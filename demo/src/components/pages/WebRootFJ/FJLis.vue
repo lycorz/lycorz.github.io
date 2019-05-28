@@ -251,7 +251,7 @@ export default {
     //查看详情，父传子
     watch(row, index) {
       this.$refs.dialogcheck.FJCheckVisible = true;
-      this.$refs.dialogcheck.orderCode = row.orderCode;
+      // this.$refs.dialogcheck.orderCode = row.orderCode;
       this.$refs.dialogcheck.depts = this.options;
       this.$refs.dialogcheck.customerName = row.customerName;
       this.$refs.dialogcheck.sex = row.sex;

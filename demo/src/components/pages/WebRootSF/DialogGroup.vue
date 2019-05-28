@@ -139,8 +139,8 @@ export default {
   }
 };
 </script>
-<style>
-.customerName {
+<style scoped>
+#dialoggroup .customerName {
   height: 16px;
   background: rgba(246, 246, 246, 1);
   opacity: 1;
@@ -159,7 +159,7 @@ export default {
 .sec2 span:nth-child(2) {
   color: #f56c6c;
 }
-#dialoggroup .el-table__body-wrapper {
+#dialoggroup  >>> .el-table__body-wrapper {
   height: 400px;
   overflow-y: auto;
 }

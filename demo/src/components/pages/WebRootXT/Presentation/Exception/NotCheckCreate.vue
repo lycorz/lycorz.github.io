@@ -3,7 +3,7 @@
     <el-dialog
       class="infoucs"
       width="660px"
-      title="非检查项目获取异常规则"
+      title="非检验项目获取异常规则"
       :visible.sync="isShow"
       :before-close="close"
       @open="init"
@@ -17,7 +17,7 @@
         class="demo-ruleForm"
         label-position="left"
       >
-        <el-form-item label="报告组合项目" :label-width="formLabelWidth" prop="rptItemCode">
+        <el-form-item label="报告子项目" :label-width="formLabelWidth" prop="rptItemCode">
           <el-select filterable v-model="fromData.rptItemCode" placeholder="请选择">
             <el-option
               v-for="item in rptItem"

@@ -7,7 +7,7 @@
       {
         "name": "个检订单管理",
         "part": "11",
-        "gotoUrl": "",
+        "gotoUrl": "dd1",
         "icon": "el-icon-edit-outline",
         "childrenNodes": [
           {
@@ -30,7 +30,7 @@
 			{
 				"name": "团检订单管理",
 				"part": "12",
-				"gotoUrl": "",
+				"gotoUrl": "dd2",
 				"icon": "el-icon-edit-outline",
 				"childrenNodes": [
 					{
@@ -42,6 +42,24 @@
 						"name": "订单管理",
 						"gotoUrl": "/dd/ddgrpmanage",
 						"part": "1202"
+					}
+				]
+			},
+			{
+				"name": "会员卡管理",
+				"part": "13",
+				"gotoUrl": "dd4",
+				"icon": "el-icon-edit-outline",
+				"childrenNodes": [
+					{
+						"name": "库存",
+						"gotoUrl": "/dd/ddcardstock",
+						"part": "1301"
+					},
+					{
+						"name": "销售",
+						"gotoUrl": "/dd/ddcardsales",
+						"part": "1302"
 					}
 				]
 			}
@@ -153,6 +171,109 @@
 			}
 		]
 	},
+	{
+		"name": "统计分析",
+		"part": "8",
+		"path": "/tj",
+		"childrenNodes": [
+			{
+				"name": "财务统计分析",
+				"part": "81",
+				"gotoUrl": "tj1",
+				"icon": "el-icon-edit-outline",
+				"childrenNodes": [
+					{
+						"name": "收入概况",
+						"part": "811",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/income"
+					},
+					{
+						"name": "应收款统计",
+						"part": "812",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/accountstatistics"
+					},
+					{
+						"name": "成本及利润统计",
+						"part": "813",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/constprofit"
+					},
+					{
+						"name": "折扣统计",
+						"part": "814",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/discount"
+					},
+					{
+						"name": "科间分成统计",
+						"part": "815",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/branchdivision"
+					},
+					{
+						"name": "项目分成统计",
+						"part": "816",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/projectdivision"
+					}
+				]
+			},
+			{
+				"name": "工作量统计分析",
+				"part": "82",
+				"gotoUrl": "tj2",
+				"icon": "el-icon-edit-outline",
+				"childrenNodes": [
+					{
+						"name": "医生工作量",
+						"part": "821",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/doctorsworkload"
+					},
+					{
+						"name": "健康管理师工作量",
+						"part": "822",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/managerworkload"
+					}
+				]
+			},
+			{
+				"name": "云平台",
+				"part": "83",
+				"gotoUrl": "tj3",
+				"icon": "el-icon-edit-outline",
+				"childrenNodes": [
+					{
+						"name": "基础信息统计",
+						"part": "831",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/baseinfo"
+					},
+					{
+						"name": "人群类型统计",
+						"part": "832",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/peopletype"
+					},
+					{
+						"name": "网络咨询统计",
+						"part": "833",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/netconsultation"
+					},
+					{
+						"name": "短信发送统计",
+						"part": "834",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/tj/smssend"
+					}
+				]
+			}
+		]
+	},
   {
     "name": "系统配置",
     "part": "4",
@@ -161,7 +282,7 @@
       {
         "name": "开单项目字典管理",
         "part": "41",
-        "path":"",
+        "gotoUrl":"xt1",
         "icon": "el-icon-edit-outline",
         "childrenNodes":[
           {
@@ -187,7 +308,7 @@
       {
         "name": "报告项目字典",
         "part": "42",
-        "path":"",
+        "gotoUrl":"xt2",
         "icon": "el-icon-edit-outline",
         "childrenNodes":[
           {
@@ -218,66 +339,66 @@
             "name": "主检医学建议",
             "part": "425",
             "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/exception"
+            "gotoUrl": "/xt/medicalAdvice"
           },
           {
             "name": "驳回原因",
             "part": "426",
             "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/exception"
+            "gotoUrl": "/xt/rejectReason"
           },
           {
             "name": "报告项目显示方式",
             "part": "427",
             "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/exception"
+            "gotoUrl": "/xt/reportItemDisplay"
           }
         ]
       },
       {
         "name": "短信字典",
         "part": "43",
-        "path":"",
+        "gotoUrl":"xt3",
         "icon": "el-icon-edit-outline",
         "childrenNodes":[
           {
             "name": "短信类型",
             "part": "431",
             "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/openorder"
+            "gotoUrl": "/xt/smstype"
           },
           {
             "name": "危急值短信模版",
             "part": "432",
             "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/setmeal"
+            "gotoUrl": "/xt/smsCriticalTemplate"
           }
         ]
       },
       {
         "name": "管理字典",
         "part": "44",
-        "path":"",
+        "gotoUrl":"xt4",
         "icon": "el-icon-edit-outline",
         "childrenNodes":[
           {
             "name": "加班字典",
             "part": "441",
             "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/openorder"
+            "gotoUrl": "/xt/overTime"
           },
           {
             "name": "成本字典",
             "part": "442",
             "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/setmeal"
+            "gotoUrl": "/xt/cost"
           }
         ]
       },
       {
         "name": "系统字典",
         "part": "45",
-        "path":"",
+        "gotoUrl":"xt5",
         "icon": "el-icon-edit-outline",
         "childrenNodes":[
           {
@@ -302,10 +423,31 @@
       },
       {
         "name": "用户管理",
-        "part": "46",
+				"part": "46",
+				"gotoUrl": "xt6",
         "gotoUrl":"/xt/user",
         "icon": "el-icon-edit-outline"
-      }
+			},
+			{
+				"name": "排班管理",
+				"part": "47",
+				"gotoUrl": "xt7",
+				"icon": "el-icon-edit-outline",
+				"childrenNodes": [
+					{
+						"name": "主检排班",
+						"part": "471",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/xt/schedulingPG"
+					},
+					{
+						"name": "总检排班",
+						"part": "472",
+						"icon": "el-icon-edit-outline",
+						"gotoUrl": "/xt/schedulingSH"
+					}
+				]
+			}
     ]
   }
 ]

@@ -1,4 +1,4 @@
-<template>
+ <template>
 	<div>
 		<el-dialog title="订单详情" :visible.sync="orderDetailsModal" width="1000px" :close-on-click-modal="false" @open="getDetailData">
 			<div class="peopleData">
@@ -46,9 +46,8 @@
 					<el-select
 						v-model="params.batch"
 						v-if="batchs.length"
-						multiple
-						collapse-tags
-						style="margin-right: 8px;"
+						clearable
+						style="margin-right: 8px;width: 193px;"
 						placeholder="请选择批次">
 						<el-option
 							v-for="item in batchs"
@@ -375,7 +374,7 @@ export default {
 				teamName: '',
 				isCheckBegin: '',
 				isCheckEnd: '',
-				batch: []
+				batch: ''
 			},
 			delCustomerPackage: [],//要删除选中客户的项目的并集
 			OrderParams: {},//父级传递的参数，用于获取订单列表
@@ -552,17 +551,8 @@ export default {
 				})
 			}
 			if (this.params.batch) {
-				this.params.batch.forEach(x => {
-					for(let i = 0; i < this.batchs.length; i++) {
-						if(this.batchs[i].value === x) {
-							batch = this.batchs[i].value;
-							break;
-						}
-					}
-					this.OrderDataShow = this.OrderDataShow.filter(x => {
-							return x.batchCode == batch
-						}
-					);
+				this.OrderDataShow = this.OrderDataShow.filter(x => {
+					return x.batchCode === this.params.batch;
 				})
 			}
 		},
@@ -573,8 +563,8 @@ export default {
 			this.params.sex = '';
 			this.params.deptName = '';
 			this.params.teamName = '';
-			this.params.isReplace = '';
-			this.params.isFinished = '';
+			this.params.isCheckBegin = '';
+			this.params.isCheckEnd = '';
 			this.params.batch = '';
 			this.OrderDataShow = this.OrderData;
 		},
@@ -616,7 +606,7 @@ export default {
 		},
 		//删除人员
 		delCustomer(){
-			if (this.$refs.treeDel && this.$refs.treeDel.getCheckedKeys().length === 0) {
+			if (this.multipleSelection.length === 0) {
 				this.$message.error('请先选择后点击删除！');
 				return;
 			}

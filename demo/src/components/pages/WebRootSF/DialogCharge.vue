@@ -7,8 +7,8 @@
       @open="getData"
       width="720px"
     >
-      <div class="modal-title">客户信息</div>
-      <div class="modal-con">
+      <div class="title">客户信息</div>
+      <div class="con">
         <ul>
           <li class="item">
             <span>金额：</span>
@@ -18,23 +18,23 @@
             <span>发票号：</span>
             <div class="item-list">{{invoiceNum}}</div>
           </li>
-          <li class="item">
+          <li style="margin-top:16px" class="item">
             <span>抬头：</span>
             <div class="item-list">{{ordreHistoryData.accountName}}</div>
           </li>
         </ul>
       </div>
-      <div class="modal-title">缴费明细</div>
-      <div class="modal-con">
-        <ul v-for="(item,index) in ordreHistoryData.paidTypes" :key="index" >
+      <div class="title">缴费明细</div>
+      <div class="con">
+        <ul>
           <li class="item">
             <span>缴费方式：</span>
-            <div class="item-list">{{item.paidType | tradetype }}</div>
+            <div style="margin-right:5px" v-for="(item,index) in ordreHistoryData.paidTypes" :key="index"  class="item-list">{{item.paidType | tradetype }}￥{{item.tradeMoney}}</div>
           </li>
-          <li class="item">
+          <!-- <li class="item">
             <span>缴费金额：</span>
-            <div class="item-list">￥{{item.tradeMoney}}元</div>
-          </li>
+            <div class="item-list">元</div>
+          </li> -->
         </ul>
       </div>
     </el-dialog>
@@ -81,4 +81,53 @@ export default {
   },
 };
 </script>
+<style>
+.dialogcharge .title {
+  padding: 2px 5px;
+  /* background-color: #ecf8ff; */
+  /* border-radius: 4px; */
+  border-left: 3px solid #50bfff;
+  font-size: 14px;
+  font-family: Microsoft YaHei;
+  font-weight: 400;
+  line-height: 19px;
+  color: rgba(96, 98, 102, 1);
+  /* margin: 20px 0; */
+}
+.dialogcharge .con {
+  padding: 16px 0px 16px;
+  font-size: 12px;
+  color: #606266;
+  overflow: hidden;
+}
+.dialogcharge .con ul {
+  overflow: hidden;
+}
+.dialogcharge .con .item {
+  width: 50%;
+  float: left;
+  text-align: left;
+}
+.dialogcharge .con .item span {
+  display: block;
+  float: left;
+  width: 70px;
+  font-size: 12px;
+  font-family: Microsoft YaHei;
+  font-weight: 400;
+  line-height: 16px;
+  color: rgba(96, 98, 102, 1);
+  opacity: 1;
+}
+.dialogcharge .con .item-list {
+  display: block;
+  float: left;
+  font-size: 12px;
+  font-family: Microsoft YaHei;
+  font-weight: 400;
+  line-height: 16px;
+  color: rgba(96, 98, 102, 1);
+  opacity: 1;
+}
+</style>
 

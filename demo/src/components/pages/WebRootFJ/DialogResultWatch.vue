@@ -10,7 +10,12 @@
     <!-- 下拉类别 -->
     <div>
       <span>项目类型：</span>
-      <el-select v-model="choosedDept" placeholder="请选择" class="resultSelect">
+      <el-select
+        v-model="choosedDept"
+        placeholder="请选择"
+        class="resultSelect"
+        @change="selectChange"
+      >
         <el-option
           v-for="item in deptTypes"
           :key="item.value"
@@ -22,15 +27,15 @@
     <!-- 内容面板，不同类型显示不同 -->
     <div class="contentContainer">
       <!-- 一般检查 if ybjc.type is 1 render ybjc -->
-      <div v-if="choosedDept == 1">
+      <div v-if="choosedDept == '02'">
         <div class="ybjc" :key="index" v-for="(item,index) in ybjc">
           <div class="subTitle">
-            <span>一般检查（{{item.itemname}}）</span>
+            <span>一般检查（{{item.rptItemName}}）</span>
           </div>
           <div class="ybjcTable">
-            <el-table :data="item.table" style="width: 100%">
-              <el-table-column prop="subitemName" label="项目名称" width="180"></el-table-column>
-              <el-table-column prop="finding" label="所见" width="180"></el-table-column>
+            <el-table :data="item.commonSubItemResults" style="width: 100%">
+              <el-table-column prop="subItemName" label="项目名称" width="180"></el-table-column>
+              <el-table-column prop="finds" label="所见" width="180"></el-table-column>
               <el-table-column label="结果类型" align="center">
                 <template slot-scope="scope">
                   <span v-if="scope.row.resultType == 'N'"></span>
@@ -44,26 +49,27 @@
             <div class="ybjcDoc">
               <section></section>
               <section></section>
-              <section>报告医生:{{item.reviewDoc}}</section>
-              <section>报告时间:{{item.reviewDate}}</section>
+              <section>报告医生:{{item.reportDoc}}</section>
+              <section>报告时间:{{item.reportDate}}</section>
             </div>
           </div>
         </div>
       </div>
       <!-- 实验室检查 -->
-      <div class="sysjc" :key="index" v-for="(item,index) in sysjc" v-else-if="choosedDept == 2">
+      <div class="sysjc" :key="index" v-for="(item,index) in sysjc" v-else-if="choosedDept == '03'">
         <div class="subTitle">
-          <span>实验室检查（{{item.itemname}}）</span>
+          <span>实验室检查（{{item.rptItemName}}）</span>
         </div>
         <div>
-          <el-table :data="item.table" style="width: 100%">
-            <el-table-column prop="subitemName" label="项目名称"></el-table-column>
-            <el-table-column prop="finding" label="检查结果"></el-table-column>
-            <el-table-column prop="finding" label="参考范围"></el-table-column>
-            <el-table-column prop="finding" label="单位"></el-table-column>
+          <el-table :data="item.subItemResults" style="width: 100%">
+            <el-table-column prop="subItemName" label="项目名称"></el-table-column>
+            <el-table-column prop="result" label="检查结果"></el-table-column>
+            <el-table-column prop="range" label="参考范围"></el-table-column>
+            <el-table-column prop="unit" label="单位"></el-table-column>
             <el-table-column label="结果类型" align="center">
               <template slot-scope="scope">
-                <span v-if="scope.row.resultType == 'N'">↑</span>
+                <span v-if="scope.row.resultType == 'H'">↑</span>
+                <span v-else-if="scope.row.resultType == 'N'"></span>
                 <span v-else>↓</span>
               </template>
             </el-table-column>
@@ -78,17 +84,17 @@
         </div>
       </div>
       <!-- 辅助检查 -->
-      <div v-if="choosedDept == 3">
+      <div v-if="choosedDept == '04'">
         <div class="fzjc" :key="index" v-for="(item,index) in fzjc">
           <div class="subTitle">
             <!-- <img class="jpgPic" :key="inx" v-for="(it,inx) in item.images" src="./login-bg.jpg" />  -->
-            <span>辅助检查（{{item.itemname}}）</span>
+            <span>辅助检查（{{item.rptItemName}}）</span>
             <!-- 图片图标 -->
             <i
               class="el-icon-picture picture jpgPic"
               :key="inx"
               v-for="(it,inx) in item.images"
-              @click="showimg(imgitem)"
+              @click="showImg(it)"
             ></i>
           </div>
           <div>
@@ -120,159 +126,149 @@
     <div slot="footer" class="dialog-footer">
       <el-button @click="resultwatch = false">关 闭</el-button>
     </div>
+    <bigpic ref="bigpic"></bigpic>
   </el-dialog>
 </template>
 
 <script>
+import bigpic from "./showPic.vue";
 export default {
+  components: {
+    bigpic
+  },
   data() {
     return {
       resultwatch: false,
       index: "",
+      orderCode: "c0015e6f-d95e-4deb-94cd-e2035af42b1a",
       //检查结果 因为三种检查的数据结构不同，开辟三个数据对象存储，代码更清晰
       //一般检查结果
-      ybjc: [
-        {
-          itemname: "一般检查",
-          summary: "我是小结内容",
-          reportDoc: "啥子",
-          reportDate: "2018-12-19",
-          reviewDoc: "不知道",
-          reviewDate: "2018-12-13",
-          table: [
-            {
-              subitemName: "收缩压",
-              finding: "所见内容",
-              resultType: "N"
-            },
-            {
-              subitemName: "舒张压",
-              finding: "所见内容",
-              resultType: "H"
-            },
-            {
-              subitemName: "体重",
-              finding: "所见内容",
-              resultType: "N"
-            }
-          ]
-        },
-        {
-          itemname: "内科检查",
-          summary: "我是小结内容",
-          reportDoc: "啥子",
-          reportDate: "2018-12-19",
-          reviewDoc: "不知道",
-          reviewDate: "2018-12-13",
-          table: [
-            {
-              subitemName: "直肠肛检",
-              finding: "所见内容",
-              resultType: "N"
-            },
-            {
-              subitemName: "耳",
-              finding: "所见内容",
-              resultType: "H"
-            },
-            {
-              subitemName: "鼻",
-              finding: "所见内容",
-              resultType: "N"
-            }
-          ]
-        }
-      ],
+      ybjc: [],
       //实验室检查结果
-      sysjc: [
-        {
-          itemname: "一般检查",
-          reportDoc: "啥子",
-          reportDate: "2018-12-19",
-          reviewDoc: "不知道",
-          reviewDate: "2018-12-13",
-          table: [
-            {
-              subitemName: "收缩压",
-              finding: "所见内容",
-              resultType: "N"
-            },
-            {
-              subitemName: "舒张压",
-              finding: "所见内容",
-              resultType: "H"
-            },
-            {
-              subitemName: "体重",
-              finding: "所见内容",
-              resultType: "N"
-            }
-          ]
-        },
-        {
-          itemname: "内科检查",
-          reportDoc: "啥子",
-          reportDate: "2018-12-19",
-          reviewDoc: "不知道",
-          reviewDate: "2018-12-13",
-          table: [
-            {
-              subitemName: "直肠肛检",
-              finding: "所见内容所见内容所见内容所见内容所见内容所见内容",
-              resultType: "N"
-            },
-            {
-              subitemName: "耳",
-              finding: "所见内容",
-              resultType: "H"
-            },
-            {
-              subitemName: "鼻",
-              finding: "所见内容",
-              resultType: "N"
-            }
-          ]
-        }
-      ],
+      sysjc: [],
       //辅助检查结果
-      fzjc: [
-        {
-          itemname: "测试",
-          summary: "我是小结内容",
-          reportDoc: "啥子",
-          reportDate: "2018-12-19",
-          reviewDoc: "不知道",
-          reviewDate: "2018-12-13",
-          finding: "所见内容",
-          resultType: "H",
-          images: []
-        }
-      ],
+      fzjc: [],
       //已选科室
       choosedDept: "",
       //科室类型
       deptTypes: [
         {
           label: "一般检查",
-          value: "1"
+          value: "02"
         },
         {
           label: "实验室检查",
-          value: "2"
+          value: "03"
         },
         {
           label: "辅助检查",
-          value: "3"
+          value: "04"
         }
       ]
     };
   },
   methods: {
+    //初始化
     getInit() {
-      this.choosedDept = "1";
+      this.choosedDept = "02";
+      //初始化获取结果
+      this.getResult(this.orderCode, this.choosedDept);
+    },
+    //切换下拉菜单
+    selectChange(value) {
+      this.getResult(this.orderCode, value);
+    },
+    //获取结果
+    getResult(orderCode, chooseCode) {
+      let that = this;
+      that.loading1 = true;
+      //获取一般检查结果
+      if (chooseCode == "02") {
+        this.$axios
+          .get(this.$api.GetCommonResult, {
+            params: {
+              orderCode,
+              ReptItemType: chooseCode
+            }
+          })
+          .then(function(response) {
+            console.log(54188, response.data.entity);
+            that.loading = false;
+            if (response.data.status == 1) {
+              if (response.data.entity.length != 0) {
+                that.ybjc = response.data.entity;
+              } else {
+                that.$message.error(`无一般检查项目`);
+              }
+            } else {
+              that.$message.error(`GetCommonResult${response.data.message}`);
+            }
+          })
+          .catch(function(error) {
+            that.loading = false;
+            that.$message.error(`GetCommonResult${error}`);
+          });
+      }
+      //获取实验室检查
+      else if (chooseCode == "03") {
+        this.$axios
+          .get(this.$api.GetLisResult, {
+            params: {
+              orderCode,
+              ReptItemType: chooseCode
+            }
+          })
+          .then(function(response) {
+            console.log(654, response.data.entity);
+            that.loading = false;
+            if (response.data.status == 1) {
+              if (response.data.entity.length != 0) {
+                that.sysjc = response.data.entity;
+              } else {
+                that.$message.error(`无实验室检查项目`);
+              }
+            } else {
+              that.$message.error(`GetLisResult${response.data.message}`);
+            }
+          })
+          .catch(function(error) {
+            that.loading = false;
+            that.$message.error(`GetLisResult${error}`);
+          });
+      }
+      //获取辅助检查
+      else if (chooseCode == "04") {
+        this.$axios
+          .get(this.$api.ResAuxiliaryResult, {
+            params: {
+              orderCode,
+              ReptItemType: chooseCode
+            }
+          })
+          .then(function(response) {
+            console.log(654, response.data.entity);
+            that.loading = false;
+            if (response.data.status == 1) {
+              if (response.data.entity.length != 0) {
+                that.fzjc = response.data.entity;
+              } else {
+                that.$message.error(`无辅助检查项目`);
+              }
+            } else {
+              that.$message.error(`ResAuxiliaryResult${response.data.message}`);
+            }
+          })
+          .catch(function(error) {
+            that.loading = false;
+            that.$message.error(`ResAuxiliaryResult${error}`);
+          });
+      }
     },
     //展示image
-    showimg(imgitem) {}
+    showImg(src) {
+      this.$refs.bigpic.dialogVisible = true;
+      this.$refs.bigpic.src = src;
+    }
   }
 };
 </script>

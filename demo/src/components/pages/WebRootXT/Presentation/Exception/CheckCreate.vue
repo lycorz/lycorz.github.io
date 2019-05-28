@@ -16,7 +16,7 @@
         class="demo-ruleForm"
         label-position="left"
       >
-        <el-form-item label="报告组合项目" :label-width="formLabelWidth" prop="rptSubItemCode">
+        <el-form-item label="报告子项目" :label-width="formLabelWidth" prop="rptSubItemCode">
           <el-select filterable v-model="fromData1.rptSubItemCode" placeholder="请选择">
             <el-option
               v-for="item in rptSubItem"
@@ -60,7 +60,7 @@
         class="demo-ruleForm"
         label-position="left"
       >
-        <el-form-item label="报告组合项目" :label-width="formLabelWidth" prop="rptSubItemCode">
+        <el-form-item label="报告子项目" :label-width="formLabelWidth" prop="rptSubItemCode">
           <el-select filterable v-model="fromData2.rptSubItemCode" placeholder="请选择">
             <el-option
               v-for="item in rptSubItem"
@@ -112,7 +112,7 @@
         class="demo-ruleForm"
         label-position="left"
       >
-        <el-form-item label="报告组合项目" :label-width="formLabelWidth">
+        <el-form-item label="报告子项目" :label-width="formLabelWidth">
           <el-select filterable v-model="fromData3.rptSubItemCode" placeholder="请选择">
             <el-option
               v-for="item in rptSubItem"
@@ -343,10 +343,10 @@ export default {
     },
     tsubmitForm() {
       this.$refs.createFrom3.validate(valid => {
-        let up = decimal.Parse(this.fromData3.upperLimit);
-        let low = decimal.Parse(this.fromData3.lowerLimit);
+        let up = parseFloat(this.fromData3.upperLimit);
+        let low = parseFloat(this.fromData3.lowerLimit);
         if(low>up){
-          this.$message.error("下限不得高于上限");
+          return this.$message.error("下限不得高于上限");
         }
         if (valid) {
           this.fromData3.ruleCode = this.Code;

@@ -1,7 +1,7 @@
 <template>
   <div class="content CombinationIndex">
     <div class="topTitle">
-      <span>开单组合项目</span>
+      <span>开单项目</span>
     </div>
     <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
@@ -69,7 +69,7 @@
         <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
         <el-table-column property="itemCode" label="项目编号" align="center"></el-table-column>
         <el-table-column property="itemName" label="项目名称" align="left" show-overflow-tooltip></el-table-column>
-        <el-table-column property="deptCode" label="所属科室" align="left" show-overflow-tooltip></el-table-column>
+        <el-table-column property="deptName" label="所属科室" align="left" show-overflow-tooltip></el-table-column>
         <el-table-column
           property="inspectPurpose"
           label="检查目的与意义"
@@ -86,7 +86,7 @@
         <el-table-column property="isEnable" label="是否启用" align="center">
           <template slot-scope="scope">{{ scope.row.isEnable | boolFilter}}</template>
         </el-table-column>
-        <el-table-column label="操作" align="center" width="200px">
+        <el-table-column label="操作" align="center"  fixed="right" width="200px">
           <template slot-scope="scope">
             <el-button type="text" @click="edit(scope.$index,scope.row)">编辑</el-button>
             <el-button type="text" @click="showRelationship(scope.$index,scope.row)">报告对应关系</el-button>
@@ -101,8 +101,9 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+            :page-sizes="[10,20,50,100]"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>

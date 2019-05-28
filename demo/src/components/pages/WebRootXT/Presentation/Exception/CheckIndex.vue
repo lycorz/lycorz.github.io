@@ -3,7 +3,7 @@
     <el-dialog
       class="infoucs"
       width="900px"
-      title="检查项目获取异常规则"
+      title="检验项目获取异常规则"
       :visible.sync="isShow"
       :before-close="close"
       @open="init"
@@ -87,9 +87,9 @@
             >
               <el-table-column type="selection" width="55"></el-table-column>
               <el-table-column property="rptSubItemName" label="报告子项目" align="left"></el-table-column>
-              <el-table-column property="upperLimit" label="上限" align="width"></el-table-column>
-              <el-table-column property="lowerLimit" label="下限" align="width"></el-table-column>
-              <el-table-column label="操作" align="width">
+              <el-table-column property="upperLimit" label="上限" align="left"></el-table-column>
+              <el-table-column property="lowerLimit" label="下限" align="left"></el-table-column>
+              <el-table-column label="操作" align="cebter"  fixed="right">
                 <template slot-scope="scope">
                   <el-button type="text" @click="showEditDialog(scope.$index,scope.row,3)">编辑</el-button>
                 </template>

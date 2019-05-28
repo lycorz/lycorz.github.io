@@ -163,7 +163,7 @@
             ></el-pagination>
           </div>
         </div>
-
+	
         <!-- 弹窗块 -->
 				<!-- // 查看 -->
         <el-dialog title="当前客户订单" :visible.sync="orderInfoModal" width="800px" :close-on-click-modal="false">
@@ -225,7 +225,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="手机号" prop="Tele" :label-width="formLabelWidth">
-              <el-input v-model="peopleInfo.NewCustomer.Tele" autocomplete="off"></el-input>
+              <el-input v-model="peopleInfo.NewCustomer.Tele" autocomplete="off" maxlength="11"></el-input>
             </el-form-item>
             <el-form-item label="部门" prop="DeptName" :label-width="formLabelWidth">
               <el-input v-model="peopleInfo.NewCustomer.DeptName" autocomplete="off"></el-input>
@@ -283,6 +283,7 @@
 </template>
 
 <script>
+
 import moment from "moment";
 export default {
   name: "DDOrderManage",
@@ -398,7 +399,7 @@ export default {
 				Operator: '001',
 				NewCustomer: {
 					CustomerCode: "00000000-0000-0000-0000-000000000000",
-					CardNum: "00000000-0000-0000-0000-000000000000",
+					CardNum: "",
 					CustomerName: "",
 					Sex: '',
 					Nation: "",
@@ -438,7 +439,8 @@ export default {
 				// 		{  required: true, message: '请选择Vip属性', trigger: 'blur' }
 				// ],
 				Tele: [
-						{ required: true, message: '请输入联系电话', trigger: 'blur' }
+						{ required: true, message: '请输入联系电话', trigger: 'blur' },
+						{ max: 11, min: 11, message: '请输入正确的手机号码', trigger: 'blur' }
 				]
 			},
     };
@@ -693,19 +695,9 @@ export default {
 							this.getData();
 						} else {
 							this.$message.error(res.data.message);
-							// this.$alert('<span>该订单已经缴费，不可删除！</span><br /><i style="color:#8F9399;">订单已缴费不可删除</i>', '提醒：', {
-							// 	confirmButtonText: '关闭',
-							// 	dangerouslyUseHTMLString: true,
-							// 	type: 'warning'
-							// })
 						}
 					}).catch(err => {
 						this.$message.error(err.data.message);
-						// this.$alert('<span>该订单已经缴费，不可删除！</span><br /><i style="color:#8F9399;">订单已缴费不可删除</i>', '提醒：', {
-						// 		confirmButtonText: '关闭',
-						// 		dangerouslyUseHTMLString: true,
-						// 		type: 'warning'
-						// 	})
 					})
 				})
 		},
@@ -736,7 +728,7 @@ export default {
 		// 清空客户信息
 		clearPropleInfo() {
 			this.peopleInfo.NewCustomer.Sex = '',
-			this.peopleInfo.NewCustomer.CardNum = '00000000-0000-0000-0000-000000000000',
+			this.peopleInfo.NewCustomer.CardNum = '',
 			this.peopleInfo.NewCustomer.CustomerName = '',
 			this.peopleInfo.NewCustomer.Nation = '',
 			this.peopleInfo.NewCustomer.Birthday = '',
@@ -770,11 +762,11 @@ export default {
 		// 根据身份证号自动填写年龄和性别
 		getAgeBrith(id){
 			if (!id) return;
-			let year = id.substr(6, 4);
-			let month = id.substr(10, 2);
-			let day = id.substr(12, 2);
-			let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
-			this.peopleInfo.NewCustomer.Birthday = new Date(birthday);
+			// let year = id.substr(6, 4);
+			// let month = id.substr(10, 2);
+			// let day = id.substr(12, 2);
+			// let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
+			// this.peopleInfo.NewCustomer.Birthday = new Date(birthday);
 			this.peopleInfo.NewCustomer.Sex = id.substr(16, 1) % 2 ? 1: 2;
 		}
 	},
@@ -810,7 +802,7 @@ export default {
 	}
 };
 </script>
-<style>
+<style scoped>
 .DDOrderManage .right > * {
   display: inline-block;
 }

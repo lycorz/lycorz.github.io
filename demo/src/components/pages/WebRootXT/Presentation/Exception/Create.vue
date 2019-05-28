@@ -3,7 +3,7 @@
     <el-dialog
       class="infoucs"
       width="660px"
-      title="异常字典"
+      title="异常"
       :visible.sync="isShow"
       :before-close="close"
       @open="init"
@@ -108,7 +108,7 @@ export default {
     submitForm() {
       this.$refs.createFrom.validate(valid => {
         if (valid) {
-          this.fromData.oldTmplCode = this.Code;
+          this.fromData.OldAbnormalCode = this.Code;
           this.$axios
             .post(this.$api.SaveAbnormal, this.fromData)
             .then(res => {
@@ -133,6 +133,7 @@ export default {
       if (this.$refs["fromData"] !== undefined) {
         this.$refs["fromData"].resetFields();
       }
+      this.Code = "";
       this.fromData =  {
         abnormalCode: "",
         abnormalName: "",

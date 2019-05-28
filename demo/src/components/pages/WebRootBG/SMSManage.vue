@@ -274,6 +274,7 @@ export default {
 				} else {
 					this.$message.error(res.data.message)
 				}
+				msg.close();
 			}).catch(err => {
 				this.$message.error(err.data.message);
 				msg.close();

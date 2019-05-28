@@ -41,6 +41,18 @@ const api = {
    SaveCommonSubItemResult:"/api/FJ/SaveCommonSubItemResult",//提交结论
    UpdateLisSubItemResultType:"/api/FJ/UpdateLisSubItemResultType",//更新检验结果类型
    SaveVisitConent:"/api/FJ/SaveVisitConent",//提交回访
+   GetCommonResult:"/api/FJ/GetCommonResult",//获取一般检查结果
+   GetLisResult:"/api/FJ/GetLisResult",//获取实验室检查结果
+   ResAuxiliaryResult:"/api/FJ/ResAuxiliaryResult",//获取辅助检查结果
+   HiddenLisSubItemResult:"/api/FJ/HiddenLisSubItemResult",//隐藏检验子项目
+   ShowRptItemResults:"/api/FJ/ShowRptItemResults",//显示所有隐藏项目
+   GetOrderDicRptItem:"/api/FJ/GetOrderDicRptItem",//获取报告项目
+   GetDicOrderItems:"/api/FJ/GetDicOrderItems",//获取开单项目
+   SaveRptSubItem4RptItem:"/api/FJ/SaveRptSubItem4RptItem",//提交报告项目
+   SaveRptSubItem4DicOrderItem:"/api/FJ/SaveRptSubItem4DicOrderItem",//提交开单项目
+   GetFZJCItem:"/api/FJ/GetFZJCItem",//初始化，获取辅助检查结果
+   SaveFZJCItemResult:"/api/FJ/SaveFZJCItemResult",//保存辅助检查结果
+   GetFZJCItemHistoryResult:"/api/FJ/GetFZJCItemHistoryResult",//获取辅助检查结果历史
     /*          分检检查-分检结论录入  end         */
   InvoiceQuery: '/api/SF/InvoiceQuery', // 获取财务-展示列表
   ReturnInvoiceStateEnum: '/api/SF/ReturnInvoiceStateEnum', // 获取财务-发票管理-状态类型
@@ -65,6 +77,7 @@ const api = {
   TransactionOK: '/api/SF/TransactionOK', //交易管理-缴费
   RefundTradeMessageQuery: '/api/SF/RefundTradeMessageQuery', //交易管理-根据订单号获取已开发票
   TradeLock: '/api/SF/TradeLock', //交易管理-标记交易是否正在处理
+  InvoicePrint:'/api/SF/InvoicePrint',//打印发票，发票入库接口
   /*          财务收费-交易管理  end         */
 
   /*          财务收费-历史查询  start         */
@@ -74,6 +87,8 @@ const api = {
   TransactionDetailItemsQueryByUnit: '/api/SF/TransactionDetailItemsQueryByUnit',//团检个人交易明细查询
   TransactionDetailQueryByPerson: '/api/SF/TransactionDetailQueryByPerson',   //个检交易明细查询
   TradeHistoryDetailQuery: '/api/SF/TradeHistoryDetailQuery',//交易历史详情查询
+  ExportSFReport:'/api/SF/ExportSFReport',    //导出财务收费统计报表
+  ExportSFReportDetail:'/api/SF/ExportSFReportDetail',    //导出财务收费明细报表
   /*          财务收费-历史查询  end         */
 
   /*          总检审核  start         */
@@ -181,7 +196,9 @@ const api = {
 
 	// 报告
 	ReportQuery: '/api/BG/ReportQuery',//个人体检报告查询
-  ReportPrint: '/api/BG/ReportPrint',//个人体检报告打印/预览
+	ReportPrint: '/api/BG/ReportPrint',//个人体检报告打印
+	ReportPreview: '/api/BG/ReportPreview',//个人体检报告预览
+	ReportPrintSuccess: '/api/BG/ReportPrintSuccess',//报告打印成功
   MakeReportByReturnValue: '/api/BG/MakeReportByReturnValue',//生成体检报告(有返回值)
   ReportTake: '/api/BG/ReportTake',//报告领取
   SendSmsModByReportQuery: '/api/BG/SendSmsModByReportQuery',//报告管理界面的发送短信接口
@@ -190,10 +207,16 @@ const api = {
   ReturnSMSType: '/api/BG/ReturnSMSType',//获取所有短信类型
   SMSSendQuery: '/api/BG/SMSSendQuery',//短信查询
   UnitReportQuery: '/api/BG/UnitReportQuery',//团检报告查询
-	MarkUnitReport: '/api/BG/MarkUnitReport',//团检报告生成
+  MarkUnitReport: '/api/BG/MarkUnitReport',//团检报告生成
 
-
-
+  //辅助功能
+  GetProgressQueryInfo:"/api/FZGN/GetProgressQueryInfo",//【查询】获取进度查询信息
+  GetProgressQueryInfoByCardNum:"/api/FZGN/GetProgressQueryInfoByCardNum",//【查询】根据卡号获取进度查询信息
+  GetOrderStatusInfo:"/api/FZGN/GetOrderStatusInfo",//【状态下拉列表】获取订单状态列表信息
+  GetDdOrderInfo:"/api/FZGN/GetDdOrderInfo",//获取订单详情
+  GetOrderStatusRollBackEnum:'/api/FZGN/GetOrderStatusRollBackEnum',//【允许回退状态列表】获取订单回退状态枚举
+  ChangeOrderStatusProgressByOrderCodeAndCondition:'/api/FZGN/ChangeOrderStatusProgressByOrderCodeAndCondition',//【变更状态】 OrderCode订单编码、Condition回退状态，OperatorCode（需记录回退人编码） 必填
+  GetOrderStatusTimeInfo:'/api/FZGN/GetOrderStatusTimeInfo',//获取订单状态
 
 
 
@@ -224,13 +247,13 @@ const api = {
   SaveOrderItem:'/api/DIC/SaveOrderItem', //保存单个开单项目
   BatchSaveOrderItem:'/api/DIC/BatchSaveOrderItem', //批量保存开单项目
   BatchDeleteOrderItem:'/api/DIC/BatchDeleteOrderItem', //批量删除开单项目
-  fGetOrderItemKeywordsda:'/api/DIC/GetOrderItemKeywords', //获取用于报告回传时判断是否该项目已全部回传结论的关键词
+  GetOrderItemKeywords:'/api/DIC/GetOrderItemKeywords', //获取用于报告回传时判断是否该项目已全部回传结论的关键词
   SaveOrderItemKeywords:'/api/DIC/SaveOrderItemKeywords', //保存用于报告回传是判断是否该项目已全部回传结论的关键词
   GetOrderItemIfsDic:'/api/DIC/GetOrderItemIfsDic',  // 获取开单项目外部对接信息
   SaveOrderItemIfsDic:'/api/DIC/SaveOrderItemIfsDic',   //保存开单项目外部对接信息
   GetDicRptSubItem:'/api/DIC/GetDicRptSubItem', //获取一个开单组合项目对应的所有报告子项目集合
   SaveDicRptSubItem:'/api/DIC/SaveDicRptSubItem',   //保存一个开单组合项目对应的所有报告子项目关系
-  GetAllDicRptSubItem:'/api/DIC/GetAllDicRptSubItem', //获取所有报告子项目集合
+  //GetAllDicRptSubItem:'/api/DIC/GetAllDicRptSubItem', //获取所有报告子项目集合
 
   GetDeptList:'/api/DIC/GetDeptList',    //  获取科室列表接口
   GetAllDeptList:'/api/DIC/GetAllDeptList', //获取所有科室list
@@ -290,6 +313,11 @@ const api = {
   SaveAbnormalRulePaper:'/api/DIC/SaveAbnormalRulePaper',   //保存某个异常的一条问卷发现规则
   BatchDeleteAbnormalRulePaper:'/api/DIC/BatchDeleteAbnormalRulePaper', //批量删除某个异常的问卷发现规则
 
+  GetMedicalAdvice:'/api/DIC/GetMedicalAdvice',   //获取一条医学建议模板
+  GetMedicalAdviceList:'/api/DIC/GetMedicalAdviceList',   //获取医学建议模板列表
+  SaveMedicalAdvice:'/api/DIC/SaveMedicalAdvice',   //保存一条
+  BatchDeleteMedicalAdvice:'/api/DIC/BatchDeleteMedicalAdvice',   //批量删除医学建议模板
+  VerifyExpr:'/api/DIC/VerifyExpr',   //验证一个匹配表达式是否正确
 
   GetFuncList:'/api/DIC/GetFuncList',  //获取功能项列表接口
   GetFunc:'/api/DIC/GetFunc',   //获取一条功能项记录
@@ -312,12 +340,70 @@ const api = {
   SaveUser:'/api/XT/SaveUser',    //保存一个系统用户记录
   BatchDeleteUser:'/api/XT/BatchDeleteUser',    //批量删除系统用户
   ResetUserPassword:'/api/XT/ResetUserPassword',    //重置系统系统用户密码
+  FileUpload:'/api/XT/FileUpload',
+  FileDelete:'/api/XT/FileDelete',
+  GetImage:'/api/XT/GetImage',
 
 
   GetUserCert:'/api/XT/GetUserCert',    //获取一条用户岗位证书记录
   GetUserCertList:'/api/XT/GetUserCertList',    //获取一个用户的所有证书列表
   SaveUserCert:'/api/XT/SaveUserCert' ,     //保存一条岗位证书记录
   BatchDeleteUserCert:'/api/XT/BatchDeleteUserCert',    //删除一条用户的证书记录
+  GetQrCode:'/api/XT/GetQrCode',
+
+
+  GetRejectReasonList:"/api/DIC/GetRejectReasonList", //获取驳回原因列表
+  GetRejectReason:'/api/DIC/GetRejectReason',   //获取单个驳回原因
+  SaveRejectReason:'/api/DIC/SaveRejectReason',   //保存单个驳回原因
+  BatchDeleteRejectReason:'/api/DIC/BatchDeleteRejectReason', //批量删除驳回原因
+
+
+  GetReportItemDisplayList:'/api/DIC/GetReportItemDisplayList', //获取报告显示方式列表
+  GetReportItemDisplay:'/api/DIC/GetReportItemDisplay',   //获取单个报告显示方式
+  SaveReportItemDisplay:'/api/DIC/SaveReportItemDisplay', //保存单个报告显示方式
+  BatchDeleteReportItemDisplay:'/api/DIC/BatchDeleteReportItemDisplay', //批量删除报告显示方式
+
+  GetSmstypeList:'/api/DIC/GetSmstypeList',   //获取短信类型列表
+  GetSmstype:'/api/DIC/GetSmstype',   //获取单个短信类型
+  SaveSmstype:'/api/DIC/SaveSmstype',   //保存单个短信类型
+  GetAbnormalListByIsCrisis:'/api/DIC/GetAbnormalListByIsCrisis',    //获取异常接口(true:是危急值)
+  BatchDeleteSmstype:'/api/DIC/BatchDeleteSmstype', //批量删除短信类型
+
+
+  GetSmsCriticalTemplateList:'/api/DIC/GetSmsCriticalTemplateList',   //获取危急值短信模版列表
+  GetSmsCriticalTemplate:'/api/DIC/GetSmsCriticalTemplate',   //获取单个危急值短信模版
+  SaveSmsCriticalTemplate:'/api/DIC/SaveSmsCriticalTemplate',   //保存单个危急值短信模版
+  BatchDeleteSmsCriticalTemplate:'/api/DIC/BatchDeleteSmsCriticalTemplate',   //批量删除危急值短信模版
+
+
+  GetOverTimeList:'/api/DIC/GetOverTimeList',   //获取加班字典列表
+  GetOverTime:'/api/DIC/GetOverTime',   //获取单个加班字典
+  SaveOverTime:'/api/DIC/SaveOverTime',   //保存单个加班字典
+  BatchDeleteOverTime:'/api/DIC/BatchDeleteOverTime',   //批量删除加班字典
+
+
+  GetCostList:'/api/DIC/GetCostList',   //获取成本列表
+  GetCost:'/api/DIC/GetCost',   //获取单个成本
+  SaveCost:'/api/DIC/SaveCost',   //保存单个成本
+	BatchDeleteCost:'/api/DIC/BatchDeleteCost',   //批量删除成本
+
+	//排班api-主检
+	GetPGMasterDoctor: '/api/PG/GetPGMasterDoctor',//获取医生列表
+	BatchSavePGScheduleMaster: '/api/PG/BatchSavePGScheduleMaster',//批量插入排班记录
+	QueryPGScheduleMasterByDateRange: '/api/PG/QueryPGScheduleMasterByDateRange',//根据时间段获取所有排班记录
+	DeletePGScheduleMasterByDateRange: '/api/PG/DeletePGScheduleMasterByDateRange',//删除指定时间段的排班记录
+	UpdatePGScheduleMaster: '/api/PG/UpdatePGScheduleMaster',//【更新当天排班记录】更新排班信息
+	//排班api-总检
+	GetSHFinalDoctor: '/api/SH/GetSHFinalDoctor',//获取总检医生列表
+	BatchSaveSHScheduleFinal: '/api/SH/BatchSaveSHScheduleFinal',//批量插入排班记录
+	QuerySHScheduleFinalByDateRange: '/api/SH/QuerySHScheduleFinalByDateRange',//根据时间段获取所有排班记录
+	DeleteShScheduleFinalByDateRange: '/api/SH/DeleteShScheduleFinalByDateRange',//根据时间段批量删除排班总检记录
+	UpdateSHScheduleFinal: '/api/SH/UpdateSHScheduleFinal',//【更新当天排班记录】更新排班信息
+
+	//排班节假日
+	GetTjHoliday: '/api/PG/GetTjHoliday',//查询全部假期-获取已存在的假期
+	DeleteTjHoliday: '/api/PG/DeleteTjHoliday',//批量删除节假日信息
+	InsertTjHoliday: '/api/PG/InsertTjHoliday',//批量保存节假日信息
 }
 
 export default api;

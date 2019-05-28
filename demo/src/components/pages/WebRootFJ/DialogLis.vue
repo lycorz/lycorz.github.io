@@ -51,7 +51,7 @@
                   <span v-else>降低</span>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" align="center">
+              <el-table-column label="操作" align="center" width="200px">
                 <template slot-scope="scope">
                   <el-button
                     @click="edit(scope.row,scope.$index)"
@@ -60,22 +60,38 @@
                     id="jc"
                   >编辑</el-button>
                   <el-button
-                    @click="hide()"
+                    @click="hide(scope.row,scope.index)"
                     type="text"
                     size="small"
                     id="jc"
                   >隐藏</el-button>
-                  <el-dropdown>
+                  <!-- 报告项目 -->
+                  <el-dropdown @command="sortRpt()">
                     <span class="el-dropdown-link">
                       归类
                       <i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item>黄金糕</el-dropdown-item>
-                      <el-dropdown-item>狮子头</el-dropdown-item>
-                      <el-dropdown-item>螺蛳粉</el-dropdown-item>
-                      <el-dropdown-item disabled>双皮奶</el-dropdown-item>
-                      <el-dropdown-item divided>蚵仔煎</el-dropdown-item>
+                      <el-dropdown-item
+                        :key="index"
+                        v-for="(item,index) in rptItems"
+                        command="item"
+                      >item.itemname</el-dropdown-item>
+                      <!-- <el-dropdown-item disabled>双皮奶</el-dropdown-item> -->
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                  <el-dropdown @command="sortOrder()">
+                    <span class="el-dropdown-link">
+                      归类
+                      <i class="el-icon-arrow-down el-icon--right"></i>
+                    </span>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item
+                        :key="index"
+                        v-for="(item,index) in orderItems"
+                        command="item"
+                      >item.itemname</el-dropdown-item>
+                      <!-- <el-dropdown-item disabled>双皮奶</el-dropdown-item> -->
                     </el-dropdown-menu>
                   </el-dropdown>
                 </template>
@@ -93,17 +109,18 @@
       ></el-cascader>
     </div>
     <span slot="footer" class="dialog-footer">
+      <el-button style="float:left;" @click="allNotHide">全部取消隐藏</el-button>
       <el-button style="float:left;">打 印</el-button>
       <el-button @click="FJCheckVisible = false">关 闭</el-button>
     </span>
-<dialoglisedit ref="dialoglisedit" @submit="getChildValue"></dialoglisedit>
+    <dialoglisedit ref="dialoglisedit" @submit="getChildValue"></dialoglisedit>
   </el-dialog>
 </template>
 
 <script>
 import dialoglisedit from "./DialogLisEidt.vue";
 export default {
-  components:{dialoglisedit},
+  components: { dialoglisedit },
   data() {
     return {
       FJCheckVisible: false,
@@ -141,41 +158,39 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      //要显示的报告项目
+      rptItems: [],
+      // 要现实的开单项目
+      OrderItems: []
     };
   },
   methods: {
     //弹窗打开初始化方法
-    getInit() {
-      this.getItems().then(res => {});
-      //鼠标右键显示级联菜单
+    async getInit() {
       var that = this;
-      // setTimeout(function() {
-      //   var div = document.querySelector("#lischeck");
-
-      //   var menu = document.querySelector("#jilian");
-      //   div.addEventListener("contextmenu", function(event) {
-      //     event.preventDefault();
-      //     menu.style.display = "inline-block";
-      //     menu.style.position = "fixed";
-      //     menu.style.left = event.pageX + "px";
-      //     menu.style.top = event.pageY + "px";
-      //   });
-      // }, 1000);
+      //测试promise.all res也为数组[getitems的结果],执行顺序是task1=》task2=》then
+      // Promise.all([this.getItems(),this.getOrderItems()]).then(res => {
+      //   that.getReportItems();
+      // });
+      //测试async,可行
+      // let task1 = await this.getItems();
+      // let task2 = await this.getOrderItems();
+      // that.getReportItems()
     },
     //获取用户信息是从父页面获取的
-    //获取开单项目
+    //获取开单组合项目和子项目
     getItems() {
       var that = this;
       let entity = {};
       //拼接提交数据
       entity.orderCode = that.orderCode;
-      entity.RptItemCode = that.RptItemCode;
+      // entity.RptItemCode = that.RptItemCode;
       let pro = new Promise((resolve, reject) => {
         that.$axios
-          .get(this.$api.GetLisSubItemResult, entity)
+          .get(this.$api.GetLisSubItemResult, { params: entity })
           .then(function(response) {
-            console.log(888, response.data);
+            alert(12321323);
             if (response.data.status == 1 && response.data.entity.length != 0) {
               that.items = response.data.entity;
               resolve(response.data.entity);
@@ -191,19 +206,162 @@ export default {
       });
       return pro;
     },
+    //获取报告项目填充下拉菜单
+    getReportItems() {
+      var that = this;
+      let entity = {};
+      //拼接提交数据
+      entity.orderCode = that.orderCode;
+      let pro = new Promise((resolve, reject) => {
+        that.$axios
+          .get(this.$api.GetOrderDicRptItem, { params: entity })
+          .then(function(response) {
+            if (response.data.status == 1 && response.data.entity.length != 0) {
+              that.rptItems = response.data.entity;
+              console.log(789789, that.rptItems);
+              resolve(true);
+            } else {
+              that.$message.error(`错误：${response.data.message}`);
+              reject(false);
+            }
+          })
+          .catch(function(error) {
+            that.$message.error(`错误：${error}`);
+            reject(false);
+          });
+      });
+      return pro;
+    },
+    //获取开单组合项目填充下拉菜单
+    getOrderItems() {
+      var that = this;
+      let entity = {};
+      //拼接提交数据
+      entity.orderCode = that.orderCode;
+      let pro = new Promise((resolve, reject) => {
+        that.$axios
+          .get(this.$api.GetDicOrderItems, { params: entity })
+          .then(function(response) {
+            if (response.data.status == 1 && response.data.entity.length != 0) {
+              that.rptItems = response.data.entity;
+              console.log(789789, that.rptItems);
+              resolve(true);
+            } else {
+              that.$message.error(`错误：${response.data.message}`);
+              reject(false);
+            }
+          })
+          .catch(function(error) {
+            that.$message.error(`错误：${error}`);
+            reject(false);
+          });
+      });
+      return pro;
+    },
     //编辑子项目
-    edit(row,index){
+    edit(row, index) {
       this.$refs.dialoglisedit.dialogVisible = true;
-      this.$refs.dialoglisedit.data = Object.assign(row,{});
+      this.$refs.dialoglisedit.data = Object.assign(row, {});
       this.$refs.dialoglisedit.isAbnormal = row.resultType;
     },
-hide(row,index){
-
-},
-//获取子界面更新后的值(逻辑也可以放在子界面，熟悉emit是否可以传多值)
-getChildValue(value1,value2){
-  value2.resultType = value1;
-}
+    //隐藏子项目
+    hide(row, index) {
+      let that = this;
+      let pro = new Promise((resolve, reject) => {
+        that.$axios
+          .post(this.$api.HiddenLisSubItemResult, { innerCode: row.innerCode })
+          .then(function(response) {
+            if (response.data.status == 1) {
+              that.getItems();
+              resolve(true);
+            } else {
+              that.$message.error(`错误：${response.data.message}`);
+              reject(false);
+            }
+          })
+          .catch(function(error) {
+            that.$message.error(`错误：${error}`);
+            reject(false);
+          });
+      });
+      return pro;
+    },
+    //全部取消隐藏子项目
+    allNotHide(row, index) {
+      let that = this;
+      let pro = new Promise((resolve, reject) => {
+        that.$axios
+          .post(this.$api.ShowRptItemResults, { orderCode: that.orderCode })
+          .then(function(response) {
+            if (response.data.status == 1) {
+              that.getItems();
+              resolve(true);
+            } else {
+              that.$message.error(`错误：${response.data.message}`);
+              reject(false);
+            }
+          })
+          .catch(function(error) {
+            that.$message.error(`错误：${error}`);
+            reject(false);
+          });
+      });
+      return pro;
+    },
+    //归类报告项目
+    sortRpt(value) {
+      let that = this;
+      let pro = new Promise((resolve, reject) => {
+        that.$axios
+          .post(this.$api.SaveRptSubItem4RptItem, {
+            orderCode: that.orderCode,
+            rptItemCode: value.rptItemCode,
+            rptSubItemCode: value.rptSubItemCode
+          })
+          .then(function(response) {
+            if (response.data.status == 1) {
+              resolve(true);
+            } else {
+              that.$message.error(`错误：${response.data.message}`);
+              reject(false);
+            }
+          })
+          .catch(function(error) {
+            that.$message.error(`错误：${error}`);
+            reject(false);
+          });
+      });
+      return pro;
+    },
+    //归类开单项目
+    sortOrder(value) {
+      let that = this;
+      let pro = new Promise((resolve, reject) => {
+        that.$axios
+          .post(this.$api.SaveRptSubItem4DicOrderItem, {
+            orderCode: that.orderCode,
+            rptItemCode: value.rptItemCode,
+            rptSubItemCode: value.rptSubItemCode
+          })
+          .then(function(response) {
+            if (response.data.status == 1) {
+              resolve(true);
+            } else {
+              that.$message.error(`错误：${response.data.message}`);
+              reject(false);
+            }
+          })
+          .catch(function(error) {
+            that.$message.error(`错误：${error}`);
+            reject(false);
+          });
+      });
+      return pro;
+    },
+    //获取子界面更新后的值(逻辑也可以放在子界面，熟悉emit是否可以传多值)
+    getChildValue(value1, value2) {
+      value2.resultType = value1;
+    }
   }
 };
 </script>

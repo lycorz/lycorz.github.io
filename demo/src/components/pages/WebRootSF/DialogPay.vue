@@ -5,24 +5,31 @@
       title="缴费确认"
       :visible.sync="dialogpayVisible"
       @open="getinit"
-      width="900px"
+      width="600px"
       :before-close="unLock"
+      :close-on-click-modal="false"
     >
-      <div class="customerName">客户信息</div>
+      <div>
+        <div class="customerName"></div>
+        <span class="vertical">必要信息</span>
+      </div>
       <div class="infomation">
         <el-form ref="form" label-width="80px" :inline="true">
           <el-form-item label="金额：" label-width="80">
             <span class="span">￥{{money}} 元</span>
           </el-form-item>
-          <el-form-item label="发票号：" label-width="80">
-            <span>{{paycode}}</span>
-          </el-form-item>
           <el-form-item label="抬头：" label-width="80">
             <el-input v-model="taitou"></el-input>
           </el-form-item>
+          <el-form-item label="发票号：" label-width="80">
+            <span>{{paycode}}</span>
+          </el-form-item>
         </el-form>
       </div>
-      <div class="customerName">缴费方式</div>
+      <div>
+        <div class="customerName"></div>
+        <span class="vertical">缴费方式</span>
+      </div>
       <div class="paytype">
         <el-form ref="form1" label-width="80px" :inline="true">
           <div v-for="(item,index) in MoneyDatas" :key="index" class="typecontainer">
@@ -59,8 +66,7 @@
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="unLock">取 消</el-button>
-        <el-button>打印发票</el-button>
+        <el-button @click="InvoicePrint" :disable="money <= 0">打印发票</el-button>
         <el-button type="primary" @click="goPay">确定缴费</el-button>
       </span>
     </el-dialog>
@@ -69,6 +75,7 @@
 
 
 <script>
+import { resolve, reject } from "q";
 export default {
   name: "dialogpay",
   data() {
@@ -166,6 +173,7 @@ export default {
           that.$message.error(`错误：${error}`);
         });
     },
+    // 添加新缴费方式
     addNewPay() {
       let obj = {};
       obj.values = 1;
@@ -231,7 +239,7 @@ export default {
             if (response.data.entity == true) {
               that.$message.success("缴费成功");
               that.$parent.getUser();
-              that.dialogpayVisible = false;
+              // that.dialogpayVisible = false;
             }
           } else {
             that.$message.error(`错误：${response.data.message}`);
@@ -240,6 +248,36 @@ export default {
         .catch(function(error) {
           that.$message.error(`错误：${error}`);
         });
+    },
+    // 打印发票，发票入库
+    InvoicePrint() {
+      let that = this;
+      let pro = new Promise((resolve, reject) => {
+        that.$axios
+          .get(this.$api.InvoicePrint, {
+            params: {
+              TradeCode: that.tradeCode,
+              invoiceNum: that.paycode,
+              accountName: that.taitou,
+              OperatorCode: that.OperatorCode
+            }
+          })
+          .then(function(response) {
+            if (response.data.status == 1) {
+              if (response.data.entity == true) {
+                that.$message.success("发票绑定订单成功");
+                that.$parent.getUser();
+                that.dialogpayVisible = false;
+              }
+            } else {
+              that.$message.error(`错误：${response.data.message}`);
+            }
+          })
+          .catch(function(error) {
+            that.$message.error(`错误：${error}`);
+          });
+      });
+      return pro;
     }
   }
 };
@@ -248,21 +286,24 @@ export default {
 <style scoped>
 /* gzp */
 #dialogpay .customerName {
+  background: #409fff;
+  width: 5px;
   height: 16px;
-  background: rgba(246, 246, 246, 1);
-  opacity: 1;
-  border-radius: 4px;
-  font-size: 14px;
-  line-height: 16px;
-  padding: 16px;
-  color: #606266;
+  margin-right: 10px;
+  display: inline-block;
+}
+.vertical {
+  vertical-align: top;
 }
 #dialogpay .info {
   color: #606266;
   font-size: 12px;
 }
 #dialogpay .infomation .el-form-item {
-  width: 46%;
+  width: 48%;
+}
+#dialogpay .infomation .el-form-item:first-child{
+   width: 100%;
 }
 #dialogpay form {
   margin-bottom: 20px;
@@ -273,6 +314,9 @@ export default {
 }
 #dialogpay .paytype .el-form-item {
   margin-right: 0px;
+}
+#dialogpay .typecontainer .el-form-item:nth-child(2) {
+  width: 110px;
 }
 #dialogpay .paytype .inputselect {
   border-radius: 0px;
@@ -289,7 +333,7 @@ export default {
   display: inline-block;
 }
 #dialogpay .btnplain {
-  width: 320px;
+  width: 220px;
 }
 #dialogpay .yuan {
   line-height: 32px;

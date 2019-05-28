@@ -1,7 +1,7 @@
 <template>
   <div class="content RoleIndex">
     <div class="topTitle">
-      <span>角色字典</span>
+      <span>角色</span>
     </div>
     <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
@@ -30,11 +30,30 @@
         style="width: 100%"
       >
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column property="roleCode" width="150px" label="角色编号" align="left"></el-table-column>
-        <el-table-column property="roleName" width="150px" label="角色名称" align="left"></el-table-column>
-        <el-table-column property="funcNames" show-overflow-tooltip label="功能项集合" align="left"></el-table-column>
-        <el-table-column property="discountLowLimit" width="100px" label="最低折扣" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="200px">
+        <el-table-column property="roleCode"  label="角色编号" align="left"></el-table-column>
+        <el-table-column property="roleName" label="角色名称" align="left"></el-table-column>
+        <el-table-column show-overflow-tooltip label="功能项集合" align="left">
+          <template slot-scope="scope">
+            <el-popover trigger="click" @show="getRole(scope.row.roleCode)" placement="bottom">
+              <div class="tree">
+                <el-tree
+                  :data="treeOptions"
+                  show-checkbox
+                  accordion
+                  :default-checked-keys="treeDefaultCheckd"
+                  node-key="funcCode"
+                  ref="tree"
+                  highlight-current
+                  :props="defaultProps"
+                ></el-tree>
+              </div>
+              <!-- <span slot="reference">{{scope.row.funcNames}}</span> -->
+              <el-button v-if="scope.row.funcCodes!=''" type="text" slot="reference">查看功能项</el-button>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column property="discountLowLimit"  label="最低折扣" align="center"></el-table-column>
+        <el-table-column label="操作" align="center" fixed="right" width="80px" >
           <template slot-scope="scope">
             <el-button type="text" @click="edit(scope.$index,scope.row)">编辑</el-button>
           </template>
@@ -47,8 +66,9 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+            :page-sizes="[10,20,50,100]"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>
@@ -70,6 +90,13 @@ export default {
       loading: false,
       pageNum: 1,
       tableData: [],
+      //tree
+      treeOptions: [],
+      treeDefaultCheckd: [],
+      defaultProps: {
+        children: "childrenNodes",
+        label: "funcName"
+      },
       searchParams: {
         roleName: "",
         pageSize: 10,
@@ -80,6 +107,7 @@ export default {
   },
   created: function() {
     this.getData();
+    this.GetAllFuncSort();
   },
   provide() {
     return {
@@ -105,6 +133,48 @@ export default {
       this.getData();
     },
     /* 	data 	*/
+    //报告功能项目分级树形
+    GetAllFuncSort() {
+      this.$axios
+        .get(this.$api.GetAllFuncSort)
+        .then(res => {
+          if (res.status == 200 && res.data.status == 1) {
+            this.treeOptions = this.getOptionsData(res.data.entity);
+          } else {
+            console.log(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
+    getOptionsData(data) {
+      for (var i = 0; i < data.length; i++) {
+        data[i]["disabled"] = true; //Question:是否可选，不可选的话看起来不直观。
+        if (data[i].childrenNodes.length < 1) {
+          data[i].childrenNodes = undefined;
+        } else {
+          this.getOptionsData(data[i].childrenNodes);
+        }
+      }
+      return data;
+    },
+    getRole(roleCode) {
+      this.$refs.tree.setCheckedKeys([]);
+      this.$axios
+        .get(this.$api.GetRole, { params: { key: roleCode } })
+        .then(res => {
+          if (res.data.status == 1) {
+            this.treeDefaultCheckd = res.data.entity.funcCodes.split(",");
+            console.log(this.treeDefaultCheckd);
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
     getData() {
       this.loading = true;
       let that = this;

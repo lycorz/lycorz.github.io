@@ -1,7 +1,7 @@
 <template>
   <div class="content UserIndex">
     <div class="topTitle">
-      <span>用户字典</span>
+      <span>用户管理</span>
     </div>
     <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
@@ -30,8 +30,8 @@
         v-loading="loading"
         style="width: 100%"
       >
-        <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column type="expand">
+        <el-table-column type="selection" width="35px"></el-table-column>
+        <el-table-column type="expand" width="20px">
           <template slot-scope="scope">
             <el-table
               ref="singleTableson"
@@ -57,14 +57,11 @@
                   <el-button
                     v-if="scopedata.row.certPhoto"
                     type="text"
-                    @click="showCertImg(scope.$index,scope.row)"
+                    @click="showCertImg(scopedata.$index,scopedata.row)"
                   >点击预览</el-button>
                   <span v-else>暂无</span>
                 </template>
               </el-table-column>
-              <el-dialog :visible.sync="imgdialogVisible" class="infoucs">
-                <img width="100%" :src="dialogImageUrl" alt>
-              </el-dialog>
               <el-table-column label="操作" align="center" width="200px">
                 <template slot-scope="scopedata2">
                   <el-button
@@ -87,10 +84,32 @@
         <el-table-column property="idcardNum" label="身份证号" align="left"></el-table-column>
         <el-table-column property="tele" label="联系电话" align="left"></el-table-column>
         <el-table-column property="roleNames" label="所属角色" align="left"></el-table-column>
-        <el-table-column property="discountLowLimit" label="折扣下限" align="left"></el-table-column>
-        <el-table-column property="funcNames" show-overflow-tooltip label="功能项集合" align="left"></el-table-column>
+        <el-table-column property="discountLowLimit" label="折扣下限" align="center"></el-table-column>
+        <el-table-column property="funcNames" label="功能项集合" align="left">
+          <template slot-scope="scope">
+            <el-popover trigger="click" @show="getRole(scope.row.operatorCode)" placement="bottom">
+              <div class="tree">
+                <el-tree
+                  :data="treeOptions"
+                  show-checkbox
+                  accordion
+                  :default-checked-keys="treeDefaultCheckd"
+                  node-key="funcCode"
+                  ref="tree"
+                  highlight-current
+                  :props="defaultProps"
+                ></el-tree>
+              </div>
+              <!-- <span slot="reference">{{scope.row.funcNames}}</span> -->
+              <el-button v-if="scope.row.funcItems!=''" type="text" slot="reference">查看功能项</el-button>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column property="canExcItemLimit" label="优惠自由" align="center">
+          <template slot-scope="scope">{{scope.row.canExcItemLimit | boolFilter}}</template>
+        </el-table-column>
         <el-table-column property="remark" show-overflow-tooltip label="备注" align="left"></el-table-column>
-        <el-table-column label="操作" align="center" width="200px">
+        <el-table-column label="操作" align="center" fixed="right" width="150px">
           <template slot-scope="scope">
             <el-button type="text" @click="addCertificate(scope.$index,scope.row)">添加证书</el-button>
             <el-button type="text" @click="edit(scope.$index,scope.row)">编辑</el-button>
@@ -104,12 +123,22 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+             :page-sizes="[10,20,50,100]"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>
       </div>
+      <el-dialog :visible.sync="imgdialogVisible" width="700px" class="infoucs">
+        <el-carousel arrow="always" height="600px">
+          <el-carousel-item v-for="item in imgItems" :key="item">
+            <div style="background: #475669; height:600px;width:700px">
+              <img width="100%" :src="item">
+            </div>
+          </el-carousel-item>
+        </el-carousel>
+      </el-dialog>
     </div>
     <UserCreate ref="UserCreate"></UserCreate>
     <CertCreate ref="CertCreate"></CertCreate>
@@ -119,6 +148,7 @@
 <script>
 import UserCreate from "./Create.vue";
 import CertCreate from "./CertCreate.vue";
+import consts from "../../../../utils/const";
 export default {
   name: "UserIndex",
   components: { UserCreate, CertCreate },
@@ -129,8 +159,17 @@ export default {
       loading: false,
       pageNum: 1,
       tableData: [],
-      dialogImageUrl:"",
-      imgdialogVisible:false,
+      dialogImageUrl: "",
+      imgdialogVisible: false,
+      basePath: consts.IMG_BASE_PATH,
+      imgItems: [],
+      //tree
+      treeOptions: [],
+      treeDefaultCheckd: [],
+      defaultProps: {
+        children: "childrenNodes",
+        label: "funcName"
+      },
       searchParams: {
         userName: "",
         pageSize: 10,
@@ -141,6 +180,7 @@ export default {
   },
   created: function() {
     this.getData();
+    this.GetAllFuncSort();
   },
   provide() {
     return {
@@ -149,7 +189,7 @@ export default {
   },
   filters: {
     boolFilter(value, row, column) {
-      return value ? "是" : "否";
+      return value  ? "是" : "否";
     }
   },
   methods: {
@@ -166,6 +206,48 @@ export default {
       this.getData();
     },
     /* 	data 	*/
+    //报告功能项目分级树形
+    GetAllFuncSort() {
+      this.$axios
+        .get(this.$api.GetAllFuncSort)
+        .then(res => {
+          if (res.status == 200 && res.data.status == 1) {
+            this.treeOptions = this.getOptionsData(res.data.entity);
+          } else {
+            console.log(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
+    getOptionsData(data) {
+      for (var i = 0; i < data.length; i++) {
+        data[i]["disabled"] = true; //Question:是否可选，不可选的话看起来不直观。
+        if (data[i].childrenNodes.length < 1) {
+          data[i].childrenNodes = undefined;
+        } else {
+          this.getOptionsData(data[i].childrenNodes);
+        }
+      }
+      return data;
+    },
+    getRole(roleCode) {
+      this.$refs.tree.setCheckedKeys([]);
+      this.$axios
+        .get(this.$api.GetUser, { params: { key: roleCode } })
+        .then(res => {
+          if (res.data.status == 1) {
+            this.treeDefaultCheckd = res.data.entity.funcItems.split(",");
+            // console.log(this.treeDefaultCheckd);
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
     getData() {
       this.loading = true;
       let that = this;
@@ -204,8 +286,11 @@ export default {
       UserCreate.isShow = true;
     },
     //证书相关
-    showCertImg(index,row){
-      this.dialogImageUrl = row.certPhoto;
+    showCertImg(index, row) {
+      this.imgItems = row.certPhoto.split(";").map(z => {
+        return this.basePath + z;
+      });
+      console.log(this.imgItems);
       this.imgdialogVisible = true;
     },
     addCertificate(index, row) {
@@ -232,7 +317,7 @@ export default {
         }
       ).then(() => {
         this.$axios
-          .post(this.$api.BatchDeleteUserCert,keys )
+          .post(this.$api.BatchDeleteUserCert, keys)
           .then(res => {
             if (res.status == 200 && res.data.status == 1) {
               this.$message.success("删除成功！");

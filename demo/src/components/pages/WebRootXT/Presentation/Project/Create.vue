@@ -62,7 +62,7 @@ export default {
         subItemName: "",
         itemCode: "",
         unit: "",
-        orderNum: "",
+        orderNum: 0,
         isEnable: true // bool
       },
       boolItems: [

@@ -8,5 +8,11 @@ if (process.env.NODE_ENV === 'production'){
 	baseURL = 'http://192.168.0.254:8889'
 }
 axios.defaults.baseURL = baseURL;
+axios.interceptors.request.use(config => {
+	config.headers.OperatorCode  ='001';
+	return config;
+}, err => {
+	return Promise.reject(err)
+})
 
 export default axios

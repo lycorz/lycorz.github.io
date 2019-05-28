@@ -3,7 +3,7 @@
     <el-dialog
       class="infoucs"
       width="900px"
-      title="非检查项目获取异常规则"
+      title="非检验项目获取异常规则"
       :visible.sync="isShow"
       :before-close="close"
       @open="init"
@@ -38,7 +38,7 @@
           <el-table-column width="150px" property="rptItemName" show-overflow-tooltip label="报告组合项目" align="left"></el-table-column>
           <el-table-column property="keys" show-overflow-tooltip label="关键词" align="center"></el-table-column>
           <!-- <el-table-column property="abnormalName" show-overflow-tooltip label="异常" align="center"></el-table-column> -->
-          <el-table-column label="操作" align="center" width="100px">
+          <el-table-column label="操作" align="center"  fixed="right" width="100px">
             <template slot-scope="scope">
               <el-button type="text" @click="showEditDialog(scope.$index,scope.row)">编辑</el-button>
             </template>

@@ -30,9 +30,6 @@
 import {mapMutations} from 'vuex';
 export default {
 	name: 'Login',
-	created(){
-
-	},
 	data () {
 			return {
 					ruleForm: {
@@ -54,18 +51,15 @@ export default {
 		submitForm(formName) {
 			this.$refs[formName].validate((valid) => {
 				if (valid) {
-					var _this = this;
 					this.$axios.post(this.$api.Login, this.ruleForm).then(res => {
 						if (res.data.status === 1) {
-							console.log(this.$store)
-							console.log(this.$router)
-							_this.$store.commit('getUserInfo', res.data.entity);
-							_this.$router.push('/');
+							this.$store.commit('getUserInfo', res.data.entity);
+							this.$router.push('/dd/DDOrder');
 						} else {
-							_this.$message.error(res.data.message);
+							this.$message.error(res.data.message);
 						}
 					}).catch (err => {
-						_this.$message.error(err.data.message);
+						this.$message.error(err.data.message);
 					});
 				}
 			})

@@ -97,8 +97,8 @@ export default {
   }
 };
 </script>
-<style>
-.customerName {
+<style scoped>
+#dialoggroupjy .customerName {
   height: 16px;
   background: rgba(246, 246, 246, 1);
   opacity: 1;
@@ -117,11 +117,11 @@ export default {
 .sec2 span:nth-child(2) {
   color: #f56c6c;
 }
-#dialoggroupjy .el-table__body-wrapper {
+#dialoggroupjy >>> .el-table__body-wrapper {
   height: 400px;
   overflow-y: auto;
 }
-#dialoggroupjy .el-icon-arrow-left {
+#dialoggroupjy >>> .el-icon-arrow-left {
   cursor: pointer;
 }
 </style>

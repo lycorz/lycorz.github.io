@@ -19,7 +19,6 @@
                 placeholder="业务类型"
                 style="width:150px;display:inline-block;margin-left:10px;"
               >
-                <el-option label="全部" value></el-option>
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -31,7 +30,7 @@
                 <span>入库时间：</span>
                 <el-date-picker
                   v-model="tfDate1"
-                  type="datetimerange"
+                  type="daterange"
                   :picker-options="pickerOptions2"
                   range-separator="至"
                   start-placeholder="开始日期"
@@ -40,6 +39,16 @@
                 ></el-date-picker>
               </div>
               <el-button type="primary" @click="getUser()">查询</el-button>
+              <el-dropdown class="dpdown">
+                <el-button type="primary">
+                  刷卡
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item>刷身份证</el-dropdown-item>
+                  <el-dropdown-item>刷体检卡</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </div>
           </div>
           <el-table
@@ -72,7 +81,7 @@
                 :current-page="pageIndex"
                 @current-change="handleCurrentChange"
                 @size-change="sizeChange"
-                :page-sizes="[10, 15, 20, 30,50,100]"
+                :page-sizes="[10,20,50,100]"
                 layout="total,sizes, prev, pager, next, jumper"
                 :page-count="pagesz"
                 :total="totalData"
@@ -97,7 +106,6 @@
                 placeholder="业务类型"
                 style="width:150px;display:inline-block;margin-left:10px;"
               >
-                <el-option label="全部" value></el-option>
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -109,7 +117,7 @@
                 <span>入库时间：</span>
                 <el-date-picker
                   v-model="tfDate"
-                  type="datetimerange"
+                  type="daterange"
                   :picker-options="pickerOptions2"
                   range-separator="至"
                   start-placeholder="开始日期"
@@ -118,6 +126,16 @@
                 ></el-date-picker>
               </div>
               <el-button type="primary" @click="getUser()">查询</el-button>
+              <el-dropdown class="dpdown">
+                <el-button type="primary">
+                  刷卡
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item>刷身份证</el-dropdown-item>
+                  <el-dropdown-item>刷体检卡</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </div>
           </div>
           <el-table
@@ -134,7 +152,7 @@
             <el-table-column prop="createTime" label="创建时间" width="200">
               <template slot-scope="scope">{{scope.row.createTime | formatDate}}</template>
             </el-table-column>
-            <el-table-column prop="tradeMoney" label="缴费金额"></el-table-column>
+            <el-table-column prop="tradeMoney" label="退费金额"></el-table-column>
             <el-table-column label="操作" width="150" align="center" fixed="right">
               <template slot-scope="scope">
                 <el-button @click="watch(scope.row,scope.$index)" type="text" size="small">详情</el-button>
@@ -150,7 +168,7 @@
                 :current-page="pageIndex"
                 @current-change="handleCurrentChange"
                 @size-change="sizeChange"
-                :page-sizes="[10, 15, 20, 30,50,100]"
+                :page-sizes="[10,20,50,100]"
                 layout="total,sizes, prev, pager, next, jumper"
                 :page-count="pagesz"
                 :total="totalData"
@@ -204,6 +222,7 @@ export default {
         new Date(new Date().getTime() - 3600 * 1000 * 24 * 30),
         new Date()
       ],
+      //交易类型 1 个检 2团检
       typecode: "",
       tradeName1: "",
       tfDate1: [
@@ -312,7 +331,7 @@ export default {
             }
           })
           .then(function(response) {
-            console.log(response.data.entity)
+            console.log(response.data.entity);
             that.loading = false;
             if (response.data.status == 1) {
               that.tableData = response.data.entity.tradeMessages;
@@ -396,6 +415,10 @@ export default {
         this.$refs.dialogpayback.tradeType = 2;
         this.$refs.dialogpayback.orderCode = row.grpOrderCode;
       }
+      //清空发票
+      this.$refs.dialogpayback.optionItems = [];
+      this.$refs.dialogpayback.value11 = [];
+      this.$refs.dialogpayback.selectedMoney = 0;
       this.$refs.dialogpayback.dialogPayBackVisible = true;
       this.$refs.dialogpayback.tradeCode = row.tradeCode;
       this.$refs.dialogpayback.money = row.tradeMoney;
@@ -435,8 +458,8 @@ export default {
 .SFJYManage >>> .el-tab-pane,
 .SFJYManage >>> .el-tabs.el-tabs--top {
   display: flex;
-	height: 100%;
-	flex: 1;
+  height: 100%;
+  flex: 1;
   flex-direction: column;
 }
 .SFJYManage >>> .el-tabs__header {
@@ -451,9 +474,22 @@ export default {
 }
 .SFJYManage .fixBottom {
   flex: 0 0 40px;
+
 }
 /* .SFJYManage >>> .el-table--fit {
 	height: 79vh;
 } */
+.el-dropdown {
+  vertical-align: top;
+}
+.el-dropdown + .el-dropdown {
+  margin-left: 15px;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
+}
+.dpdown {
+  float: right;
+}
 </style>
 

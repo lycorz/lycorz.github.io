@@ -33,7 +33,7 @@ export default {
       this.adviceEditVisible = false;
     },
     getInit() {
-      this.content = "";
+      this.summary = "";
     }
   }
 };

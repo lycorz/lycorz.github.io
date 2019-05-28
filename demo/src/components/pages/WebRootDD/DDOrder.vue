@@ -1,568 +1,546 @@
 <template>
   <div class="content">
     <div class="topTitle">
-        <span>个检订单</span>
-				<span v-show="submitParams.Order.PackageName" class="subitem" style="margin-left:8px;">已选套餐：{{submitParams.Order.PackageName}}</span>
-        <div class="right">
-            <el-button @click="addPackageModal = true" :disabled="isEdit" icon="el-icon-plus">添加套餐</el-button>
-            <el-checkbox v-model="orderVipFlag" :disabled="isEdit">VIP</el-checkbox>
-						<el-select v-model="submitParams.Order.OrderType" placeholder="订单类型" :disabled="isEdit">
-                <el-option v-for="item in orderType" :key="item.value" :label="item.name" :value="item.value"></el-option>
-            </el-select>
-            <el-select v-model="submitParams.Order.ReportTakeWay"  placeholder="报告领取方式" :disabled="isEdit">
-                <el-option v-for="item in reportTake" :key="item.value" :label="item.name" :value="item.value"></el-option>
-            </el-select>
-						<el-select v-model="submitParams.Order.ReportTakeWay" placeholder="报告类型" :disabled="isEdit" style="display: none">
-                <el-option v-for="item in reportType" :key="item.value" :label="item.name" :value="item.value"></el-option>
-            </el-select>
-            <el-button type="primary" @click="submitOrder" :disabled="isEdit" :loading="isSubmit">提交</el-button>
-        </div>
+			<span>个检订单</span>
+			<span v-show="submitParams.Order.PackageName" class="subitem" style="margin-left:8px;">已选套餐：{{submitParams.Order.PackageName}}</span>
+			<div class="right">
+				<el-select v-model="submitParams.Order.OrderType" placeholder="订单类型" :disabled="isEdit">
+					<el-option v-for="item in orderType" :key="item.value" :label="item.name" :value="item.value"></el-option>
+				</el-select>
+				<el-button @click="addPackageModal = true" :disabled="isEdit" icon="el-icon-plus">添加套餐</el-button>
+				<el-checkbox v-model="orderVipFlag" :disabled="isEdit">VIP</el-checkbox>
+				<el-select v-model="submitParams.Order.ReportTakeWay"  placeholder="报告领取方式" :disabled="isEdit">
+					<el-option v-for="item in reportTake" :key="item.value" :label="item.name" :value="item.value"></el-option>
+				</el-select>
+				<el-select v-model="submitParams.Order.ReportTakeWay" placeholder="报告类型" :disabled="isEdit" style="display: none">
+					<el-option v-for="item in reportType" :key="item.value" :label="item.name" :value="item.value"></el-option>
+				</el-select>
+				<el-button type="primary" @click="submitOrder" :disabled="isEdit" :loading="isSubmit">提交</el-button>
+			</div>
     </div>
     <el-row>
-        <div style="flex: 0 0 320px;border-right: 1px solid #DCDFE5;display: flex;flex-direction: column;" id="resizable">
-            <div class="subTitle">
-                <span>客户信息</span>
-            </div>
-            <div class="peopleInfo">
-                <el-form :model="submitParams.Order" :rules="rules" ref="submitInfo" label-width="70px" label-position="left">
-                    <el-row :gutter="16">
-                        <el-col :span="16">
-                            <el-form-item label="身份证号" prop="IdcardNum">
-                                <el-input v-model="submitParams.Order.IdcardNum" maxlength="18"></el-input>
-                            </el-form-item>
-                            <el-form-item label="体检账号" prop="CardNum">
-                                <el-input v-model="submitParams.Order.CardNum" maxlength="20" @keyup.enter.native="cardnumKeyup($event)"></el-input>
-                            </el-form-item>
-                            <el-form-item label="姓名" prop="CustomerName">
-                                <el-input v-model="submitParams.Order.CustomerName" :disabled="isEdit"></el-input>
-                            </el-form-item>
-                            <el-form-item label="性别" prop="Sex" class="sexValue">
-                                <el-select v-model="submitParams.Order.Sex"  :disabled="isEdit">
-                                    <el-option label="男" :value="1"></el-option>
-                                    <el-option label="女" :value="2"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" style="text-align: center;">
-                            <el-button type="primary" plain style="margin-top: 17px;width: 100%;" @click="getIdentity">刷身份证</el-button>
-                            <img v-if="submitParams.Order.Photo" :src="'data: image/bmp; base64,' + submitParams.Order.Photo" alt="" style="width: 80%;margin: 20px auto;">
-                            <img v-else src="@/assets/img/default.jpg" alt="" style="width: 80%;margin: 20px auto;">
-                            <el-button type="text" @click="getShot" :disabled="isEdit">拍照</el-button>
-                        </el-col>
-                    </el-row>
+			<div style="flex: 0 0 368px;border-right: 1px solid #DCDFE5;display: flex;flex-direction: column;" id="resizable">
+				<div class="subTitle">
+					<span>客户信息</span>
+				</div>
+				<div class="peopleInfo">
+						<el-form :model="submitParams.Order" :rules="rules" ref="submitInfo" label-width="70px" label-position="left">
+								<el-row :gutter="16">
+										<el-col :span="16">
+												<el-form-item label="身份证号" prop="IdcardNum">
+														<el-input v-model="submitParams.Order.IdcardNum" maxlength="18" ref="idCardNum"></el-input>
+												</el-form-item>
+												<el-form-item label="体检账号" prop="CardNum">
+														<el-input v-model="submitParams.Order.CardNum" maxlength="20" @keyup.enter.native="cardnumKeyup($event)"></el-input>
+												</el-form-item>
+												<el-form-item label="姓名" prop="CustomerName">
+														<el-input v-model="submitParams.Order.CustomerName" :disabled="isEdit"></el-input>
+												</el-form-item>
+												<el-form-item label="性别" prop="Sex" class="sexValue">
+														<el-select v-model="submitParams.Order.Sex"  :disabled="isEdit">
+																<el-option label="男" :value="1"></el-option>
+																<el-option label="女" :value="2"></el-option>
+														</el-select>
+												</el-form-item>
+										</el-col>
+										<el-col :span="8" style="text-align: center;">
+												<el-button type="primary" plain style="margin-top: 17px;width: 100%;" @click="getIdentity">刷身份证</el-button>
+												<img v-if="submitParams.Order.Photo" :src="'data: image/bmp; base64,' + submitParams.Order.Photo" alt="" style="width: 80%;margin: 20px auto;">
+												<img v-else src="@/assets/img/default.jpg" alt="" style="width: 80%;margin: 20px auto;">
+												<el-button type="text" @click="getShot" :disabled="isEdit">拍照</el-button>
+										</el-col>
+								</el-row>
 
-                    <el-form-item label="民族" prop="Nation">
-                        <el-input v-model="submitParams.Order.Nation" :disabled="isEdit"></el-input>
-                    </el-form-item>
-                    <el-row :gutter="16">
-                        <el-col :span="16">
-                            <el-form-item label="出生日期" prop="Birthday">
-                                <el-date-picker v-model="submitParams.Order.Birthday" class="w100" :disabled="isEdit"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-button-group style="margin-top: 17px; width: 100%;">
-                                <el-button style="padding: 7px 18px;width: 50%;">{{age}}</el-button>
-                                <el-button style="padding: 7px 18px;width: 50%;">岁</el-button>
-                            </el-button-group>
-                        </el-col>
-                    </el-row>
-                    <el-form-item label="VIP属性" prop="VipFlag">
-                        <el-radio-group v-model="submitParams.Order.VipFlag" :disabled="isEdit">
-                            <el-radio :label="1">是</el-radio>
-    												<el-radio :label="0">否</el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                    <el-form-item label="职业" prop="Occupation">
-                        <el-input v-model="submitParams.Order.Occupation" :disabled="isEdit"></el-input>
-                    </el-form-item>
-                    <el-form-item label="婚姻状况" prop="MaritalStatus">
-                        <el-select v-model="submitParams.Order.MaritalStatus" :disabled="isEdit">
-                            <el-option label="未婚" :value="1"></el-option>
-                            <el-option label="已婚" :value="2"></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="手机号" prop="Tele">
-                        <el-input v-model="submitParams.Order.Tele" :disabled="isEdit"></el-input>
-                    </el-form-item>
-                    <el-form-item label="地址" prop="Addr">
-                        <el-input v-model="submitParams.Order.Addr" :disabled="isEdit"></el-input>
-                    </el-form-item>
-                    <el-form-item label="部门" prop="DeptName">
-                        <el-input v-model="submitParams.Order.DeptName" :disabled="isEdit"></el-input>
-                    </el-form-item>
-                    <el-form-item label="班组" prop="TeamName">
-                        <el-input v-model="submitParams.Order.TeamName" :disabled="isEdit"></el-input>
-                    </el-form-item>
-                    <el-form-item label="备注信息" prop="Remark">
-                        <el-input type="textarea" v-model="submitParams.Order.Remark" :disabled="isEdit"></el-input>
-                    </el-form-item>
-                </el-form>
-            </div>
-        </div>
-        <div style="flex:1;overflow: hidden;display: flex;flex-direction: column;">
-            <div class="subTitle">
-                <span class="subitem labelColor">订单信息</span>
-                <span class="subitem"><span style="font-family: 'Arial'">{{submitParams.Order.CreateOrderTime}}</span>创建</span>
-								<div class="right" v-show="submitParams.Order.OrderCode != '00000000-0000-0000-0000-000000000000'">
-									<el-popover
-										placement="bottom"
-										width="160"
-										v-model="visible1">
-										<p>是否打印导检单？</p>
-										<div style="text-align: right; margin: 0">
-											<el-button size="mini" type="text" @click="visible1 = false">取消</el-button>
-											<el-button type="primary" size="mini" @click="printGuide">确定</el-button>
-										</div>
-										<el-button slot="reference">打印导检单</el-button>
-									</el-popover>
-									<el-popover
-										placement="bottom"
-										width="160"
-										style="margin: 0 8px;"
-										v-model="visible2">
-										<p>是否打印姓名条码？</p>
-										<div style="text-align: right; margin: 0">
-											<el-button size="mini" type="text" @click="visible2 = false">取消</el-button>
-											<el-button type="primary" size="mini" @click="printName">确定</el-button>
-										</div>
-										<el-button slot="reference">打印姓名条码</el-button>
-									</el-popover>
-									<el-button @click="printCheckModal">打印检验条码</el-button>
-								</div>
-            </div>
-            <div class="peopleData">
-                <div class="propleSearch">
-                    <el-button @click="addProjectModal = true" :disabled="isEdit" icon="el-icon-plus">添加项目</el-button>
-                    <el-button @click="delModal" :disabled="isEdit" icon="el-icon-delete">删除</el-button>
-                    <el-button @click="discountBtn" :disabled="isEdit">打折</el-button>
-                   <div class="right">
-                      <span class="subitem">单位付费（总金额）： ￥<span class="labelColor ftArial">{{ submitParams.Order.OrderMoney.toFixed(2) || 0}}</span></span>
-                        <span class="subitem">单位付费： ￥<span class="labelColor ftArial">{{ submitParams.Order.UnitPayMoney.toFixed(2) || 0}}</span></span>
-                        <span class="subitem">个人已付： ￥<span class="labelColor ftArial">{{ submitParams.Order.PaidMoney.toFixed(2) || 0}}</span></span>
-                        <span class="subitem">本次应收： ￥<span class="labelColor ftArial">{{ (submitParams.Order.OrderMoney - submitParams.Order.UnitPayMoney - submitParams.Order.PaidMoney).toFixed(2) || 0}}</span></span>
-                    </div>
-                </div>
-            </div>
-            <el-table ref="table" :data="tableData" tooltip-effect="dark" style="width: 100%" @row-click="clickRow($event, 'table')"
-                @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="55">
-                </el-table-column>
-                <el-table-column prop="itemName" label="项目名称" :show-overflow-tooltip="true">
-                </el-table-column>
-                <el-table-column prop="isUnitItem" label="付费方式" width="100px" align="center">
-									<template slot-scope="scope">
-										{{scope.row.feeType ? scope.row.feeType :'个人'}}
-									</template>
-                </el-table-column>
-                <el-table-column prop="fullPrice" label="原价" sortable width="150px" align="center">
-									<template slot-scope="scope">
-										￥{{scope.row.fullPrice || 0}}
-									</template>
-                </el-table-column>
-                <el-table-column prop="exePrice" label="执行价格" sortable width="150px" align="center">
-									<template slot-scope="scope">
-										￥{{scope.row.exePrice || 0}}
-									</template>
-                </el-table-column>
-                <el-table-column prop="checkStatus" label="项目状态" width="200px">
-									<template slot-scope="scope">
-										{{scope.row.checkStatus === 1 ? '已检' : '未检'}}
-									</template>
-                </el-table-column>
-            </el-table>
-            <!-- 底部信息栏 -->
-            <div class="fixBottom">
-                <el-button type="text" @click="toggleSelection('tableData', 'table')">反选</el-button>
-                <span class="subitem">合计： <span class="labelColor ftArial">{{tableData.length || 0}}</span></span>
-                <span class="subitem">选中： <span class="labelColor ftArial">{{multipleSelection.length || 0}}</span></span>
-								<div class="right">
-									<span class="subitem">原价： ￥<span class="labelColor ftArial">{{ totalPrice.toFixed(2) || 0 }}</span></span>
-									<span class="subitem">折扣金额： ￥<span class="labelColor ftArial">{{ (totalPrice - exePrice).toFixed(2) || 0 }}</span></span>
-									<span class="subitem">实收： ￥<span class="labelColor ftArial">{{exePrice.toFixed(2) || 0 }}</span></span>
-								</div>
-            </div>
-            <!-- 弹窗块 -->
-            <el-dialog title="添加套餐" :visible.sync="addPackageModal" :close-on-click-modal="false" width="500px" @open="getPackageList(0)">
-							<el-tabs v-model="activePackageName" type="card" class="addTabs packagesTabs" @tab-click="tabsPackageClick">
-								<el-tab-pane label="普通套餐" name="package1">
-									<div class="modal-tree">
-										<div class="modal-con">
-											<el-tree
-												:data="GetPackageList1"
-												show-checkbox
-												node-key="id"
-												ref="tree1"
-												@check="treeClick1"
-												>
-											</el-tree>
-										</div>
-										<div class="packageDis">
-											<span class="item">原价：￥ <span>{{packageDiscount.totalPrice || 0}}</span></span>
-											<span class="item">折扣：<el-input type="number" v-model.number="packageDiscount.discount" @keydown.13.native="packageDiscountHandle"></el-input></span>
-											<span class="item">实收：<el-input type="number" v-model.number="packageDiscount.exePrice" @keydown.13.native="packageExePriceHandle"></el-input>元</span>
-										</div>
-									</div>
-								</el-tab-pane>
-								<el-tab-pane label="筛查套餐" name="package2">
-									<div class="modal-tree addPackage">
-										<div class="modal-con">
-											<el-tree
-												:data="GetPackageList2"
-												show-checkbox
-												node-key="id"
-												ref="tree2"
-												@check="treeClick2"
-												>
-											</el-tree>
-										</div>
-										<div class="packageDis">
-											<span class="item">原价：￥ <span>{{packageDiscount.totalPrice || 0}}</span></span>
-											<span class="item">折扣：<el-input type="number" v-model.number="packageDiscount.discount" @keydown.13.native="packageDiscountHandle"></el-input></span>
-											<span class="item">实收：<el-input type="number" v-model.number="packageDiscount.exePrice" @keydown.13.native="packageExePriceHandle"></el-input>元</span>
-										</div>
-									</div>
-								</el-tab-pane>
-							</el-tabs>
-							<div slot="footer" class="dialog-footer">
-									<el-button @click="cancelPackageBtn" style="margin-right: 8px;">取 消</el-button>
-									<el-popover
-										placement="top"
-										width="160"
-										v-model="visible3">
-										<p>点击确定将替换原选的项目及套餐！</p>
-										<div style="text-align: right; margin: 0">
-											<el-button size="mini" type="text" @click="visible3 = false">取消</el-button>
-											<el-button type="primary" size="mini" @click="addPackageBtn">确定</el-button>
-										</div>
-										<el-button slot="reference" type="primary">确 定</el-button>
-									</el-popover>
+								<el-form-item label="民族" prop="Nation">
+										<el-input v-model="submitParams.Order.Nation" :disabled="isEdit"></el-input>
+								</el-form-item>
+								<el-row :gutter="16">
+										<el-col :span="16">
+												<el-form-item label="出生日期" prop="Birthday">
+														<el-date-picker v-model="submitParams.Order.Birthday" class="w100" :disabled="isEdit"></el-date-picker>
+												</el-form-item>
+										</el-col>
+										<el-col :span="8">
+												<el-button-group style="margin-top: 17px; width: 100%;">
+														<el-button style="padding: 7px 18px;width: 50%;">{{age}}</el-button>
+														<el-button style="padding: 7px 18px;width: 50%;">岁</el-button>
+												</el-button-group>
+										</el-col>
+								</el-row>
+								<el-form-item label="VIP属性" prop="VipFlag">
+										<el-radio-group v-model="submitParams.Order.VipFlag" :disabled="isEdit">
+												<el-radio :label="1">是</el-radio>
+												<el-radio :label="0">否</el-radio>
+										</el-radio-group>
+								</el-form-item>
+								<el-form-item label="职业" prop="Occupation">
+										<el-input v-model="submitParams.Order.Occupation" :disabled="isEdit"></el-input>
+								</el-form-item>
+								<el-form-item label="婚姻状况" prop="MaritalStatus">
+										<el-select v-model="submitParams.Order.MaritalStatus" :disabled="isEdit">
+												<el-option label="未婚" :value="1"></el-option>
+												<el-option label="已婚" :value="2"></el-option>
+										</el-select>
+								</el-form-item>
+								<el-form-item label="手机号" prop="Tele">
+										<el-input v-model="submitParams.Order.Tele" :disabled="isEdit" maxlength="11"></el-input>
+								</el-form-item>
+								<el-form-item label="单位" prop="UnitName">
+										<el-input v-model="submitParams.Order.UnitName" :disabled="isEdit"></el-input>
+								</el-form-item>
+								<el-form-item label="地址" prop="Addr">
+										<el-input v-model="submitParams.Order.Addr" :disabled="isEdit"></el-input>
+								</el-form-item>
+								<el-form-item label="部门" prop="DeptName">
+										<el-input v-model="submitParams.Order.DeptName" :disabled="isEdit"></el-input>
+								</el-form-item>
+								<el-form-item label="班组" prop="TeamName">
+										<el-input v-model="submitParams.Order.TeamName" :disabled="isEdit"></el-input>
+								</el-form-item>
+								<el-form-item label="备注信息" prop="Remark">
+										<el-input type="textarea" v-model="submitParams.Order.Remark" :disabled="isEdit"></el-input>
+								</el-form-item>
+						</el-form>
+				</div>
+			</div>
+			<div style="flex:1;overflow: hidden;display: flex;flex-direction: column;">
+				<div class="subTitle">
+					<span class="subitem labelColor">订单信息</span>
+					<span class="subitem"><span style="font-family: 'Arial'">{{submitParams.Order.CreateOrderTime}}</span>创建</span>
+					<div class="right" v-show="submitParams.Order.OrderCode != '00000000-0000-0000-0000-000000000000'">
+						<el-popover
+							placement="bottom"
+							width="160"
+							v-model="visible1">
+							<p>是否打印导检单？</p>
+							<div style="text-align: right; margin: 0">
+								<el-button size="mini" type="text" @click="visible1 = false">取消</el-button>
+								<el-button type="primary" size="mini" @click="printGuide">确定</el-button>
 							</div>
-            </el-dialog>
-						<el-dialog title="添加项目" :visible.sync="addProjectModal" :close-on-click-modal="false" width="800px" @open="getPackageAll">
-							<div class="addProject">
-								<div class="project-left">
-									<el-tabs v-model="activeTabName" type="card" @tab-click="tabsClick" class="addTabs" style="user-select: none;">
-										<el-tab-pane label="按套餐添加" name="first">
-											<div class="modal-tree" style="border-top: none;">
-												<div class="modal-top">
-													<span>名称</span>
-													<el-input placeholder="请搜索" v-model="filterPackage" style="width: 150px;"></el-input>
-													<div class="right" style="margin-right: 8px">
-														<el-button @click="addBtn">添加</el-button>
-													</div>
-												</div>
-												<div class="modal-con">
-													<el-tree
-														:data="GetPackageFilter"
-														show-checkbox
-														node-key="id"
-														ref="first"
-														@node-click="dbClick"
-														:filter-node-method="filtertree"
-														>
-													</el-tree>
-												</div>
-												<div class="fixBottom">
-													<el-button type="text" @click="allTreeSelection('GetPackageFilter', 'first', GetPackageFilterNum)">全选</el-button>
-													<span class="subitem">合计： <span class="labelColor ftArial">{{GetPackageFilter.length}}</span></span>
-													<span class="subitem">选中： <span class="labelColor ftArial">{{selectedFirstTotal || 0}}</span></span>
-												</div>
-											</div>
-										</el-tab-pane>
-										<el-tab-pane label="按科室添加" name="second">
-											<div class="modal-tree" style="border-top: none;">
-												<div class="modal-top">
-													<span>名称</span>
-													<el-input placeholder="请搜索" v-model="filterDept" style="width: 150px;"></el-input>
-													<div class="right" style="margin-right: 8px">
-														<el-button @click="addBtn">添加</el-button>
-													</div>
-												</div>
-												<div class="modal-con">
-													<el-tree
-														:data="GetDeptList"
-														show-checkbox
-														ref="second"
-														node-key="id"
-														@node-click="dbClick"
-														:filter-node-method="filtertree"
-														>
-													</el-tree>
-												</div>
-												<div class="fixBottom">
-													<el-button type="text" @click="allTreeSelection('GetDeptList', 'second', GetDeptListNum)">全选</el-button>
-													<span class="subitem">合计： <span class="labelColor ftArial">{{GetDeptList.length}}</span></span>
-													<span class="subitem">选中： <span class="labelColor ftArial">{{selectedSecondTotal || 0}}</span></span>
-												</div>
-											</div>
-										</el-tab-pane>
-										<el-tab-pane label="按项目添加" name="third">
-											<div class="modal-tree" style="border-top: none;">
-												<div class="modal-top">
-													<span>名称</span>
-													<el-input placeholder="请搜索" v-model="filterProject" style="width: 150px;"></el-input>
-													<div class="right" style="margin-right: 8px">
-														<el-button @click="addBtn">添加</el-button>
-													</div>
-												</div>
-												<div class="modal-con">
-													<el-tree
-														:data="GetItemList"
-														show-checkbox
-														node-key="id"
-														ref="third"
-														@node-click="dbClick"
-														:filter-node-method="filtertree"
-														>
-													</el-tree>
-												</div>
-												<div class="fixBottom">
-													<el-button type="text" @click="allTreeSelection('GetItemList', 'third', GetItemListNum)">全选</el-button>
-													<span class="subitem">合计： <span class="labelColor ftArial">{{GetItemList.length}}</span></span>
-													<span class="subitem">选中： <span class="labelColor ftArial">{{selectedThirdTotal || 0}}</span></span>
-												</div>
-											</div>
-										</el-tab-pane>
-									</el-tabs>
+							<el-button slot="reference">打印导检单</el-button>
+						</el-popover>
+						<el-popover
+							placement="bottom"
+							width="160"
+							style="margin: 0 8px;"
+							v-model="visible2">
+							<p>是否打印姓名条码？</p>
+							<div style="text-align: right; margin: 0">
+								<el-button size="mini" type="text" @click="visible2 = false">取消</el-button>
+								<el-button type="primary" size="mini" @click="printName">确定</el-button>
+							</div>
+							<el-button slot="reference">打印姓名条码</el-button>
+						</el-popover>
+						<el-button @click="printCheckModal">打印检验条码</el-button>
+					</div>
+				</div>
+				<div class="peopleData">
+						<div class="propleSearch">
+								<el-button @click="addProjectModal = true" :disabled="isEdit" icon="el-icon-plus">添加项目</el-button>
+								<el-button @click="delModal" :disabled="isEdit" icon="el-icon-delete">删除</el-button>
+								<el-button @click="discountBtn" :disabled="isEdit">打折</el-button>
+								<div class="right">
+										<span class="subitem">单位付费： ￥<span class="labelColor ftArial">{{ submitParams.Order.UnitPayMoney.toFixed(2) || 0}}</span></span>
+										<span class="subitem">个人已付： ￥<span class="labelColor ftArial">{{ submitParams.Order.PaidMoney.toFixed(2) || 0}}</span></span>
+										<span class="subitem">本次应收： ￥<span class="labelColor ftArial">{{ exePrice - submitParams.Order.UnitPayMoney - submitParams.Order.PaidMoney || 0}}</span></span>
 								</div>
-								<div class="project-right">
-									<div class="modal-tree" style="margin-top: 40px;">
+						</div>
+				</div>
+				<el-table ref="table" :data="tableData" tooltip-effect="dark" style="width: 100%" @row-click="clickRow($event, 'table')"
+						@selection-change="handleSelectionChange">
+						<el-table-column type="selection" width="55">
+						</el-table-column>
+						<el-table-column prop="itemName" label="项目名称" :show-overflow-tooltip="true">
+						</el-table-column>
+						<el-table-column prop="isUnitItem" label="付费方式" width="100px" align="center">
+							<template slot-scope="scope">
+								{{scope.row.feeType ? scope.row.feeType :'个人'}}
+							</template>
+						</el-table-column>
+						<el-table-column prop="fullPrice" label="原价" sortable width="150px" align="center">
+							<template slot-scope="scope">
+								￥{{scope.row.fullPrice || 0}}
+							</template>
+						</el-table-column>
+						<el-table-column prop="exePrice" label="执行价格" sortable width="150px" align="center">
+							<template slot-scope="scope">
+								￥{{scope.row.exePrice || 0}}
+							</template>
+						</el-table-column>
+						<el-table-column prop="checkStatus" label="项目状态" width="200px">
+							<template slot-scope="scope">
+								{{scope.row.checkStatus === 1 ? '已检' : '未检'}}
+							</template>
+						</el-table-column>
+				</el-table>
+				<!-- 底部信息栏 -->
+				<div class="fixBottom">
+					<el-button type="text" @click="toggleSelection('tableData', 'table')">反选</el-button>
+					<span class="subitem">合计： <span class="labelColor ftArial">{{tableData.length || 0}}</span></span>
+					<span class="subitem">选中： <span class="labelColor ftArial">{{multipleSelection.length || 0}}</span></span>
+					<div class="right">
+						<span class="subitem">原价： ￥<span class="labelColor ftArial">{{ totalPrice.toFixed(2) || 0 }}</span></span>
+						<span class="subitem">折扣金额： ￥<span class="labelColor ftArial">{{ (totalPrice - exePrice).toFixed(2) || 0 }}</span></span>
+						<span class="subitem">实收： ￥<span class="labelColor ftArial">{{exePrice.toFixed(2) || 0 }}</span></span>
+					</div>
+				</div>
+				<!-- 弹窗块 -->
+				<el-dialog title="添加套餐" :visible.sync="addPackageModal" :close-on-click-modal="false" width="500px" @open="getPackageList">
+					<div class="modal-tree">
+						<div class="modal-top">{{addPackageType}}</div>
+						<div class="modal-con">
+							<el-tree
+								:data="GetPackageList"
+								show-checkbox
+								node-key="id"
+								ref="tree1"
+								@check="treeClick">
+							</el-tree>
+						</div>
+						<div class="packageDis">
+							<span class="item">原价：￥ <span>{{packageDiscount.totalPrice | numFilter}}</span></span>
+							<el-checkbox v-model="checked">优惠自由</el-checkbox>
+						</div>
+					</div>
+					<div slot="footer" class="dialog-footer">
+							<el-button @click="cancelPackageBtn" style="margin-right: 8px;">取 消</el-button>
+							<el-popover
+								placement="top"
+								width="160"
+								v-model="visible3">
+								<p>点击确定将替换原选的项目及套餐！</p>
+								<div style="text-align: right; margin: 0">
+									<el-button size="mini" type="text" @click="visible3 = false">取消</el-button>
+									<el-button type="primary" size="mini" @click="addPackageBtn">确定</el-button>
+								</div>
+								<el-button slot="reference" type="primary">确 定</el-button>
+							</el-popover>
+					</div>
+				</el-dialog>
+				<el-dialog title="添加项目" :visible.sync="addProjectModal" :close-on-click-modal="false" width="800px" @open="getPackageAll">
+					<div class="addProject">
+						<div class="project-left">
+							<el-tabs v-model="activeTabName" type="card" @tab-click="tabsClick" class="addTabs" style="user-select: none;">
+								<el-tab-pane label="按套餐添加" name="first">
+									<div class="modal-tree" style="border-top: none;">
 										<div class="modal-top">
 											<span>名称</span>
-											<!-- <div class="right" style="margin-right: 8px">
-												<el-button @click="removeBtn">移除</el-button>
-											</div> -->
+											<el-input placeholder="请搜索" v-model="filterPackage" style="width: 150px;"></el-input>
+											<div class="right" style="margin-right: 8px">
+												<el-button @click="addBtn">添加</el-button>
+											</div>
 										</div>
 										<div class="modal-con">
 											<el-tree
-												:data="selectedListAll"
+												:data="GetPackageFilter"
+												show-checkbox
 												node-key="id"
-												ref="treeRight"
-												:render-content="renderContent"
+												ref="first"
+												@node-click="dbClick"
+												:filter-node-method="filtertree"
 												>
 											</el-tree>
 										</div>
 										<div class="fixBottom">
-											<!-- <el-button type="text" @click="toogleTreeSelection('selectedListAll', 'treeRight')">反选</el-button> -->
-											<span class="subitem" style="margin-left: 8px;">合计： <span class="labelColor ftArial">{{selectedListAll.length}}</span></span>
-                			<!-- <span class="subitem">选中： <span class="labelColor ftArial">{{selectedRightTotal || 0}}</span></span> -->
+											<el-button type="text" @click="allTreeSelection('GetPackageFilter', 'first', GetPackageFilterNum)">全选</el-button>
+											<span class="subitem">合计： <span class="labelColor ftArial">{{GetPackageFilter.length}}</span></span>
+											<span class="subitem">选中： <span class="labelColor ftArial">{{selectedFirstTotal || 0}}</span></span>
 										</div>
 									</div>
-								</div>
-							</div>
-							<div slot="footer" class="dialog-footer">
-								<div class="packageDis" style="display: inline-block;">
-									<span class="item">原价：￥ <span>{{projectDiscount.totalPrice || 0}}</span></span>
-									<span class="item">折扣：<el-input type="number" v-model.number="projectDiscount.discount" @keydown.13.native="projectDiscountHandle"></el-input></span>
-									<span class="item">实收：<el-input type="number" v-model.number="projectDiscount.exePrice" @keydown.13.native="projectExePriceHandle"></el-input>元</span>
-								</div>
-								<el-button @click="cancelBtn">取 消</el-button>
-								<el-button type="primary" @click="confirmAddProjectBtn">确 定</el-button>
-							</div>
-						</el-dialog>
-						<el-dialog title="订单信息" :visible.sync="orderInfoModal" :close-on-click-modal="false" width="800px">
-								<div class="modal-title">
-									<span>订单信息</span>
+								</el-tab-pane>
+								<el-tab-pane label="按科室添加" name="second">
+									<div class="modal-tree" style="border-top: none;">
+										<div class="modal-top">
+											<span>名称</span>
+											<el-input placeholder="请搜索" v-model="filterDept" style="width: 150px;"></el-input>
+											<div class="right" style="margin-right: 8px">
+												<el-button @click="addBtn">添加</el-button>
+											</div>
+										</div>
+										<div class="modal-con">
+											<el-tree
+												:data="GetDeptList"
+												show-checkbox
+												ref="second"
+												node-key="id"
+												@node-click="dbClick"
+												:filter-node-method="filtertree"
+												>
+											</el-tree>
+										</div>
+										<div class="fixBottom">
+											<el-button type="text" @click="allTreeSelection('GetDeptList', 'second', GetDeptListNum)">全选</el-button>
+											<span class="subitem">合计： <span class="labelColor ftArial">{{GetDeptList.length}}</span></span>
+											<span class="subitem">选中： <span class="labelColor ftArial">{{selectedSecondTotal || 0}}</span></span>
+										</div>
+									</div>
+								</el-tab-pane>
+								<el-tab-pane label="按项目添加" name="third">
+									<div class="modal-tree" style="border-top: none;">
+										<div class="modal-top">
+											<span>名称</span>
+											<el-input placeholder="请搜索" v-model="filterProject" style="width: 150px;"></el-input>
+											<div class="right" style="margin-right: 8px">
+												<el-button @click="addBtn">添加</el-button>
+											</div>
+										</div>
+										<div class="modal-con">
+											<el-tree
+												:data="GetItemList"
+												show-checkbox
+												node-key="id"
+												ref="third"
+												@node-click="dbClick"
+												:filter-node-method="filtertree"
+												>
+											</el-tree>
+										</div>
+										<div class="fixBottom">
+											<el-button type="text" @click="allTreeSelection('GetItemList', 'third', GetItemListNum)">全选</el-button>
+											<span class="subitem">合计： <span class="labelColor ftArial">{{GetItemList.length}}</span></span>
+											<span class="subitem">选中： <span class="labelColor ftArial">{{selectedThirdTotal || 0}}</span></span>
+										</div>
+									</div>
+								</el-tab-pane>
+							</el-tabs>
+						</div>
+						<div class="project-right">
+							<div class="modal-tree" style="margin-top: 40px;">
+								<div class="modal-top">
+									<span>名称</span>
+									<!-- <div class="right" style="margin-right: 8px">
+										<el-button @click="removeBtn">移除</el-button>
+									</div> -->
 								</div>
 								<div class="modal-con">
-									<el-table
-											:data="orderList"
-											border
-											height="250"
-											style="width: 100%;margin-top: 20px;">
-											<el-table-column
-											prop="cardNum"
-											label="体检卡号"
-											>
-											</el-table-column>
-											<el-table-column
-											prop="idcardNum"
-											width="180px"
-											label="身份证号"
-											>
-											</el-table-column>
-											<el-table-column
-											prop="unitName"
-											label="单位名称"
-											>
-											</el-table-column>
-											<el-table-column
-											prop="orderMoney"
-											label="体检金额"
-											>
-											</el-table-column>
-											<el-table-column
-											prop="createOrderTime"
-											label="创建时间"
-											>
-												<template slot-scope="scope">
-													{{scope.row.createOrderTime | formatDate('YYYY-MM-DD')}}
-												</template>
-											</el-table-column>
-											<el-table-column
-											prop="status"
-											label="订单状态"
-											>
-											</el-table-column>
-											<el-table-column
-											fixed="right"
-											label="操作"
-											width="100">
-											<template slot-scope="scope">
-													<el-button type="text" v-if="scope.row" @click="viewOrder(scope.row)">查看</el-button>
-													<el-button type="text">编辑</el-button>
-											</template>
-											</el-table-column>
-									</el-table>
+									<el-tree
+										:data="selectedListAll"
+										node-key="id"
+										ref="treeRight"
+										:render-content="renderContent"
+										>
+									</el-tree>
 								</div>
-								<div slot="footer" class="dialog-footer">
-									<el-button @click="orderInfoModal = false">关 闭</el-button>
-									<el-button type="primary" >创建新订单</el-button>
-								</div>
-						</el-dialog>
-						<el-dialog title="当前客户订单" :visible.sync="currentOrderModal" width="800px" :close-on-click-modal="false" class="currentOrder">
-								<div class="modal-title">客户信息</div>
-								<div class="modal-con" style="max-height: 300px;overflow-y： auto;">
-										<ul>
-												<li>
-														姓名： <span>{{viewData.customerName}}</span>
-												</li>
-												<li>
-														性别： <span>{{viewData.sex === 1 ? '男' : '女'}}</span>
-												</li>
-												<li>
-														职业： <span>{{viewData.deptName}}</span>
-												</li>
-												<li>
-														手机号： <span>{{viewData.tele}}</span>
-												</li>
-												<li>
-														出生日期： <span>{{viewData.birthday | formatDate('YYYY-MM-DD')}}</span>
-												</li>
-												<li>
-														婚姻状况： <span>{{viewData.deptName}}</span>
-												</li>
-												<li>
-														民族： <span>{{viewData.nation}}</span>
-												</li>
-										</ul>
-								</div>
-								<div class="modal-title">检查项目</div>
-								<div class="modal-con" style="max-height: 250px;overflow-y:auto;">
-										<el-table
-												:data="viewData.items"
-												border
-												style="width: 100%">
-												<el-table-column
-												prop="itemName"
-												label="检查项目"
-												>
-												</el-table-column>
-												<el-table-column
-												prop="name"
-												label="项目归属"
-												>
-												</el-table-column>
-												<el-table-column
-												prop="fullPrice"
-												label="原价"
-												>
-												</el-table-column>
-												<el-table-column
-												prop="city"
-												label="折扣"
-												>
-													<template slot-scope="scope">
-														{{scope.row.exePrice / scope.row.fullPrice}}
-													</template>
-												</el-table-column>
-												<el-table-column
-												prop="exePrice"
-												label="执行价格"
-												>
-												</el-table-column>
-												<el-table-column
-												prop="checkStatus"
-												label="项目状态"
-												>
-												</el-table-column>
-										</el-table>
-								</div>
-						</el-dialog>
-						<el-dialog title="打印检验条码" :visible.sync="printModal" width="800px" :close-on-click-modal="false" class="currentOrder">
-							<div class="modal-title">
-								<div class="right">
-									<el-select v-model="value" placeholder="打印类型" style="margin-right: 8px;">
-										<el-option
-											v-for="item in options"
-											:key="item.value"
-											:label="item.label"
-											:value="item.value">
-										</el-option>
-									</el-select>
-									<el-button type="primary" @click="printCheck">打印</el-button>
+								<div class="fixBottom">
+									<!-- <el-button type="text" @click="toogleTreeSelection('selectedListAll', 'treeRight')">反选</el-button> -->
+									<span class="subitem" style="margin-left: 8px;">合计： <span class="labelColor ftArial">{{selectedListAll.length}}</span></span>
+									<!-- <span class="subitem">选中： <span class="labelColor ftArial">{{selectedRightTotal || 0}}</span></span> -->
 								</div>
 							</div>
-							<div class="modal-con" style="width: 100%;">
-								<el-table
-									:data="multipleSelection"
+						</div>
+					</div>
+					<div slot="footer" class="dialog-footer">
+						<div class="packageDis" style="display: inline-block;">
+							<span class="item">原价：￥ <span>{{projectDiscount.totalPrice || 0}}</span></span>
+							<span class="item">折扣：<el-input type="number" v-model.number="projectDiscount.discount" @keydown.13.native="projectDiscountHandle"></el-input></span>
+							<span class="item">实收：<el-input type="number" v-model.number="projectDiscount.exePrice" @keydown.13.native="projectExePriceHandle"></el-input>元</span>
+						</div>
+						<el-button @click="cancelBtn">取 消</el-button>
+						<el-button type="primary" @click="confirmAddProjectBtn">确 定</el-button>
+					</div>
+				</el-dialog>
+				<el-dialog title="订单信息" :visible.sync="orderInfoModal" :close-on-click-modal="false" width="800px">
+						<div class="modal-title">
+							<span>订单信息</span>
+						</div>
+						<div class="modal-con">
+							<el-table
+									:data="orderList"
 									border
-									style="width: 100%">
+									height="250"
+									style="width: 100%;margin-top: 20px;">
 									<el-table-column
-									fixed
-									prop="itemName"
-									label="项目"
+									prop="cardNum"
+									label="体检卡号"
 									>
 									</el-table-column>
 									<el-table-column
-									prop="itemCode"
-									label="条码号"
+									prop="idcardNum"
+									width="180px"
+									label="身份证号"
 									>
 									</el-table-column>
 									<el-table-column
-									prop="itemCode"
-									label="打印时间"
+									prop="unitName"
+									label="单位名称"
 									>
 									</el-table-column>
 									<el-table-column
-									prop="checkStatus"
-									label="打印状态"
+									prop="orderMoney"
+									label="体检金额"
 									>
 									</el-table-column>
+									<el-table-column
+									prop="createOrderTime"
+									label="创建时间"
+									>
+										<template slot-scope="scope">
+											{{scope.row.createOrderTime | formatDate('YYYY-MM-DD')}}
+										</template>
+									</el-table-column>
+									<el-table-column
+									prop="status"
+									label="订单状态"
+									>
+									</el-table-column>
+									<el-table-column
+									fixed="right"
+									label="操作"
+									width="100">
+									<template slot-scope="scope">
+											<el-button type="text" v-if="scope.row" @click="viewOrder(scope.row)">查看</el-button>
+											<el-button type="text">编辑</el-button>
+									</template>
+									</el-table-column>
+							</el-table>
+						</div>
+						<div slot="footer" class="dialog-footer">
+							<el-button @click="orderInfoModal = false">关 闭</el-button>
+							<el-button type="primary" >创建新订单</el-button>
+						</div>
+				</el-dialog>
+				<el-dialog title="当前客户订单" :visible.sync="currentOrderModal" width="800px" :close-on-click-modal="false" class="currentOrder">
+						<div class="modal-title">客户信息</div>
+						<div class="modal-con" style="max-height: 300px;overflow-y： auto;">
+								<ul>
+										<li>
+												姓名： <span>{{viewData.customerName}}</span>
+										</li>
+										<li>
+												性别： <span>{{viewData.sex === 1 ? '男' : '女'}}</span>
+										</li>
+										<li>
+												职业： <span>{{viewData.deptName}}</span>
+										</li>
+										<li>
+												手机号： <span>{{viewData.tele}}</span>
+										</li>
+										<li>
+												出生日期： <span>{{viewData.birthday | formatDate('YYYY-MM-DD')}}</span>
+										</li>
+										<li>
+												婚姻状况： <span>{{viewData.deptName}}</span>
+										</li>
+										<li>
+												民族： <span>{{viewData.nation}}</span>
+										</li>
+								</ul>
+						</div>
+						<div class="modal-title">检查项目</div>
+						<div class="modal-con" style="max-height: 250px;overflow-y:auto;">
+								<el-table
+										:data="viewData.items"
+										border
+										style="width: 100%">
+										<el-table-column
+										prop="itemName"
+										label="检查项目"
+										>
+										</el-table-column>
+										<el-table-column
+										prop="name"
+										label="项目归属"
+										>
+										</el-table-column>
+										<el-table-column
+										prop="fullPrice"
+										label="原价"
+										>
+										</el-table-column>
+										<el-table-column
+										prop="city"
+										label="折扣"
+										>
+											<template slot-scope="scope">
+												{{scope.row.exePrice / scope.row.fullPrice}}
+											</template>
+										</el-table-column>
+										<el-table-column
+										prop="exePrice"
+										label="执行价格"
+										>
+										</el-table-column>
+										<el-table-column
+										prop="checkStatus"
+										label="项目状态"
+										>
+										</el-table-column>
 								</el-table>
-							</div>
-							<div slot="footer" class="dialog-footer">
-								<el-button @click="printModal = false">关 闭</el-button>
-							</div>
-						</el-dialog>
-            <el-dialog title="打折" :visible.sync="discountModal" :close-on-click-modal="false" width="800px" class="discount">
-                <ul class="modal-con">
-                    <li class="item">
-                        <span>合计金额：</span>
-                        <div class="item-list" ><el-input v-model="discountData.total" disabled style="color: #606266;"></el-input>元</div>
-                    </li>
-                    <li class="item">
-                        <span>折扣：</span>
-                        <div class="item-list iptNum">
-													<el-input-number v-model="discountData.discount" @keydown.13.native="discountHandle" :min="0" :max="1" :step="0.1"></el-input-number>
-													</div>
-                    </li>
-                    <li class="item">
-                        <span>折扣金额：</span>
-                        <div class="item-list" ><el-input type="number" v-model.number="discountData.difPrice" @keydown.13.native="difPriceHandle"></el-input>元</div>
-                    </li>
-                    <li class="item">
-                        <span>实收：</span>
-                        <div class="item-list"><el-input type="number" v-model.number="discountData.exePrice" @keydown.13.native="realPriceHandle"></el-input>元</div>
-                    </li>
-                </ul>
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click="discountModal = false">取 消</el-button>
-                    <el-button type="primary" @click="confirmDiscount">确 定</el-button>
-                </div>
-            </el-dialog>
-        </div>
+						</div>
+				</el-dialog>
+				<el-dialog title="打印检验条码" :visible.sync="printModal" width="800px" :close-on-click-modal="false" class="currentOrder">
+					<div class="modal-title">
+						<div class="right">
+							<el-select v-model="value" placeholder="打印类型" style="margin-right: 8px;">
+								<el-option
+									v-for="item in options"
+									:key="item.value"
+									:label="item.label"
+									:value="item.value">
+								</el-option>
+							</el-select>
+							<el-button type="primary" @click="printCheck">打印</el-button>
+						</div>
+					</div>
+					<div class="modal-con" style="width: 100%;">
+						<el-table
+							:data="multipleSelection"
+							border
+							style="width: 100%">
+							<el-table-column
+							fixed
+							prop="itemName"
+							label="项目"
+							>
+							</el-table-column>
+							<el-table-column
+							prop="itemCode"
+							label="条码号"
+							>
+							</el-table-column>
+							<el-table-column
+							prop="itemCode"
+							label="打印时间"
+							>
+							</el-table-column>
+							<el-table-column
+							prop="checkStatus"
+							label="打印状态"
+							>
+							</el-table-column>
+						</el-table>
+					</div>
+					<div slot="footer" class="dialog-footer">
+						<el-button @click="printModal = false">关 闭</el-button>
+					</div>
+				</el-dialog>
+				<el-dialog title="打折" :visible.sync="discountModal" :close-on-click-modal="false" width="800px" class="discount">
+						<ul class="modal-con">
+								<li class="item">
+										<span>合计金额：</span>
+										<div class="item-list" ><el-input v-model="discountData.total" disabled style="color: #606266;"></el-input>元</div>
+								</li>
+								<li class="item">
+										<span>折扣：</span>
+										<div class="item-list iptNum">
+											<el-input-number v-model="discountData.discount" @keydown.13.native="discountHandle" :min="0" :max="1" :step="0.1"></el-input-number>
+											</div>
+								</li>
+								<li class="item">
+										<span>折扣金额：</span>
+										<div class="item-list" ><el-input type="number" v-model.number="discountData.difPrice" @keydown.13.native="difPriceHandle"></el-input>元</div>
+								</li>
+								<li class="item">
+										<span>实收：</span>
+										<div class="item-list"><el-input type="number" v-model.number="discountData.exePrice" @keydown.13.native="realPriceHandle"></el-input>元</div>
+								</li>
+						</ul>
+						<div slot="footer" class="dialog-footer">
+								<el-button @click="discountModal = false">取 消</el-button>
+								<el-button type="primary" @click="confirmDiscount">确 定</el-button>
+						</div>
+				</el-dialog>
+			</div>
     </el-row>
   </div>
 </template>
@@ -573,6 +551,26 @@ import _ from 'lodash'
 export default {
   name: 'DDOrder',
 	data() {
+		var validateId = (rule, value, callback) => {
+			if(value.length === 18) {
+				callback();
+				return;
+			}
+			if (this.isEdit) {
+				this.$confirm('身份证位数不合法，是否继续操作？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+					this.clearCustomer();
+					this.isEdit = false;
+					this.getOrderList();
+					callback();
+        })
+			} else {
+				callback();
+			}
+		};
 		return {
 			dbClickFlag: 0,
 			load: '',//获取时的加载中
@@ -623,7 +621,7 @@ export default {
 					TeamName: '',
 					PackageCode: '00000000-0000-0000-0000-000000000000',
 					OrderVipFlag: 0,//0非 1 是
-					OrderType: 0,
+					OrderType: '',
 					CreateOrderTime: moment().format('YYYY-MM-DD'),
 					Status: '',
 					IsLock: false,
@@ -648,7 +646,8 @@ export default {
 							{  required: true, message: '请输入性别', trigger: 'blur' }
 					],
 					IdcardNum: [
-							{ required: true, message: '与身份证号码位数不符', trigger: 'blur' }
+							{ required: true, message: '与身份证号码位数不符', trigger: 'blur' },
+							{ mmin: 1, max: 18, validator: validateId, trigger: 'blur' }
 					],
 					Birthday: [
 							{ type: 'date', required: true, message: '请选择时间', trigger: 'change' }
@@ -657,7 +656,8 @@ export default {
 							{  required: true, message: '请选择Vip属性', trigger: 'blur' }
 					],
 					Tele: [
-							{ required: true, message: '请输入联系电话', trigger: 'blur' }
+							{ required: true, message: '请输入联系电话', trigger: 'blur' },
+							{ max: 11, min: 11, message: '请输入正确的手机号码', trigger: 'blur' }
 					]
 			},
 			options: [],//  打印类型
@@ -683,8 +683,8 @@ export default {
 			GetDeptListNum: 0, // 检查科室字典项目数-添加项目
 			GetPackageFilter: [], // 检查套餐字典源-添加项目
 			GetPackageFilterNum: 0, // 检查套餐字典项目数-添加项目
-			GetPackageList1: [], // 检查套餐字典源-添加套餐-普通套餐
-			GetPackageList2: [], // 检查套餐字典源-添加套餐-筛查套餐
+			GetPackageList1: [], // 检查套餐字典源
+			addPackageType: '',//添加套餐类型名称
 
 			//添加项目框
 			selectedLeft: [],// 左侧所选择的-添加套餐专用
@@ -716,11 +716,11 @@ export default {
 			value: '',
 			selectedTotal: 0, // 选中条数
 			activeTabName: 'first',//添加项目tabs默认
-			activePackageName: 'package1'//选择套餐tabs默认
 		}
 	},
 	created: function () {
 		this.GetOrderType();
+		this.submitParams.Order.IdcardNum = '111111111111111111'
 	},
 	methods: {
 		//打印导检单
@@ -743,7 +743,7 @@ export default {
 		submitOrder() {//提交订单
 		 this.$refs.submitInfo.validate((valid) => {
 			 if(valid) {
-				if (this.tableData.length === 0 && this.submitParams.Order.UnitPayMoney === 0) {
+				if (this.tableData.length === 0 && (this.submitParams.Order.UnitPayMoney + this.submitParams.Order.PaidMoney) == 0) {
 					this.$message.error('请添加项目后提交');
 					return;
 				}
@@ -850,23 +850,11 @@ export default {
 			return data.label.indexOf(value) !== -1;
 		},
 		// tree单选的实现 + 实时更新选中项目
-		treeClick1(a,b){
-			// if (b.checkedKeys.length > 0) {
-			// 	this.$refs.tree1.setCheckedKeys([a.id]);
-			// }
-			this.selectedLeft = this.$refs.tree1.getCheckedNodes();
-			this.submitParams.Order.OrderType = a.packageType;
-			this.submitParams.Order.PackageCode = a.packageCode;
-			this.submitParams.Order.PackageName = a.packageName;
-			this.getDiscount('packageDiscount', this.selectedLeft);
-		},
-		treeClick2(a,b){
+		treeClick(a,b){
 			if (b.checkedKeys.length > 0) {
-				this.$refs.tree2.setCheckedKeys([a.id]);
+				this.$refs.tree1.setCheckedKeys([a.id]);
 			}
-			this.selectedLeft = this.$refs.tree2.getCheckedNodes();
-
-			this.submitParams.Order.OrderType = a.packageType;
+			this.selectedLeft = this.$refs.tree1.getCheckedNodes();
 			this.submitParams.Order.PackageCode = a.packageCode;
 			this.submitParams.Order.PackageName = a.packageName;
 			this.getDiscount('packageDiscount', this.selectedLeft);
@@ -875,7 +863,7 @@ export default {
 		cancelPackageBtn() {
 			this.selectedLeft = [];
 			this.submitParams.Order.PackageName = '';
-			this.submitParams.Order.OrderType = '';
+			this.submitParams.Order.OrderType = 0;
 			this.submitParams.Order.PackageCode = '00000000-0000-0000-0000-000000000000';
 			this.addPackageModal = false;
 			this.packageDiscount.totalPrice = 0;
@@ -908,7 +896,7 @@ export default {
 		addPackageBtn() {
 			this.visible3 = false;
 			let treeSelection = [];
-			if (this.activePackageName === 'package1') {
+			if (1) {
 				treeSelection = this.$refs.tree1.getCheckedNodes();
 			} else {
 				treeSelection = this.$refs.tree2.getCheckedNodes();
@@ -965,25 +953,12 @@ export default {
 				return x.itemCode;
 			});
 			data.forEach(x => {
-				this[key].exePrice += Number(x.exePrice) || 0;
+				this[key].exePrice += x.exePrice || 0;
 				this[key].totalPrice += x.fullPrice || 0;
 			})
-			this[key].discount = (parseInt(this[key].exePrice / this[key].totalPrice *100) / 100) || 0;
-			this[key].discount2 = (this[key].exePrice / this[key].totalPrice) || 0;
+			//this[key].discount = (parseInt(this[key].exePrice / this[key].totalPrice *100) / 100) || 0;
+			//this[key].discount2 = (this[key].exePrice / this[key].totalPrice) || 0;
 		},
-		//添加项目删除按钮
-		// removeBtn() {
-		// 	if (this.$refs.treeRight.getCheckedKeys().length === 0) {
-		// 		this.$message.error('请先选择后点击删除！');
-		// 		return;
-		// 	}
-		// 	let arr = this.$refs.treeRight.getCheckedKeys();
-		// 	this.selectedListAll = this.selectedListAll.filter(x => {
-		// 		return arr.every(y => y!== x.id);
-		// 	})
-		// 	this.getDiscount('projectDiscount', this.selectedListAll);
-		// 	this.selectedRight = [];
-		// },
 		// 添加项目切换tab时fn
 		tabsClick(tab){
 			this.selectedLeft = [];
@@ -999,16 +974,16 @@ export default {
 		},
 		// 选择套餐切换tab时fn
 		tabsPackageClick(tab){
-			this.selectedLeft = [];
-			this.$refs.tree1.setCheckedKeys([]);
-			this.$refs.tree2.setCheckedKeys([]);
-			if (tab.name === 'package2' && this.GetPackageList2.length === 0) {
-				this.getPackageList(1);
-			}
-			this.packageDiscount.totalPrice = 0;
-			this.packageDiscount.discount = 0;
-			this.packageDiscount.discount2 = 0;
-			this.packageDiscount.exePrice = 0;
+			// this.selectedLeft = [];暂时无用
+			// this.$refs.tree1.setCheckedKeys([]);
+			// this.$refs.tree2.setCheckedKeys([]);
+			// if (tab.name === 'package2' && this.GetPackageList2.length === 0) {
+			// 	this.getPackageList(1);
+			// }
+			// this.packageDiscount.totalPrice = 0;
+			// this.packageDiscount.discount = 0;
+			// this.packageDiscount.discount2 = 0;
+			// this.packageDiscount.exePrice = 0;
 		},
 		// 项目删除的选择fn
 		removeChange(data, checked, indeterminate) {
@@ -1089,17 +1064,12 @@ export default {
 			})
 		},
 		//获取套餐列表-选择套餐
-		getPackageList(PackageType){
-			if (PackageType === 0 && this.GetPackageList1.length > 0) return;
-			this.$axios.get(this.$api.GetPackageListDD, {params: {PackageType}}).then(res => {
+		getPackageList(){
+			this.$axios.get(this.$api.GetPackageListDD, {params: {PackageType: this.submitParams.Order.OrderType}}).then(res => {
 				if (res.status === 200 && res.data.status === 1) {
-					if (PackageType === 0) {
-						this.GetPackageList1 =  res.data.entity;
-						this.handleTreeChildren(this.GetPackageList1, 0);
-					} else {
-						this.GetPackageList2 =  res.data.entity;
-						this.handleTreeChildren(this.GetPackageList2, 0);
-					}
+					this.GetPackageList =  res.data.entity[0].items;
+					this.addPackageType = res.data.entity[0].name;
+					this.handleTreeChildren(this.GetPackageList, 0);
 				} else {
 					this.$message.error(res.data.message);
 				}
@@ -1260,31 +1230,31 @@ export default {
 			this.submitParams.Order.ReportTakeWay = 0;
 		},
 		setCustomer(obj){ // obj 客户信息
-			this.submitParams.Order.CustomerName = obj.customerName;
-			this.submitParams.Order.CustomerCode = obj.customerCode;
-			this.submitParams.Order.IdcardNum = obj.idcardNum;
-			this.submitParams.Order.CardNum = obj.cardNum;
-			this.submitParams.Order.Sex = obj.sex;
+			if (obj.customerName) this.submitParams.Order.CustomerName = obj.customerName;
+			if (obj.customerCode) this.submitParams.Order.CustomerCode = obj.customerCode;
+			if (obj.idcardNum) this.submitParams.Order.IdcardNum = obj.idcardNum;
+			if (obj.cardNum) this.submitParams.Order.CardNum = obj.cardNum;
+			if (obj.sex) this.submitParams.Order.Sex = obj.sex;
 			if (obj.photo) this.submitParams.Order.Photo = obj.photo;
 			if (obj.createOrderTime) this.submitParams.Order.CreateOrderTime = moment(obj.createOrderTime).format('YYYY-MM-DD');
-			this.submitParams.Order.Nation = obj.nation;
-			this.submitParams.Order.Birthday = new Date(obj.birthday);
-			if (obj.maritalStatus)  this.submitParams.Order.MaritalStatus = obj.maritalStatus;
-			if (obj.orderType && obj.orderType  != 0)  this.submitParams.Order.OrderType = obj.orderType;
+			if (obj.nation) this.submitParams.Order.Nation = obj.nation;
+			if (obj.birthday) this.submitParams.Order.Birthday = new Date(obj.birthday);
+			if (obj.maritalStatus) this.submitParams.Order.MaritalStatus = obj.maritalStatus;
+			if (obj.orderType && obj.orderType  != 0) this.submitParams.Order.OrderType = obj.orderType;
 			if (obj.packageCode && obj.packageCode !== '00000000-0000-0000-0000-000000000000')  this.submitParams.Order.PackageCode = obj.packageCode;
-			this.submitParams.Order.VipFlag = obj.vipFlag;
-			this.submitParams.Order.Occupation = obj.occupation;
-			this.submitParams.Order.UnitName = obj.unitName;
-			this.submitParams.Order.DeptName = obj.deptName;
-			this.submitParams.Order.TeamName = obj.teamName;
-			this.submitParams.Order.Tele = obj.tele;
-			this.submitParams.Order.Addr = obj.addr;
-			this.submitParams.Order.Remark = obj.remark;
-			this.submitParams.Order.ReportTakeWay = obj.reportTakeWay;
-			this.submitParams.Order.IsLock = obj.isLock;//锁定状态
-			this.submitParams.Order.OrderMoney = obj.orderMoney || 0;//订单金额
-			this.submitParams.Order.PaidMoney = obj.paidMoney;//已支付金额
-			this.submitParams.Order.UnitPayMoney = obj.unitPayMoney;//单位付费进
+			if (obj.vipFlag) this.submitParams.Order.VipFlag = obj.vipFlag;
+			if (obj.occupation) this.submitParams.Order.Occupation = obj.occupation;
+			if (obj.unitName) this.submitParams.Order.UnitName = obj.unitName;
+			if (obj.deptName) this.submitParams.Order.DeptName = obj.deptName;
+			if (obj.teamName) this.submitParams.Order.TeamName = obj.teamName;
+			if (obj.tele) this.submitParams.Order.Tele = obj.tele;
+			if (obj.addr) this.submitParams.Order.Addr = obj.addr;
+			if (obj.remark) this.submitParams.Order.Remark = obj.remark;
+			if (obj.reportTakeWay) this.submitParams.Order.ReportTakeWay = obj.reportTakeWay;
+			if (obj.isLock) this.submitParams.Order.IsLock = obj.isLock;//锁定状态
+			if (obj.orderMoney) this.submitParams.Order.OrderMoney = obj.orderMoney || 0;//订单金额
+			if (obj.paidMoney) this.submitParams.Order.PaidMoney = obj.paidMoney || 0;//已支付金额
+			if (obj.unitPayMoney) this.submitParams.Order.UnitPayMoney = obj.unitPayMoney || 0;//单位付费进
 			if(obj.orderCode && obj.orderCode !=='00000000-0000-0000-0000-000000000000') this.submitParams.Order.OrderCode = obj.orderCode;// //订单号
 			if (obj.isLock) {
 				this.$alert('该订单已经提交，可能会出现修改失败', '提醒：', {
@@ -1312,10 +1282,6 @@ export default {
 		},
 		getShot () {
 			api.shot(this.setPhoto);
-		},
-		// 是否可以跳转标记
-		changeIsGoto(key) {
-			this.$store.commit('changeGoto', key);
 		},
 		handleSelectionChange(val) {
 			this.multipleSelection = val;
@@ -1428,11 +1394,11 @@ export default {
 		// 根据身份证号自动填写年龄和性别
 		getAgeBrith(id){
 			if (!id) return;
-			let year = id.substr(6, 4);
-			let month = id.substr(10, 2);
-			let day = id.substr(12, 2);
-			let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
-			this.submitParams.Order.Birthday = new Date(birthday);
+			// let year = id.substr(6, 4);
+			// let month = id.substr(10, 2);
+			// let day = id.substr(12, 2);
+			// let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
+			// this.submitParams.Order.Birthday = new Date(birthday);
 			this.submitParams.Order.Sex = id.substr(16, 1) % 2 ? 1: 2;
 		},
 		//判断是否为项目
@@ -1474,13 +1440,6 @@ export default {
 			})
 			return price;
 		},
-		// selectedRightTotal: function() {
-		// 	if (this.$refs.treeRight) {
-		// 		return this.$refs.treeRight.getCheckedNodes().length;
-		// 	} else {
-		// 		return 0;
-		// 	}
-		// },
 		selectedThirdTotal: function() {
 			if (this.$refs.third) {
 				return this.$refs.third.getCheckedNodes().length;
@@ -1545,7 +1504,10 @@ export default {
 	}
 }
 </script>
-<style>
+<style scoped>
+.el-tabs--card>.el-tabs__header {
+	top: -1px;
+}
 .content .right > * {
     display: inline-block;
 }

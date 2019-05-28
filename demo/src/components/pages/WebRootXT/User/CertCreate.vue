@@ -2,8 +2,7 @@
   <div id="CertCreate" class="CertCreate">
     <el-dialog
       class="infoucs"
-      width="660px"
-      height="600px"
+      width="700px"
       title="证书信息"
       :visible.sync="isShow"
       :before-close="close"
@@ -29,27 +28,71 @@
           <el-input v-model="fromData.certAuthority"></el-input>
         </el-form-item>
         <el-form-item label="颁发时间" :label-width="formLabelWidth" prop="getTime">
-          <el-date-picker v-model="fromData.getTime" type="date" placeholder="选择日期"></el-date-picker>
+          <el-date-picker
+            v-model="fromData.getTime"
+            type="date"
+            format="yyyy 年 MM 月 dd 日"
+            value-format="yyyy-MM-dd"
+            placeholder="选择日期"
+          ></el-date-picker>
         </el-form-item>
         <el-form-item label="有效截至日期" :label-width="formLabelWidth" prop="expireTime">
-          <el-date-picker v-model="fromData.expireTime" type="date" placeholder="选择日期"></el-date-picker>
+          <el-date-picker
+            v-model="fromData.expireTime"
+            :picker-options="pickerOptions"
+            type="date"
+            format="yyyy 年 MM 月 dd 日"
+            value-format="yyyy-MM-dd"
+            placeholder="选择日期"
+          ></el-date-picker>
         </el-form-item>
         <el-col :span="24">
           <el-form-item label="上传图片" :label-width="formLabelWidth">
-            <el-upload
-              action="https://jsonplaceholder.typicode.com/posts/"
+            <!-- <el-upload
+              ref="upload"
+              :file-list="imgList"
+              :before-upload="beforeUpload"
+              :on-success="onSuccess"
+              :drag="true"
+              :auto-upload="false"
+              :action="uploadPath"
               list-type="picture-card"
               :on-preview="handlePictureCardPreview"
               :on-remove="handleRemove"
             >
               <i class="el-icon-plus"></i>
+            </el-upload>-->
+            <!-- <el-upload
+              :action="uploadPath"
+              list-type="picture-card"
+              :file-list="fileList"
+              :before-upload="beforeUpload"
+              :auto-upload="false"
+              :on-success="onSuccess"
+              :on-preview="handlePictureCardPreview"
+              :on-remove="handleRemove"
+            >
+              <i class="el-icon-plus"></i>
+            </el-upload>-->
+            <el-upload
+              :action="uploadPath"
+              list-type="picture-card"
+              :file-list="fileList"
+              ref="upload"
+              :before-upload="beforeUpload"
+              :on-preview="handlePictureCardPreview"
+              :on-remove="handleRemove"
+              :on-success="onSuccess"
+            >
+              <i class="el-icon-plus"></i>
             </el-upload>
           </el-form-item>
+          <div style="margin:10px 0;color: #F56C6C;font-size: 10px;">图片大小不得超过 2MB</div>
         </el-col>
       </el-form>
 
       <div slot="footer" class="dialog-footer">
-        <el-button @click="close()">取消</el-button>
+        <el-button @click="close">取消</el-button>
         <el-button type="primary" @click="submitForm">确定</el-button>
       </div>
     </el-dialog>
@@ -60,15 +103,20 @@
 </template>
 
 <script>
+import consts from "../../../../utils/const";
 export default {
   name: "CertCreate",
   data() {
     return {
       Code: "",
-      imageUrl: "",
       isShow: false,
       formLabelWidth: "100px",
+      uploadPath: consts.IMG_UPLOAD_URL,
+      basePath: consts.IMG_BASE_PATH,
       dialogImageUrl: "",
+      fileList: [],
+      imgPath: [],
+      allPath: [],
       imgdialogVisible: false,
       fromData: {
         oldInnerCode: null,
@@ -102,6 +150,11 @@ export default {
         expireTime: [
           { required: true, message: "请选择有效截至日期", trigger: "change" }
         ]
+      },
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() < Date.now() - 8.64e7; //如果没有后面的-8.64e7就是不可以选择今天的
+        }
       }
     };
   },
@@ -109,11 +162,39 @@ export default {
   inject: ["getData"],
   methods: {
     handleRemove(file, fileList) {
-      console.log(file, fileList);
+      let fileNames = this.imgPath.find(
+        z => z.slice(-file.name.length, z.length) == file.name
+      );
+
+      this.imgPath.splice(this.imgPath.indexOf(fileNames), 1);
+      if (!this.Code) {
+        this.delImage([fileNames]);
+      }
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
       this.imgdialogVisible = true;
+    },
+    beforeUpload(file) {
+      // const isJPG = file.type === "image/jpeg" || "jpg" || "png";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      // if (!isJPG) {
+      //   this.$message.error("上传图片只能是 JPG/PNG 格式!");
+      // }
+      if (!isLt2M) {
+        this.$message.error("上传图片大小不能超过 2MB!");
+      }
+      if (file.name.indexOf(";") != -1) {
+        this.$message.error("图片名称不可包含 ';' !");
+      }
+      return isLt2M;
+    },
+    onSuccess(response, file, fileList) {
+      console.log(this.imgPath);
+      this.imgPath.push(response.entity[0]);
+      console.log(this.imgPath);
+      this.allPath.push(response.entity[0]);
     },
     init() {
       if (this.$refs.createFrom !== undefined) {
@@ -122,11 +203,25 @@ export default {
         }
       }
       if (this.Code) {
+        let that = this;
         this.$axios
           .get(this.$api.GetUserCert, { params: { key: this.Code } })
           .then(res => {
             if (res.data.status == 1) {
               this.fromData = res.data.entity;
+              if (res.data.entity.certPhoto) {
+                console.log(res.data.entity.certPhoto.split(";"));
+                this.imgPath = res.data.entity.certPhoto.split(";");
+                this.allPath = res.data.entity.certPhoto.split(";");
+                this.imgPath.forEach((item, index) => {
+                  let file = {
+                    uid: index++,
+                    url: that.basePath + item,
+                    name: item
+                  };
+                  this.fileList.push(file);
+                });
+              }
             } else {
               this.$message.error(res.data.message);
             }
@@ -136,16 +231,21 @@ export default {
           });
       }
     },
+    delImage(fileNames) {
+      this.$axios.post(this.$api.FileDelete, fileNames);
+    },
     submitForm() {
       this.fromData.oldInnerCode = this.Code;
       this.$refs.createFrom.validate(valid => {
         if (valid) {
+          console.log(this.imgPath);
+          this.fromData.certPhoto = this.imgPath.join(";");
           this.$axios
             .post(this.$api.SaveUserCert, this.fromData)
             .then(res => {
               if (res.status == 200 && res.data.status == 1) {
                 this.$message.success("保存成功！");
-                this.close();
+                this.close(true);
                 this.getData();
               } else {
                 this.$message.error("保存失败，请重试。");
@@ -160,8 +260,40 @@ export default {
         }
       });
     },
-    close() {
+    close(isUpdate) {
       this.isShow = false;
+      if (!this.Code && this.imgPath && isUpdate != true) {
+        //新增不保存
+        this.delImage(this.imgPath);
+      }
+      if (this.Code) {
+        let delItems = new Array();
+        if (isUpdate == true) {
+          if (this.imgPath) {
+            delItems = this.allPath
+              .concat(this.imgPath)
+              .filter(function(v, i, arr) {
+                return arr.indexOf(v) === arr.lastIndexOf(v);
+              });
+          } else {
+            delItems = this.allPath;
+          }
+        } else {
+          if (this.fromData.certPhoto) {
+            let oldItems = this.fromData.certPhoto.split(";");
+            delItems = this.allPath
+              .concat(oldItems)
+              .filter(function(v, i, arr) {
+                return arr.indexOf(v) === arr.lastIndexOf(v);
+              });
+          } else {
+            delItems = this.allPath;
+          }
+        }
+        if (delItems.length > 0) {
+          this.delImage(delItems);
+        }
+      }
       if (this.$refs["fromData"] !== undefined) {
         this.$refs["fromData"].resetFields();
       }
@@ -178,6 +310,9 @@ export default {
         validLogin: false, //是否用于验证登陆，默认false，页面上此字段未作维护。
         remark: ""
       };
+      this.allPath = new Array();
+      this.fileList = new Array();
+      this.imgPath = new Array();
       this.dialogImageUrl = "";
       this.Code = "";
     }
@@ -211,7 +346,6 @@ export default {
   height: 178px;
   display: block;
 }
-</style>
 </style>
 
 

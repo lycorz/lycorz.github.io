@@ -8,6 +8,40 @@ export default {
 		}
 		return moment(val).format(pattern);
 	},
+	//根据code获取医生名字
+	getDoctorName: (val, data) => {
+		for(let i = 0; i< data.length; i++) {
+			if (data[i].operatorCode == val) {
+				return data[i].userName;
+			}
+		}
+	},
+	//根据日期获取星期
+	getWeek: (val) => {
+		if (!val) {
+			return '';
+		}
+		return moment(val).locale('zh-cn').format('dddd');
+	},
+	//根据日期获取是否为节假日
+	filterHoliday: (val, data) => {
+		if (!data.length) return '工作日'
+		if (data.indexOf(val) === -1) {
+			return '工作日'
+		} else {
+			return '节假日'
+		}
+	},
+	// 保留2为小数,key为false(默认)表示不四舍五入，为true表示四舍五入
+	numFilter: (val, key = false) => {
+		if (!parseFloat(val)) return '';
+		if (key) {
+			return parseFloat(val).toFixed(2);
+		} else {
+			val = parseFloat(val).toFixed(3);
+			return val.substring(0, val.length - 1);
+		}
+	},
 	// 交易类型
 	tradetype: val => {
 		switch (val) {

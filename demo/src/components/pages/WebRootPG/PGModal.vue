@@ -444,8 +444,8 @@ export default {
       checkloading: true,
       //    end   //
 
-      checkBoxModal: ["一般检查", "异常汇总", "主检建议"],
-      checkBoxOptions: ["一般检查", "异常汇总", "主检建议"],
+      checkBoxModal: ["检查结果", "异常汇总", "主检建议"],
+      checkBoxOptions: ["检查结果", "异常汇总", "主检建议"],
       dialogmodalName: "",
       curItem: "01",
       multipleSelection: [],
@@ -676,15 +676,15 @@ export default {
       let chartseries = new Array();
       val.lstDicDiseaseRickLevel.forEach((item, index) => {
         // colors[item.levelCode] = item.levelColor;
-        let now = parseInt(val.riskLevelCode.substring(2,3));
+        let now = parseInt(val.riskLevelCode.substring(2, 3));
         let series = {};
         if (index == now) {
           series = {
             type: "bar",
             stack: "风险情况",
-            data: [1, now+1],
+            data: [1, now + 1],
             itemStyle: {
-              normal: { color: '#'+item.levelColor }
+              normal: { color: "#" + item.levelColor }
             }
           };
         } else {
@@ -693,7 +693,7 @@ export default {
             stack: "风险情况",
             data: [1],
             itemStyle: {
-              normal: { color:'#'+item.levelColor }
+              normal: { color: "#" + item.levelColor }
             }
           };
         }
@@ -739,8 +739,8 @@ export default {
               var texts = [];
               let item = "";
               that.levels.forEach(z => {
-                if (z.levelCode == '00'+(parseInt(value+1))) {
-                  item = z.levelName
+                if (z.levelCode == "00" + parseInt(value + 1)) {
+                  item = z.levelName;
                 }
               });
               texts.push(item);
@@ -1374,7 +1374,7 @@ export default {
       let that = this;
       //如果选中的不为空
       if (this.multipleSelection1.length == 0) {
-        this.$message.error("至少选中一个项目");  
+        this.$message.error("至少选中一个项目");
         return;
       }
       this.tableData2.forEach((element, index) => {

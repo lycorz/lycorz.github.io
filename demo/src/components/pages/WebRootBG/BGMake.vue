@@ -36,7 +36,7 @@
       </div>
     </div>
     <el-table :data="tableData" style="width: 100%;" v-loading="loading">
-			<el-table-column type="index" width="50"></el-table-column>
+			<el-table-column type="index" label="序号" width="50"></el-table-column>
       <el-table-column prop="unitName" label="单位名称"></el-table-column>
       <el-table-column prop="beginTime" label="替检开始时间">
 				<template slot-scope="scope">
@@ -188,8 +188,9 @@ export default {
 				text: '团检报告生成中，请稍后...',
 				spinner: 'el-icon-loading'
 			});
-			this.$axios.post(this.$api.MarkUnitReport, params).then(res => {
+			this.$axios.get(this.$api.MarkUnitReport, {params}).then(res => {
 				if(res.data.status === 1) {
+					//api.save(res.data.entity);
 					this.getData();
 					this.$message.success('团检报告生成成功！');
 				} else {

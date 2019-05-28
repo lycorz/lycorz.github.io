@@ -1,7 +1,7 @@
 <template>
   <div class="content FuncItemsIndex">
     <div class="topTitle">
-      <span>功能项目字典</span>
+      <span>菜单功能项</span>
     </div>
     <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
@@ -46,13 +46,13 @@
         style="width: 100%"
       >
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column property="funcCode" label="功能项编号" align="center"></el-table-column>
-        <el-table-column property="levelName" label="功能项级别" align="center"></el-table-column>
+        <el-table-column property="funcCode" label="功能项编号" align="left"></el-table-column>
+        <el-table-column property="levelName" label="功能项级别" align="left"></el-table-column>
         <el-table-column property="parentCode" show-overflow-tooltip label="父类编号" align="center"></el-table-column>
         <el-table-column property="funcName" show-overflow-tooltip label="功能项目名称" align="center"></el-table-column>
-        <el-table-column property="url" label="跳转地址" align="center"></el-table-column>
+        <el-table-column property="url" label="跳转地址" align="left"></el-table-column>
         <el-table-column property="icon" label="展示图标" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="200px">
+        <el-table-column label="操作" align="center"  fixed="right" width="80px">
           <template slot-scope="scope">
             <el-button type="text" @click="edit(scope.$index,scope.row)">编辑</el-button>
           </template>
@@ -65,8 +65,9 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+            :page-sizes="[10,20,50,100]"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>

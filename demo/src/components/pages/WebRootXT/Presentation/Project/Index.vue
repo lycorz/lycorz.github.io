@@ -55,16 +55,16 @@
         </div>
       </div>
       <el-table ref="singleTable" :data="tableData" v-loading="loading" style="width: 100%">
-        <el-table-column type="index" width="55"></el-table-column>
+        <el-table-column type="index" width="55" label="序号"></el-table-column>
         <el-table-column property="subItemCode" label="报告项目" align="center"></el-table-column>
         <el-table-column property="subItemName" label="报告项目名称" align="center"></el-table-column>
-        <el-table-column property label="外部子项目编号" align="center"></el-table-column>
-        <el-table-column property label="外部组合项目编号" align="center"></el-table-column>
+        <!-- <el-table-column property label="外部子项目编号" align="center"></el-table-column>
+        <el-table-column property label="外部组合项目编号" align="center"></el-table-column> -->
         <el-table-column property="rptItemName" label="所属报告项目分类" align="center"></el-table-column>
         <el-table-column property="isEnable" label="是否启用" align="center">
           <template slot-scope="scope">{{scope.row.isEnable | boolFilter}}</template>
         </el-table-column>
-        <el-table-column label="操作" align="center" width="200px">
+        <el-table-column label="操作" align="center"  fixed="right" width="150px">
           <template slot-scope="scope">
             <el-button type="text" @click="backCode(scope.$index,scope.row)">回传代码</el-button>
             <el-button type="text" @click="edit(scope.$index,scope.row)">编辑</el-button>
@@ -78,8 +78,9 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+            :page-sizes="[10,20,50,100]"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>
@@ -109,6 +110,7 @@ export default {
       searchParams: {
         itemName: "",
         subItemName: "",
+        itemCode:"", 
         haveItemCode: null, //bool  是否分类
         isEnable: null, //bool  是否启用
         pageSize: 10,
@@ -197,7 +199,7 @@ export default {
           console.error(err);
         });
     },
-    
+
     //获取枚举
     getEnumItems(enumName) {
       let that = this;

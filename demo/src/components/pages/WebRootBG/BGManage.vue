@@ -64,14 +64,14 @@
     <el-table :data="tableData" style="width: 100%;" v-loading="loading" ref="multipleTable" @row-click="clickRow2"  @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column prop="customerName" label="姓名"></el-table-column>
-      <el-table-column prop="sex" label="性别"></el-table-column>
+      <el-table-column prop="sex" label="性别"  width="50"></el-table-column>
       <el-table-column prop="cardNum" label="体检卡号"></el-table-column>
       <el-table-column prop="idCardNum" label="身份证号"></el-table-column>
       <el-table-column prop="tele" label="手机号"></el-table-column>
       <el-table-column prop="unitName" label="单位"></el-table-column>
       <el-table-column prop="deptName" label="部门"></el-table-column>
       <el-table-column prop="createTime" label="生成时间"></el-table-column>
-      <el-table-column prop="ifTake" label="领取"></el-table-column>
+      <el-table-column prop="ifTake" label="领取"  width="50"></el-table-column>
       <el-table-column prop="takeType" label="领取方式">
 				<template slot-scope="scope">
 					<el-popover trigger="hover" placement="bottom">
@@ -178,9 +178,10 @@
       </div>
     </el-dialog>
 		<el-dialog title="报告预览" :visible.sync="bgPreview" :close-on-click-modal="false" width="1000px" class="viewModal">
-			<div style="max-height: 500px;overflow: auto;">
+			<!-- <div style="max-height: 500px;overflow: auto;">
 				<img :src="'data:image/jpeg;base64,' + viewImg" alt="报告预览" style="width: 100%;">
-			</div>
+			</div> -->
+			<iframe :src="pdfUrl" width="100%" height="600px" frameborder="0"></iframe>
 		</el-dialog>
   </div>
 </template>
@@ -192,7 +193,7 @@ export default {
     return {
       getBGModal: false,
 			bgPreview: false,
-			viewImg: '',
+			pdfUrl: '',
       searchParams: {
         Condition: "",
         IfPrint: "",
@@ -418,10 +419,22 @@ export default {
 			});
 			this.$axios.post(this.$api.ReportPrint, ReportCodes).then(res => {
 				if(res.data.status === 1) {
-					this.getData();
 					let sucNum = res.data.entity.successCount;
 					let errNum = res.data.entity.errorCount;
 					let h = this.$createElement;
+					res.data.path.forEach(x => {
+						//api.print(x);
+					})
+					this.$axios.post(this.$api.ReportPrintSuccess, {
+						ReportCodes,
+						OperatorCode: '001'
+					}).then(res1 => {
+						if(res1.data.status !== 1) {
+							this.$message.error(res1.data.message);
+						} else {
+							this.getData();
+						}
+					})
 					this.$notify({
 						title: '打印报告完成！',
 						message: h('i', { style: 'color: #606266'},
@@ -529,8 +542,8 @@ export default {
 			let ReportCodes = [data.reportCode];
 			this.$axios.post(this.$api.ReportPrint, ReportCodes).then(res => {
 				if(res.data.status === 1) {
-					this.viewImg = res.data.entity.image64[0];
-					if (this.viewImg) {
+					if (res.data.entity.path[0]) {
+						this.pdfUrl = window.location.href.split('/#')[0] + '/PDFjs/web/viewer.html?file=http://192.168.0.254:8889' + res.data.entity.path[0];
 						this.bgPreview = true;
 					} else {
 						this.$message.error('请先生成报告后预览');
@@ -597,6 +610,9 @@ export default {
 }
 .modal-con .item span{
 	width: 60px;
+}
+.pdf >>> #buttons{
+	display: none;
 }
 </style>
 
