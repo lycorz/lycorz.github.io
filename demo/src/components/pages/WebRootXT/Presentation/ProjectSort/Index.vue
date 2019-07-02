@@ -13,7 +13,7 @@
             class="arcRadius"
             style="width: 150px;"
           >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+            
           </el-input>
           <div class="searchItem" style="display: inline-block;margin: 0 8px;">
             <el-select clearable v-model="searchParams.deptCode" placeholder="所属科室">
@@ -58,7 +58,7 @@
         <el-table-column type="index" label="序号" width="55"></el-table-column>
         <el-table-column property="itemCode" label="报告项目分类编号" align="center"></el-table-column>
         <el-table-column property="itemName" label="报告项目分类名称" align="center"></el-table-column>
-        <el-table-column property="typeCodeName" label="类型" align="center"></el-table-column>
+        <el-table-column property="typeCodeName" label="项目类型名称" align="center"></el-table-column>
         <el-table-column property="deptCodeName" label="所属科室" align="center"></el-table-column>
         <el-table-column property="inputTypeName" label="结论录入类型" align="center"></el-table-column>
         <el-table-column property="isEnable" label="是否启用" align="center">

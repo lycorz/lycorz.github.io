@@ -90,6 +90,11 @@
             "name": "危急值管理",
             "gotoUrl": "/fj/fjdanger",
             "part": "7103"
+          },
+          {
+            "name": "采血质控",
+            "gotoUrl": "/fj/fjbloodmeasure",
+            "part": "7104"
           }
         ]
       }
@@ -271,7 +276,33 @@
 						"gotoUrl": "/tj/smssend"
 					}
 				]
-			}
+      },
+      {
+				"name": "VIP统计",
+				"part": "84",
+				"gotoUrl": "/tj/vip",
+				"icon": "el-icon-edit-outline"
+      },
+      {
+				"name": "综合报表",
+				"part": "85",
+				"gotoUrl": "tj5",
+        "icon": "el-icon-edit-outline",
+        "childrenNodes":[
+          {
+            "name": "业务综合报表",
+            "part": "851",
+            "gotoUrl": "/tj/businessStatement",
+            "icon": "el-icon-edit-outline"
+          },
+          {
+            "name": "财务综合报表",
+            "part": "852",
+            "gotoUrl": "/tj/financialStatement",
+            "icon": "el-icon-edit-outline"
+          }
+        ]
+      }
 		]
 	},
   {
@@ -392,6 +423,24 @@
             "part": "442",
             "icon": "el-icon-edit-outline",
             "gotoUrl": "/xt/cost"
+          },
+          {
+            "name": "分成字典",
+            "part": "443",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/distributionType"
+          },
+          {
+            "name": "设备字典",
+            "part": "444",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/equipment"
+          },
+          {
+            "name": "设备维护",
+            "part": "445",
+            "icon": "el-icon-edit-outline",
+            "gotoUrl": "/xt/equipmentCheck"
           }
         ]
       },
@@ -449,5 +498,72 @@
 				]
 			}
     ]
-  }
+	},
+	{
+		"name": "体检质控",
+		"part": "9",
+		"path": "/zk",
+		"childrenNodes": [
+			{
+				"name": "危急值管理",
+				"part": "91",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/criticalvalue"
+			},
+			{
+				"name": "检出率",
+				"part": "92",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/detectionrate"
+			},
+			{
+				"name": "导检质控",
+				"part": "93",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/guidequality"
+			},
+			{
+				"name": "弃检质控",
+				"part": "94",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/discardquality"
+			},
+			{
+				"name": "主检质控",
+				"part": "95",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/mainquality"
+			},
+			{
+				"name": "报告周期质控",
+				"part": "96",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/reportcyclequality"
+			},
+			{
+				"name": "报告发放质控",
+				"part": "97",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/reportissuingquality"
+			},
+			{
+				"name": "医生资质审核",
+				"part": "98",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/doctorqualification"
+			},
+			{
+				"name": "设备质检",
+				"part": "99",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/equipmentquality"
+			},
+			{
+				"name": "检验标本质控",
+				"part": "910",
+				"icon": "el-icon-edit-outline",
+				"gotoUrl": "/zk/inspectionstandard"
+			}
+		]
+	}
 ]

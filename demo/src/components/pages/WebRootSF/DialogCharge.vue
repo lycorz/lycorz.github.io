@@ -7,12 +7,15 @@
       @open="getData"
       width="720px"
     >
-      <div class="title">客户信息</div>
+      <div class="title">发票信息</div>
       <div class="con">
         <ul>
           <li class="item">
             <span>金额：</span>
-            <div class="item-list" style="color:#F56C6C;font-size:14px;">￥{{ordreHistoryData.tradeMoney}}元</div>
+            <div
+              class="item-list"
+              style="color:#F56C6C;font-size:14px;"
+            >￥{{ordreHistoryData.tradeMoney}}元</div>
           </li>
           <li class="item">
             <span>发票号：</span>
@@ -29,13 +32,21 @@
         <ul>
           <li class="item">
             <span>缴费方式：</span>
-            <div style="margin-right:5px" v-for="(item,index) in ordreHistoryData.paidTypes" :key="index"  class="item-list">{{item.paidType | tradetype }}￥{{item.tradeMoney}}</div>
+            <div
+              style="margin-right:5px"
+              v-for="(item,index) in ordreHistoryData.paidTypes"
+              :key="index"
+              class="item-list"
+            >{{item.paidType | tradetype }}￥{{item.tradeMoney}}</div>
           </li>
           <!-- <li class="item">
             <span>缴费金额：</span>
             <div class="item-list">元</div>
-          </li> -->
+          </li>-->
         </ul>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="close()">取消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -50,17 +61,20 @@ export default {
       dialogchargeIsShow: false,
       tradeCode: "",
       customerName: "",
-      invoiceNum:"",
+      invoiceNum: "",
       ordreHistoryData: []
     };
   },
   methods: {
+    close: function() {
+      this.dialogchargeIsShow = false;
+    },
     getData: function() {
       let that = this;
       this.$axios
         .get(this.$api.TradeHistoryDetailQuery, {
           params: {
-           tradeCode:this.tradeCode
+            tradeCode: this.tradeCode
           }
         })
         .then(function(response) {
@@ -78,7 +92,7 @@ export default {
           console.log(error);
         });
     }
-  },
+  }
 };
 </script>
 <style>

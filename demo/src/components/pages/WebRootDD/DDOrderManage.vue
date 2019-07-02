@@ -14,11 +14,11 @@
               class="arcRadius"
               style="width: 150px;"
             >
-              <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
             </el-input>
             <el-select v-model="params.OrderFlag" clearable placeholder="订单状态" style="margin: 0 8px;">
               <el-option
-                v-for="item in reportType"
+                v-for="item in orderStatus"
                 :key="item.value"
                 :label="item.name"
                 :value="item.value"
@@ -52,32 +52,25 @@
 								:picker-options="pickerOptions">
               ></el-date-picker>
             </div>
-            <el-button type="primary" @click="getData(true)">查询</el-button>
+            <el-button type="primary" @click="getData(true)" >查询</el-button>
+						<el-popover
+							placement="bottom"
+							width="220"
+							style="margin-left: 16px;"
+							trigger="click">
+							<div class="popoverBtn">
+								<el-button type="text" style="margin-left: 10px;"  @click="printGuide">打印导检单</el-button>
+								<el-button type="text" @click="printName">打印姓名条码</el-button>
+								<el-button type="text" style="display: inline-block" @click="printCheckModal">打印检验条码</el-button>
+								<el-checkbox v-model="isCombine" style="font-size: 12px;margin-right: 0;">合并</el-checkbox>
+								<el-tooltip class="item" content="合并是指合并且重新生成条码" placement="right">
+									<el-button type="text" icon="el-icon-question" style="display: inline;"></el-button>
+								</el-tooltip>
+							</div>
+							<el-button slot="reference" type="primary">打印</el-button>
+						</el-popover>
             <div class="right">
-							<el-popover
-								placement="bottom"
-								width="160"
-								v-model="visible1">
-								<p>是否打印导检单？</p>
-								<div style="text-align: right; margin: 0">
-									<el-button size="mini" type="text" @click="visible1 = false">取消</el-button>
-									<el-button type="primary" size="mini" @click="printGuide">确定</el-button>
-								</div>
-								<el-button slot="reference">打印导检单</el-button>
-							</el-popover>
-							<el-popover
-								placement="bottom"
-								width="160"
-								style="margin: 0 8px;"
-								v-model="visible2">
-								<p>是否打印姓名条码？</p>
-								<div style="text-align: right; margin: 0">
-									<el-button size="mini" type="text" @click="visible2 = false">取消</el-button>
-									<el-button type="primary" size="mini" @click="printName">确定</el-button>
-								</div>
-								<el-button slot="reference">打印姓名条码</el-button>
-							</el-popover>
-							<el-button @click="printCheckModal">打印检验条码</el-button>
+							<el-input v-model="cardNum" placeholder="刷卡" style="width: 100px"></el-input>
 						</div>
           </div>
         </div>
@@ -112,7 +105,7 @@
 							{{scope.row.isReped ? '替检' : '未替检'}}
 						</template>
 					</el-table-column>
-          <el-table-column  fixed="right" label="操作" width="135px">
+          <el-table-column fixed="right" label="操作" width="135px">
 						<template slot-scope="scope">
 								<el-button type="text" @click="editBtn(scope.row)">编辑</el-button>
 								<el-button type="text" @click="viewInfo(scope.row)">查看</el-button>
@@ -150,7 +143,7 @@
           </span>
           <span class="subitem">
             选中：
-            <span class="labelColor ftArial">{{selectedTotal}}</span>
+            <span class="labelColor ftArial">{{multipleSelection.length}}</span>
           </span>
           <div class="right">
             <el-pagination
@@ -163,15 +156,15 @@
             ></el-pagination>
           </div>
         </div>
-	
+
         <!-- 弹窗块 -->
 				<!-- // 查看 -->
         <el-dialog title="当前客户订单" :visible.sync="orderInfoModal" width="800px" :close-on-click-modal="false">
           <el-table :data="itemsData.items" border style="width: 100%;" height="250">
-            <el-table-column prop="itemName" label="项目名称"></el-table-column>
-            <el-table-column prop="feeType" label="付费方式"></el-table-column>
-            <el-table-column prop="fullPrice" label="项目原价"></el-table-column>
-            <el-table-column prop="exePrice" label="项目现价"></el-table-column>
+            <el-table-column prop="itemName" label="项目名称" sortable></el-table-column>
+            <el-table-column prop="feeType" label="付费方式" sortable></el-table-column>
+            <el-table-column prop="fullPrice" label="项目原价" sortable></el-table-column>
+            <el-table-column prop="exePrice" label="项目现价" sortable></el-table-column>
             <el-table-column prop="status" label="项目状态"></el-table-column>
           </el-table>
 					<div slot="footer" class="dialog-footer">
@@ -179,8 +172,8 @@
           </div>
         </el-dialog>
 				<!-- 替检 -->
-        <el-dialog title="客户信息" :visible.sync="peopleInfoModal" width="1000px" :close-on-click-modal="false" class="peopleInfoForm" @close="clearPropleInfo;peopleInfo.NewCustomer.IdcardNum = ''">
-          <el-form :model="peopleInfo.NewCustomer" :rules="rules"  ref="peopleForm" :inline="true" label-width="50px" style="max-height: 250px;overflow-y: auto;overflow-x:hidden;">
+        <el-dialog title="客户信息" :visible.sync="peopleInfoModal" width="1000px" :close-on-click-modal="false" class="peopleInfoForm" @close="clearPropleInfo;peopleInfo.NewCustomer.IdcardNum = '';$refs.peopleForm.resetFields()">
+          <el-form :model="peopleInfo.NewCustomer" :rules="rules"  ref="peopleForm" :inline="true" label-width="50px">
             <el-form-item label="身份证号" prop="IdcardNum" :label-width="formLabelWidth">
               <el-input
                 v-model="peopleInfo.NewCustomer.IdcardNum"
@@ -208,8 +201,8 @@
               <el-date-picker
                 v-model="peopleInfo.NewCustomer.Birthday"
                 type="date"
-                style="width: 143px;margin-right: 8px;"
-              ></el-date-picker>
+                style="width: 143px;margin-right: 8px;">
+							</el-date-picker>
               <el-button-group>
                 <el-button style="padding: 7px 6px;width: 50%;">{{age}}</el-button>
                 <el-button style="padding: 7px 6px;width: 50%;">岁</el-button>
@@ -262,14 +255,11 @@
 							height="250"
 							@selection-change="qjSelectionChange"
 							v-loading="loading"
-							@row-click="clickRow($event, 'qjTable')"
-						>
+							@row-click="clickRow($event, 'qjTable')">
 							<el-table-column type="selection" width="55"></el-table-column>
               <el-table-column prop="itemName" label="项目名称"></el-table-column>
               <el-table-column prop="feeType" label="付款方式"></el-table-column>
-							<!--  :filters="[{ text: '已检', value: 1 }, { text: '未检', value: 0 }, { text: '弃检', value: 2 }]" :filter-method="filterTag" -->
-              <el-table-column prop="status" label="项目状态"
-							>
+              <el-table-column prop="status" label="项目状态" :filters="[{text: '未检', value: '未检'}, {text: '已检', value: '已检'}, {text: '报告回传', value: '报告回传'}, {text: '弃检', value: '弃检'}]" :filter-method="filterHandler">
 							</el-table-column>
             </el-table>
           </div>
@@ -277,6 +267,50 @@
             <el-button @click="currentOrderModal = false;itemsData = []">关 闭</el-button>
           </div>
         </el-dialog>
+				<!-- 打印检验条码 -->
+				<el-dialog title="打印检验条码" :visible.sync="printModal" width="800px" :close-on-click-modal="false" class="currentOrder" >
+					<div class="modal-top">
+						<div class="right">
+							<el-select v-model="params.timeType" placeholder="打印状态">
+								<el-option
+									v-for="item in timeTypes"
+									:key="item.value"
+									:label="item.label"
+									:value="item.value"
+								></el-option>
+							</el-select>
+							<el-button type="primary">打印</el-button>
+						</div>
+
+					</div>
+					<div class="modal-con">
+            <el-table
+							ref="codeTable"
+							:data="itemsData.items"
+							tooltip-effect="dark"
+							style="width: 100%"
+							height="250"
+							@selection-change="qjSelectionChange"
+							v-loading="loading"
+							@row-click="clickRow($event, 'qjTable')">
+							<el-table-column type="selection" width="55"></el-table-column>
+              <el-table-column prop="itemName" label="条码" sortable></el-table-column>
+              <el-table-column prop="feeType" label="项目"></el-table-column>
+              <el-table-column prop="feeType" label="打印时间" sortable></el-table-column>
+              <el-table-column prop="status" label="打印状态" sortable>
+							</el-table-column>
+            </el-table>
+          </div>
+					<div slot="footer" class="dialog-footer">
+							<div style="float: left">
+								<el-button>合并</el-button>
+								<el-tooltip class="item" content="合并是指合并且重新生成条码" placement="right">
+									<el-button type="text" icon="el-icon-question" style="display: inline;"></el-button>
+								</el-tooltip>
+							</div>
+            <el-button @click="printModal = false;">关 闭</el-button>
+          </div>
+				</el-dialog>
       </div>
     </el-row>
   </div>
@@ -289,16 +323,18 @@ export default {
   name: "DDOrderManage",
   data() {
     return {
+			cardNum: '',//新增刷卡数据
+			isCombine: false,//是否合并
       value: "",
 			options: "",
 			visible1: false,
 			visible2: false,
 			total: 0,//总页数
-			selectedTotal:0, //// 选中条数
       loading: false,
       orderInfoModal: false,
       peopleInfoModal: false,
-      currentOrderModal: false,
+			currentOrderModal: false,
+			printModal: false,
       formLabelWidth: "70px",
 
       pickerOptions: {
@@ -332,16 +368,7 @@ export default {
           }
         ]
       },
-      reportType: [
-				{
-          value: '0',
-          name: "未完成"
-				},
-				{
-          value: '1',
-          name: "已完成"
-        },
-			],
+      orderStatus: [],
       timeTypes: [
         {
           value: 0,
@@ -355,11 +382,11 @@ export default {
 			tjType: [
 				{
           value: '0',
-          name: "未替检"
+          name: "否"
 				},
 				{
           value: '1',
-          name: "替检"
+          name: "是"
         }
 			],
 			timeRange: [moment().add(-1, 'weeks').format(),moment().format()],
@@ -426,7 +453,7 @@ export default {
 						{ required: true, message: '请输入姓名', trigger: 'blur' }
 				],
 				Sex: [
-						{  required: true, message: '请输入性别', trigger: 'blur' }
+						{ required: true, message: '请输入性别', trigger: 'blur' }
 				],
 				IdcardNum: [
 						{ required: true, message: '请输入身份证号', trigger: 'blur' },
@@ -440,13 +467,14 @@ export default {
 				// ],
 				Tele: [
 						{ required: true, message: '请输入联系电话', trigger: 'blur' },
-						{ max: 11, min: 11, message: '请输入正确的手机号码', trigger: 'blur' }
+						{ pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur'  }
 				]
 			},
     };
   },
   created: function() {
-    this.getData(true);
+		this.getData(true);
+		this.getTypes();
   },
   methods: {
 		//点击当前行选中
@@ -455,6 +483,14 @@ export default {
 				return;
 			}
 			this.$refs.multipleTable.toggleRowSelection(row);
+		},
+		// 候取枚举类型
+		getTypes() {
+			this.$getType('OrderStatus').then(res => {
+				if (res.status === 200 && res.data.status === 1) {
+					this.orderStatus = res.data.entity;
+				}
+			})
 		},
 		//查询客户信息
 		getCustomer(){
@@ -555,6 +591,7 @@ export default {
     },
 		//编辑
 		editBtn(data){
+			console.log(data);
 			this.currentOrderModal = true;
 			this.itemsData = data;
 		},
@@ -590,19 +627,9 @@ export default {
 						this.getData();
 					} else {
 						this.$message.error(res.data.message);
-						// this.$alert('<span>该订单已经缴费，不可删除！</span><br /><i style="color:#8F9399;">订单已缴费不可删除</i>', '提醒：', {
-						// 	confirmButtonText: '关闭',
-						// 	dangerouslyUseHTMLString: true,
-						// 	type: 'warning'
-						// })
 					}
 				}).catch(err => {
 					this.$message.error(err.data.message);
-					// this.$alert('<span>该订单已经缴费，不可删除！</span><br /><i style="color:#8F9399;">订单已缴费不可删除</i>', '提醒：', {
-					// 		confirmButtonText: '关闭',
-					// 		dangerouslyUseHTMLString: true,
-					// 		type: 'warning'
-					// 	})
 				})
 			} else {
 				if (data.items.every(x => x.status !== '未检')) {
@@ -628,19 +655,9 @@ export default {
 							this.getData();
 						} else {
 							this.$message.error(res.data.message);
-							// this.$alert('<span>该订单已经缴费，不可删除！</span><br /><i style="color:#8F9399;">订单已缴费不可删除</i>', '提醒：', {
-							// 	confirmButtonText: '关闭',
-							// 	dangerouslyUseHTMLString: true,
-							// 	type: 'warning'
-							// })
 						}
 					}).catch(err => {
 						this.$message.error(err.data.message);
-						// this.$alert('<span>该订单已经缴费，不可删除！</span><br /><i style="color:#8F9399;">订单已缴费不可删除</i>', '提醒：', {
-						// 		confirmButtonText: '关闭',
-						// 		dangerouslyUseHTMLString: true,
-						// 		type: 'warning'
-						// 	})
 					})
 				})
 
@@ -711,6 +728,10 @@ export default {
 			this.searchParams.PageIndex = 1;
       this.getData();
 		},
+		filterHandler(value, row, column) {
+			const property = column['property'];
+			return row[property] === value;
+		},
 		//点击选中
 		handleSelectionChange(val) {
 			this.multipleSelection = val;
@@ -762,35 +783,15 @@ export default {
 		// 根据身份证号自动填写年龄和性别
 		getAgeBrith(id){
 			if (!id) return;
-			// let year = id.substr(6, 4);
-			// let month = id.substr(10, 2);
-			// let day = id.substr(12, 2);
-			// let birthday = id.substr(6, 4) + '-' + id.substr(10, 2) + '-' + id.substr(12, 2);
-			// this.peopleInfo.NewCustomer.Birthday = new Date(birthday);
 			this.peopleInfo.NewCustomer.Sex = id.substr(16, 1) % 2 ? 1: 2;
 		}
 	},
 	watch: {
-		multipleSelection: function(val, oldVal) {
-			if(val != oldVal) {
-				this.selectedTotal = val.length;
-			}
-		},
 		'peopleInfo.NewCustomer.Birthday': function(val, oldVal) {
 			if (val !== oldVal) {
 				this.age = moment().year() - moment(val).year();
 			}
 		},
-		// 'peopleInfo.NewCustomer.VipFlag': function(val, oldVal) {
-		// 	if (val !== oldVal) {
-		// 		this.orderVipFlag = val === 1 ? true : false;
-		// 	}
-		// },
-		// orderVipFlag: function(val, oldVal) {
-		// 	if (val !== oldVal) {
-		// 		this.peopleInfo.NewCustomer.VipFlag = val ? 1 : 0;
-		// 	}
-		// },
 		'peopleInfo.NewCustomer.IdcardNum': function(val, oldVal){
 			if (val !== oldVal && val.length === 18) {
 				this.getAgeBrith(val);
@@ -819,16 +820,20 @@ export default {
   display: inline-block;
   width: 120px;
 }
-.DDOrderManage .peopleInfoForm .w100 .el-form-item__content {
+.DDOrderManage .peopleInfoForm .w100 >>> .el-form-item__content {
   width: 90%;
 }
-.DDOrderManage .peopleInfoForm .el-form-item__content,
-.DDOrderManage .peopleInfoForm .el-form-item__content .el-select {
+.DDOrderManage >>> .el-form-item__content,
+.DDOrderManage >>> .el-form-item__content .el-select {
   width: 220px;
 }
 .DDOrderManage .el-form--inline .el-form-item {
   margin-right: 20px;
   margin-top: 24px;
+	width: 290px;
+}
+.peopleInfoForm >>> .el-form-item__label {
+	text-align: left;
 }
 .DDOrderManage .currentOrder ul {
   overflow: hidden;
@@ -855,5 +860,8 @@ export default {
 .importCustom >>> .el-select{
 	width: 250px!important;
 	display: inline-block!important;
+}
+.popoverBtn .el-button{
+	display: block;
 }
 </style>

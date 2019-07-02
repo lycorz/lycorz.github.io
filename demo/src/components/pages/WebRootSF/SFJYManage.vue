@@ -10,10 +10,12 @@
                 v-model="tradeName1"
                 class="arcRadius"
                 style="width: 150px;"
+                v-focus
               >
-                <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
               </el-input>
               <el-select
+              clearable
                 v-model="typecode1"
                 filterable
                 placeholder="业务类型"
@@ -54,6 +56,7 @@
           <el-table
             :data="tableData"
             style="width: 100%;"
+						height="9999"
             v-loading="loading"
             :default-sort="{prop: 'date', order: 'descending'}"
           >
@@ -97,10 +100,12 @@
                 v-model="tradeName"
                 class="arcRadius"
                 style="width: 150px;"
+                v-focus
               >
-                <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
               </el-input>
               <el-select
+              clearable
                 v-model="typecode"
                 filterable
                 placeholder="业务类型"
@@ -126,14 +131,14 @@
                 ></el-date-picker>
               </div>
               <el-button type="primary" @click="getUser()">查询</el-button>
-              <el-dropdown class="dpdown">
+              <el-dropdown class="dpdown" @command="idOrCard">
                 <el-button type="primary">
                   刷卡
                   <i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>刷身份证</el-dropdown-item>
-                  <el-dropdown-item>刷体检卡</el-dropdown-item>
+                  <el-dropdown-item command="idc">刷身份证</el-dropdown-item>
+                  <el-dropdown-item command="c">刷体检卡</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
@@ -304,6 +309,16 @@ export default {
       this.pageIndex = ex;
       this.getUser();
     },
+    // 刷卡刷身份证
+    idOrCard(command){
+      // 刷身份证调api
+      if(command == "idc"){
+        api.getIdcard(callback());
+      }else{
+
+      }
+    },
+    // 获取用户列表
     getUser() {
       this.loading = true;
       this.loading1 = true;
@@ -490,6 +505,9 @@ export default {
 }
 .dpdown {
   float: right;
+}
+.el-date-editor{
+	width: 230px;
 }
 </style>
 

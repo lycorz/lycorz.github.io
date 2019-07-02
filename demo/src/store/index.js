@@ -13,7 +13,15 @@ const state = {
   sideBarMenus: [], // 侧边导航
   openList: [], // 侧边栏默认打开
 	isGoto: true,  // 当前页面是否允许调转
-	USERINFO: {}// 用户信息
+	USERINFO: {
+		loginName: "test1234",
+		operatorCode: "004",
+		roleCode: "J0001",
+		roleName: "总检",
+		userName: "test1234",
+		discount: 0.8,
+		token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJlS2V5LlBFLkFQSSIsImlzcyI6ImVLZXkuUEUuQXV0aCIsImlkIjoiMDA0IiwibmFtZSI6InRlc3QxMjM0Iiwicm9sZSI6IuaAu-ajgCIsIm5iZiI6MTU2MDQ5MjI3NiwiZXhwIjoxNTYwNTI4Mjc2LCJpYXQiOjE1NjA0OTIyNzZ9.x4QyftfLigWMPOoKyfLLO7uUKKrTSo8gULSFEpu1GjM"
+	}// 用户信息
 }
 const mutations = {
 	//左侧菜单栏展开闭合
@@ -42,7 +50,7 @@ const mutations = {
 	//当前页面是否可以跳转的弹窗提示
 	GotoHandle(state, key) {
 		if (!state.isGoto) {
-			MessageBox.confirm('当前内容未保存，是否保存后离开?', '提示', {
+			MessageBox.confirm('当前内容未保存，是否离开?', '提示', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
 				closeOnClickModal: false,
@@ -54,19 +62,19 @@ const mutations = {
 	},
 	// 赋值用户信息
 	getUserInfo(state, data) {
-		state.USERINFO = data;
+		state.USERINFO = data;//存放在vuex
+		window.USERINFO = data;//存放在window下
 	}
 }
 const actions = {
 	//异步获取导航菜单
 	getMenu({ commit }, operatorCode) {
-		axios.post(api.GetUserFuncItemList, {
-			operatorCode
-		}).then(res => {
-		  if (res.data) {
+		// axios.get(api.GetUserFuncItemList,{params: {operatorCode}}).then(res => {
+		//   if (res.data) {
+				// commit('changeMenu', res.data.entity);
 				commit('changeMenu', header);
-      }
-    })
+    //   }
+    // })
 	}
 }
 

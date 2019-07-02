@@ -4,12 +4,11 @@ function resolve(dir) {
 }
 module.exports = {
     baseUrl: './',
-    productionSourceMap: false,
+		productionSourceMap: false,
     chainWebpack: config => {
 			config.resolve.alias
 				.set('@', resolve('src'))
 				.set('common', resolve('src/components/common'))
 				.set('pages', resolve('src/components/pages'))
 		}
-
 }

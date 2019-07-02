@@ -23,6 +23,9 @@
 							tagsList: []
 					}
 			},
+			created() {
+
+			},
 			components:{
 					vHead, vSidebar
 			},

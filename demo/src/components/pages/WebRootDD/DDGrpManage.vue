@@ -14,7 +14,7 @@
 										class="arcRadius"
 										style="width: 150px;"
 									>
-										<i slot="prefix" class="el-input__icon el-icon-search"></i>
+
 									</el-input>
 									<div style="display: inline-block;margin: 0 16px;">
 											<el-date-picker
@@ -105,7 +105,7 @@
 												class="arcRadius"
 												style="width: 352px;margin-right: 16px;"
 											>
-												<i slot="prefix" class="el-input__icon el-icon-search"></i>
+
 											</el-input>
 											<span>开始时间段：</span>
 											<div style="display: inline-block;margin: 0 16px;">
@@ -191,7 +191,7 @@
 												class="arcRadius"
 												style="width: 352px;margin-right: 16px;"
 											>
-												<i slot="prefix" class="el-input__icon el-icon-search"></i>
+
 											</el-input>
 											<span>开始时间段：</span>
 											<div style="display: inline-block;margin: 0 16px;">
@@ -465,7 +465,7 @@ export default {
 					],
 					Tele: [
 							{ required: true, message: '请输入联系电话', trigger: 'blur' },
-							{ max: 11, min: 11, message: '请输入正确的手机号码', trigger: 'blur' }
+							{ pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur'  }
 					]
 				},
       }

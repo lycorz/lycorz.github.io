@@ -36,7 +36,7 @@
           <el-popover trigger="click" @show="showReason()" placement="bottom">
             <div v-for="(reasonItem,reasonIndex) in reasonData" :key="reasonIndex">
               <p>时间：{{reasonItem.rejectTime | formatDate("YYYY/MM/DD-HH:MM:SS") }}</p>
-              <p>操作人：{{reasonItem.operatorCode}}</p>
+              <p>操作人：{{reasonItem.rejectOperator}}</p>
               <p>驳回原因：{{reasonItem.rejectReason}}</p>
               <hr>
             </div>
@@ -252,15 +252,6 @@
                   </el-popover>
                 </li>
               </ul>
-              <!-- <el-table
-                v-loading="checkloading"
-                border
-                :data="WJData"
-                style="width:100%;  margin: 0px 0px -1px -1px; "
-              >
-                <el-table-column prop="questionContent" align="left" label="题目"></el-table-column>
-                <el-table-column prop="answerValue" align="left" label="选项"></el-table-column>
-              </el-table>-->
             </div>
           </div>
           <div id="pinggu" style="display:none">
@@ -271,7 +262,7 @@
                   <el-button
                     style="padding:5px 15px"
                     :disabled="isDisabled"
-                    @click="showchrins()"
+                    @click="showchrins(item)"
                     type="text"
                   >编辑</el-button>
                 </div>
@@ -285,7 +276,6 @@
       </div>
       <div
         id="abnormal"
-        style="flex: 1 ;border-right: 1px solid #DCDFE5;display: flex;flex-direction: column;min-width:300px;"
       >
         <div class="subTitle" style="flex:0 0 40px;">
           <span class="strong-Title">异常汇总</span>
@@ -338,7 +328,7 @@
       </div>
       <div style="flex:3;overflow: hidden;display: flex;flex-direction: column;" id="advSug">
         <div class="subTitle">
-          <span class="strong-Title">主检建议</span>
+          <span class="strong-Title">医学建议</span>
           <div class="right">
             <el-button @click="reBuildAdvice(orderCode,operatorCode)" :disabled="isDisabled">重新生成</el-button>
             <el-button @click="addAdvicelShow" :disabled="isDisabled">新增</el-button>
@@ -444,8 +434,8 @@ export default {
       checkloading: true,
       //    end   //
 
-      checkBoxModal: ["检查结果", "异常汇总", "主检建议"],
-      checkBoxOptions: ["检查结果", "异常汇总", "主检建议"],
+      checkBoxModal: ["检查结果", "异常汇总", "医学建议"],
+      checkBoxOptions: ["检查结果", "异常汇总", "医学建议"],
       dialogmodalName: "",
       curItem: "01",
       multipleSelection: [],
@@ -455,94 +445,7 @@ export default {
       FJData: [],
       PGData: [],
       levels: [],
-      series: [],
-      serie: {
-        type: "bar",
-        stack: "风险情况",
-        data: [],
-        itemStyle: {
-          normal: { color: "" }
-        }
-      },
       WJData: [],
-      // chartOptions: {
-      //   // title: {
-      //   //   text: "ECharts 入门示例"
-      //   // },
-      //   tooltip: { trigger: "axis" },
-      //   legend: {
-      //     data: ["风险等级", "当前风险"]
-      //   },
-      //   xAxis: {
-      //     data: ["风险等级", "当前风险"],
-      //     // axisLine: {
-      //     //   lineStyle: {
-      //     //     color: "#C1C4CB",
-      //     //     width: "1px"
-      //     //   }
-      //     // },
-      //     splitLine: {
-      //       show: false
-      //     }
-      //   },
-      //   grid: {
-      //     left: 60
-      //   },
-      //   yAxis: {
-      //     min: 0,
-      //     max: this.PGData.levelItems.length,
-      //     splitLine: {
-      //       show: false
-      //     },
-      //     // axisLine: {
-      //     //   lineStyle: {
-      //     //     color: "#C1C4CB",
-      //     //     width: "1px"
-      //     //   }
-      //     // },
-      //     axisLabel: {
-      //       formatter: function(value) {
-      //         var texts = [];
-      //         let item = this.PGData.levelItems.find(z=>z.diseaseCode==value);
-      //         texts.push(item.levelName);
-      //       }
-      //     }
-      //   },
-      //   series: [
-      //     {
-      //       type: "bar",
-      //       stack: "风险情况",
-      //       data: [1, 1],
-      //       itemStyle: {
-      //         normal: { color: "#3FBB49" }
-      //       }
-      //     },
-      //     {
-      //       stack: "风险情况",
-      //       type: "bar",
-      //       data: [1],
-      //       itemStyle: {
-      //         normal: { color: "#FFDF3E" }
-      //       }
-      //     },
-      //     {
-      //       stack: "风险情况",
-      //       type: "bar",
-      //       data: [1],
-      //       itemStyle: {
-      //         normal: { color: "#FC9C20" }
-      //       }
-      //     },
-      //     {
-      //       stack: "风险情况",
-      //       type: "bar",
-      //       data: [1],
-      //       itemStyle: {
-      //         normal: { color: "#FF5454" }
-      //       }
-      //     }
-      //   ]
-      // },
       //以下是异常汇总等。
       multipleSelection: [],
       loading: true,
@@ -565,7 +468,6 @@ export default {
     this.operatorCode = this.$route.query.operatorCode;
     this.isDisabled = !!this.$route.query.isDisabled;
     this.orderCode = this.$route.query.rowData.orderCode;
-    console.log(this.rowData);
     this.getRptItems();
     this.getNoFJItems();
     //获取异常汇总
@@ -653,6 +555,52 @@ export default {
                   this.showCharts(val);
                 }, 500);
               });
+            } else {
+              if (process.env.NODE_ENV != "production") {
+                data = [
+                  {
+                    orderCode: "1111111",
+                    diseaseCode: "00002",
+                    diseaseName: "糖尿病",
+                    riskLevelCode: "005",
+                    lstDicDiseaseRickLevel: [
+                      {
+                        levelCode: "004",
+                        levelName: "中风险  ",
+                        diseaseCode: "00002",
+                        levelColor: "E8D54D"
+                      },
+
+                      {
+                        levelCode: "002",
+                        levelName: "低风险",
+                        diseaseCode: "00002",
+                        levelColor: "61A8C1"
+                      },
+                      {
+                        levelCode: "006",
+                        levelName: "极高风险",
+                        diseaseCode: "00002",
+                        levelColor: "EF4B4B"
+                      },
+                      {
+                        levelCode: "005",
+                        levelName: "高风险",
+                        diseaseCode: "00002",
+                        levelColor: "EF7F25"
+                      }
+                    ]
+                  }
+                ];
+                this.PGData = data;
+                data.forEach(val => {
+                  setTimeout(() => {
+                    this.showCharts(val);
+                  }, 500);
+                });
+              }else{
+                alert(1);
+              }
             }
           } else {
             this.$message.error(res.data.message);
@@ -671,13 +619,24 @@ export default {
       let myCharts = echarts.init(
         document.getElementById("main" + val.diseaseCode)
       );
-      that.levels = val.lstDicDiseaseRickLevel;
+      that.levels = val.lstDicDiseaseRickLevel
+        .sort(function(a, b) {
+          return a.levelCode - b.levelCode;
+        })
+        .map((item, index) => {
+          if (item.levelCode == val.riskLevelCode) {
+            val.riskLevelCode = index;
+          }
+          item.levelCode = index;
+          return item;
+        });
+
       // let colors = {};
       let chartseries = new Array();
-      val.lstDicDiseaseRickLevel.forEach((item, index) => {
+      that.levels.forEach((item, index) => {
         // colors[item.levelCode] = item.levelColor;
-        let now = parseInt(val.riskLevelCode.substring(2, 3));
         let series = {};
+        let now = val.riskLevelCode;
         if (index == now) {
           series = {
             type: "bar",
@@ -738,11 +697,10 @@ export default {
             formatter: function(value) {
               var texts = [];
               let item = "";
-              that.levels.forEach(z => {
-                if (z.levelCode == "00" + parseInt(value + 1)) {
-                  item = z.levelName;
-                }
-              });
+              if (value != 0) {
+                item = that.levels.find(z => z.levelCode == value - 1)
+                  .levelName;
+              }
               texts.push(item);
               return texts;
             }
@@ -989,10 +947,10 @@ export default {
       dialogmodal.dialoglabinsIsShow = true;
     },
     //慢性病、评估
-    showchrins(row, index) {
+    showchrins(row) {
       let dialogmodal = this.$refs.dialogmodal;
       dialogmodal.chrSearch = row;
-      dialogmodal.chrItemName = row.itemName;
+      dialogmodal.chrItemName = row.diseaseName;
       dialogmodal.dialogchrinsIsShow = true;
     },
     //辅助检查-图片弹出层
@@ -1718,7 +1676,7 @@ export default {
   margin: 0px 0px -1px -1px;
   box-sizing: border-box;
   border: 1px solid #ebeef5;
-  padding: 0 50px;
+  padding: 0 23px;
 }
 .charts div {
   width: 400px;
@@ -1742,11 +1700,11 @@ export default {
   float: left;
 }
 .reverseChoose {
-  margin-right: 24px;
+  margin-right: 10px;
   cursor: pointer;
 }
 .allCount {
-  margin-right: 16px;
+  margin-right: 8px;
 }
 .floatRight {
   float: right;
@@ -1755,5 +1713,8 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+#abnormal{
+  flex: 1 ;border-right: 1px solid #DCDFE5;display: flex;flex-direction: column;min-width:350px;
 }
 </style>

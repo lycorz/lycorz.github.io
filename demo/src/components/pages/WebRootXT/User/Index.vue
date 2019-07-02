@@ -14,7 +14,7 @@
             @keyup.enter.native="getData()"
             style="width: 150px;"
           >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
           </el-input>
           <el-button type="primary" style="margin-left:16px" @click="getData()">查询</el-button>
           <div class="right">
@@ -40,6 +40,7 @@
               style="width: 100%"
             >
               <el-table-column property="certName" label="证书名称" align="center"></el-table-column>
+              <el-table-column property="certTypeName" label="证书类型" align="center"></el-table-column>
               <el-table-column property="certCode" label="证书编号" align="center"></el-table-column>
               <el-table-column property="certAuthority" label="颁发机构" align="center"></el-table-column>
               <el-table-column property="getTime" label="颁发日期" align="center">
@@ -84,6 +85,7 @@
         <el-table-column property="idcardNum" label="身份证号" align="left"></el-table-column>
         <el-table-column property="tele" label="联系电话" align="left"></el-table-column>
         <el-table-column property="roleNames" label="所属角色" align="left"></el-table-column>
+        <el-table-column property="deptNames" show-overflow-tooltip label="所属科室" align="left"></el-table-column>
         <el-table-column property="discountLowLimit" label="折扣下限" align="center"></el-table-column>
         <el-table-column property="funcNames" label="功能项集合" align="left">
           <template slot-scope="scope">
@@ -123,7 +125,7 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-             :page-sizes="[10,20,50,100]"
+            :page-sizes="[10,20,50,100]"
             layout="total,sizes, prev, pager, next, jumper"
             :total="total"
             :page-count="pageNum"
@@ -189,7 +191,7 @@ export default {
   },
   filters: {
     boolFilter(value, row, column) {
-      return value  ? "是" : "否";
+      return value ? "是" : "否";
     }
   },
   methods: {
@@ -262,6 +264,7 @@ export default {
               response.data.entity.recordNum / that.searchParams.pageSize
             );
             that.total = response.data.entity.recordNum;
+            console.log(that.tableData);
           } else {
             that.$message.error(response.data.message);
           }

@@ -1,12 +1,12 @@
 <template>
-  <el-dialog :title="title" :visible.sync="addVisible" @open="getinit" width="830px">
+  <el-dialog :title="title" :visible.sync="addVisible" @open="getinit" width="600px">
     <ul>
       <li>
         <el-row style="margin:20px">
-          <el-col :span="3">
+          <el-col :span="4">
             <span>项目名称：</span>
           </el-col>
-          <el-col :span="21">
+          <el-col :span="20">
             <el-select v-model="itemValue" filterable placeholder="请选择" multiple>
               <el-option
                 v-for="item in options"
@@ -20,10 +20,10 @@
       </li>
       <li>
         <el-row style="margin:20px">
-          <el-col :span="3">
+          <el-col :span="4">
             <span>异常内容：</span>
           </el-col>
-          <el-col :span="21">
+          <el-col :span="20">
             <el-select
               value-key="abnormalCode"
               v-model="abnormalContent"
@@ -44,7 +44,7 @@
       </li>
       <li>
         <el-row style="margin:20px">
-          <el-col :span="3">
+          <el-col :span="4">
             <span>危急值：</span>
           </el-col>
           <el-col :span="4">
@@ -58,7 +58,7 @@
     </ul>
     <div slot="footer" class="dialog-footer">
       <el-button @click="addVisible = false">取 消</el-button>
-      <el-button type="primary" @click="saveChange()">保 存</el-button>
+      <el-button type="primary" @click="saveChange()" :loading="saveF">保 存</el-button>
     </div>
   </el-dialog>
 </template>
@@ -82,7 +82,8 @@ export default {
       //1新增 2编辑
       flag: 1,
       abnormalItems: [],
-      abnormalContent: ""
+      abnormalContent: "",
+      saveF: false
     };
   },
 
@@ -99,7 +100,7 @@ export default {
           if (response.data.status == 1) {
             that.options = response.data.entity;
             //根据flag决定初始化内容
-            if (that.flag == 1 && response.data.entity!=0) {
+            if (that.flag == 1 && response.data.entity != 0) {
               that.itemValue.push(response.data.entity[0].itemCode);
             } else if (that.flag == 2) {
               console.log(that.itemCode);
@@ -121,6 +122,7 @@ export default {
         that.$message.error("异常内容不能为空");
         return;
       }
+      that.saveF = true;
       if (this.flag == 1) {
         //参数拼接
         var entity = {};
@@ -195,25 +197,28 @@ export default {
             that.content = response.data.entity.keys;
             that.ifCrisis = response.data.entity.isCrisis;
             //初始化异常内容，异常内容value为对象
-            if(response.data.entity.abnormalCode != null){
-              let entity  = {};
-              entity.Condition=response.data.entity.abnormalCode;
-            that.$axios
-              .post(that.$api.GetAbnomalsByCondition,entity)
-              .then(function(response) {
-                console.log(response);
-                if (response.data.status == 1 && response.data.entity.length!=0) {
-                  that.abnormalContent = response.data.entity[0];
-                } else {
-                  that.$message.error(
-                    `GetAllAbnomals错误：${response.data.message}`
-                  );
-                }
-              })
-              .catch(function(error) {
-                that.$message.error(`GetAllAbnomals错误：${error}`);
-              });
-              }
+            if (response.data.entity.abnormalCode != null) {
+              let entity = {};
+              entity.Condition = response.data.entity.abnormalCode;
+              that.$axios
+                .post(that.$api.GetAbnomalsByCondition, entity)
+                .then(function(response) {
+                  console.log(response);
+                  if (
+                    response.data.status == 1 &&
+                    response.data.entity.length != 0
+                  ) {
+                    that.abnormalContent = response.data.entity[0];
+                  } else {
+                    that.$message.error(
+                      `GetAllAbnomals错误：${response.data.message}`
+                    );
+                  }
+                })
+                .catch(function(error) {
+                  that.$message.error(`GetAllAbnomals错误：${error}`);
+                });
+            }
           } else {
             that.$message.error(
               `GetFjRstAbnormalByInnerCode错误：${response.data.message}`
@@ -252,6 +257,7 @@ export default {
       this.options = [];
       this.ifCrisis = false;
       this.abnormalContent = "";
+      this.saveF = false;
       //改变标题
       if (this.flag == 1) {
         this.title = "异常内容新增";

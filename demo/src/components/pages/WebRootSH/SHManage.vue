@@ -7,12 +7,13 @@
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
-            placeholder="姓名/卡号/首字母"
+            placeholder="姓名/卡号/单位名"
             v-model="request.Condition"
             class="arcRadius"
+            @keyup.enter.native="getData()"
             style="width: 150px;"
           >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
           </el-input>
           <div class="searchItem" style="display: inline-block;margin: 0 16px;">
             <el-select @change="selChange" v-model="request.Status">
@@ -80,13 +81,11 @@
           <template slot-scope="scope">{{ scope.row.checkBeginTime| formatDate('YYYY-MM-DD') }}</template>
         </el-table-column>
         <el-table-column property="summaryFinishTime" label="报告回传时间" width="150" align="center">
-           <template slot-scope="scope">
-            {{scope.row.summaryFinishTime | formatDate('YYYY-MM-DD') }}
-          </template>
+          <template slot-scope="scope">{{scope.row.summaryFinishTime | formatDate('YYYY-MM-DD') }}</template>
         </el-table-column>
         <!-- <el-table-column label="驳回" align="center">
           <i style="color:#F56C6C" class="iconfont" v-if="tableData.isReject==0">&#xe623;</i>
-        </el-table-column> -->
+        </el-table-column>-->
         <el-table-column label="操作" fixed="right" :width="caozuowidth" align="center">
           <template slot-scope="scope">
             <el-button type="text" v-if="strobj==0" @click="lock(scope.$index,scope.row)">锁定</el-button>
@@ -253,12 +252,12 @@ export default {
               if (res.data.status == 1) {
                 if (res.data.entity) {
                   // this.isHasProposal(row.orderCode).then(res => {
-                    if (res) {
-                      this.aginGenerateProposal(row);
-                    } 
-                    // else {
-                    //   this.generateProposal(row);
-                    // }
+                  if (res) {
+                    this.aginGenerateProposal(row);
+                  }
+                  // else {
+                  //   this.generateProposal(row);
+                  // }
                   // });
                 } else {
                   this.$message.error(res.dta.message);
@@ -459,7 +458,7 @@ export default {
       });
       loading.close();
     },
-     //获取危机值
+    //获取危机值
     getAbnormal(orderCode) {
       this.$axios
         .post(this.$api.GetCrisisFjRstAbnormalsByOrderCode, {

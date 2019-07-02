@@ -28,6 +28,24 @@
               <el-form-item label="姓名" :label-width="formLabelWidth" prop="userName">
                 <el-input v-model="fromData.userName"></el-input>
               </el-form-item>
+              <el-form-item  class="is-required" label="所属科室" :label-width="formLabelWidth" prop="deptCodeItems">
+                <el-select
+                  multiple
+                  collapse-tags
+                  clearable
+                  v-model="deptCodeItems"
+                  width
+                  placeholder="可多选"
+                >
+                  <el-option
+                    v-for="item in deptItems"
+                    :key="item.deptCode"
+                    :label="item.deptName"
+                    :value="item.deptCode"
+                    filter-placement="bottom-end"
+                  >{{item.deptName}}</el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item label="所属角色" :label-width="formLabelWidth" prop="roleCode">
                 <el-select
                   @change="roleChange"
@@ -165,10 +183,18 @@ export default {
       }
       callback();
     };
+    var checkDept = (rule, value, callback) => {
+      if (this.deptCodeItems.length == 0) {
+        callback(new Error("请选择科室"));
+      }
+      callback();
+    };
     return {
       activeName: "first",
       Code: "",
       fileList: [],
+      deptItems: [],
+      deptCodeItems: [],
       isShow: false,
       formLabelWidth: "100px",
       treeOptions: [],
@@ -202,7 +228,7 @@ export default {
         signature: "",
         deleted: false,
         remark: "",
-        canExcItemLimit:false,   //是否突破最低价打折,2019/05/23，经由颜寒通知进行增加。
+        canExcItemLimit: false //是否突破最低价打折,2019/05/23，经由颜寒通知进行增加。
       },
       rules: {
         operatorCode: [
@@ -224,11 +250,17 @@ export default {
         roleCode: [
           { required: true, message: "请选择角色", trigger: "change" }
         ],
-        discountLowLimit: [{ validator: checkDic, trigger: "blur" }]
+        discountLowLimit: [{ validator: checkDic, trigger: "blur" }],
+        deptCodeItems: [
+          { validator:checkDept, trigger: "change" }
+        ]
       }
     };
   },
   inject: ["getData"],
+  created() {
+    this.getDeptItems();
+  },
   methods: {
     roleChange(val) {
       let role = this.roleList.find(z => z.roleCode == val);
@@ -238,6 +270,22 @@ export default {
         this.$refs.tree.setCheckedKeys([]);
         this.treeDefaultCheckd = role.funcCodes.split(",");
       }
+    },
+    //获取所属科室下拉
+    getDeptItems() {
+      let that = this;
+      that.$axios
+        .get(that.$api.GetAllDeptList)
+        .then(res => {
+          if (res.status == 200 && res.data.status == 1) {
+            that.deptItems = res.data.entity;
+          } else {
+            console.log(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
     },
     handleClick(val) {
       // if (val == 2) {
@@ -308,6 +356,7 @@ export default {
               this.photoPath = res.data.entity.photo;
               this.signaturePath = res.data.entity.signature;
               this.delImagePath.push(this.photoPath, this.signaturePath);
+              this.deptCodeItems = res.data.entity.deptCodes.split(",");
             } else {
               this.$message.error(res.data.message);
             }
@@ -371,6 +420,7 @@ export default {
       this.$refs.createFrom.validate(valid => {
         if (valid) {
           this.delImage();
+          this.fromData.deptCodes = this.deptCodeItems.join(",");
           this.fromData.photo = this.photoPath;
           this.fromData.signature = this.signaturePath;
           let checkValue = this.$refs.tree.getCheckedKeys();
@@ -434,8 +484,9 @@ export default {
         signature: "",
         deleted: false,
         remark: "",
-        canExcItemLimit:false
+        canExcItemLimit: false
       };
+      this.deptCodeItems = new Array();
       this.activeName = "first";
       this.treeOptions = new Array();
       this.treeDefaultCheckd = new Array();

@@ -5,7 +5,7 @@
         <div class="propleSearch">
           <div @keyup.13="getUser()" style="display:inline">
             <el-input placeholder="请搜索" v-model="keyStr" class="arcRadius" style="width: 150px;">
-              <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
             </el-input>
             <el-select
               v-model="sendFlag"
@@ -365,7 +365,7 @@ export default {
           });
       });
       return pro;
-      
+
     }
   }
 };

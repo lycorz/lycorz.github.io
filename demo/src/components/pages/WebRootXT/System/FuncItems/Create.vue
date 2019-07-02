@@ -34,7 +34,7 @@
             >{{item.name}}</el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="父类编号" placeholder="请选择" :label-width="formLabelWidth">
+        <el-form-item label="父类名称" placeholder="请选择" :label-width="formLabelWidth">
           <el-cascader
             v-model="cascaderValue"
             placeholder="请选择"

@@ -2,7 +2,7 @@ import moment from 'moment';
 
 export default {
 	// 格式化时间
-	formatDate: (val, pattern='YYYY-MM-DD HH:mm:ss') => {
+	formatDate: (val, pattern = 'YYYY-MM-DD HH:mm:ss') => {
 		if (!val) {
 			return '';
 		}
@@ -10,7 +10,7 @@ export default {
 	},
 	//根据code获取医生名字
 	getDoctorName: (val, data) => {
-		for(let i = 0; i< data.length; i++) {
+		for (let i = 0; i < data.length; i++) {
 			if (data[i].operatorCode == val) {
 				return data[i].userName;
 			}
@@ -34,7 +34,7 @@ export default {
 	},
 	// 保留2为小数,key为false(默认)表示不四舍五入，为true表示四舍五入
 	numFilter: (val, key = false) => {
-		if (!parseFloat(val)) return '';
+		if (!parseFloat(val)) return 0;
 		if (key) {
 			return parseFloat(val).toFixed(2);
 		} else {
@@ -62,6 +62,9 @@ export default {
 			default:
 				return '其他'
 		}
+	},
+	boolFilter: val => {
+		return val ? "是" : "否";
 	},
 	// 发票状态
 	invoiceState: val => {

@@ -12,7 +12,7 @@
                 class="arcRadius"
                 style="width: 150px;"
               >
-                <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
               </el-input>
               <div style="display: inline-block;margin: 0 16px;">
                 <span>入库时间：</span>
@@ -90,7 +90,7 @@
                 class="arcRadius"
                 style="width: 150px;"
               >
-                <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
               </el-input>
               <el-select v-model="params2.InvoiceStatus" placeholder="发票状态" clearable>
                 <el-option
@@ -662,7 +662,6 @@ export default {
 	display: flex;
 	flex: 1;
 	height: 100%;
-	height: 88vh;
   flex-direction: column;
 }
 .SFFPManage .el-tabs__header {
@@ -682,5 +681,8 @@ export default {
   width: 100px;
   display: inline-block;
   margin-left: 24px;
+}
+.SFFPManage .el-date-editor{
+	width: 230px;
 }
 </style>

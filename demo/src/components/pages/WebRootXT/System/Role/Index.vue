@@ -13,7 +13,7 @@
             @keyup.enter.native="getData()"
             style="width: 150px;"
           >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+            
           </el-input>
           <el-button type="primary" style="margin-left:16px" @click="getData()">查询</el-button>
           <div class="right">
@@ -32,6 +32,7 @@
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column property="roleCode"  label="角色编号" align="left"></el-table-column>
         <el-table-column property="roleName" label="角色名称" align="left"></el-table-column>
+        <el-table-column property="scheduleTypeName" label="排班类型" align="left"></el-table-column>
         <el-table-column show-overflow-tooltip label="功能项集合" align="left">
           <template slot-scope="scope">
             <el-popover trigger="click" @show="getRole(scope.row.roleCode)" placement="bottom">

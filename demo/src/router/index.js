@@ -77,6 +77,11 @@ const router = new Router({
 					component: resolve => require(['pages/WebRootFJ/FJDanger.vue'], resolve),
 					meta: { title: '危急值管理' },
 				},
+				{
+					path: 'fjbloodmeasure',
+					component: resolve => require(['pages/WebRootFJ/FJBloodMeasure.vue'], resolve),
+					meta: { title: '采血质控' },
+				},
 			]
 		},
 		{
@@ -238,6 +243,21 @@ const router = new Router({
 					path: 'smssend',
 					component: resolve => require(['pages/WebRootTJ/Platform/TJSMSSend.vue'], resolve),
 					meta: { title: '短信发送统计' },
+				},
+				{
+					path: 'vip',
+					component: resolve => require(['pages/WebRootTJ/Vip/TJVip.vue'], resolve),
+					meta: { title: 'VIP统计' },
+				},
+				{
+					path: 'businessStatement',
+					component: resolve => require(['pages/WebRootTJ/Statement/TJBusinessStatement.vue'], resolve),
+					meta: { title: '业务综合报表' },
+				},
+				{
+					path: 'financialStatement',
+					component: resolve => require(['pages/WebRootTJ/Statement/TJFinancialStatement.vue'], resolve),
+					meta: { title: '财务综合报表' },
 				}
 			]
 		},
@@ -317,6 +337,21 @@ const router = new Router({
 					meta: { title: '成本字典' },
 				},
 				{
+					path: 'distributionType',
+					component: resolve => require(['../components/pages/WebRootXT/Administration/DistributionType/Index.vue'], resolve),
+					meta: { title: '分成字典' },
+				},
+				{
+					path: 'equipment',
+					component: resolve => require(['../components/pages/WebRootXT/Administration/Equipment/Index.vue'], resolve),
+					meta: { title: '设备字典' },
+				},
+				{
+					path: 'equipmentCheck',
+					component: resolve => require(['../components/pages/WebRootXT/Administration/EquipmentCheck/Index.vue'], resolve),
+					meta: { title: '设备维护' },
+				},
+				{
 					path: 'overTime',
 					component: resolve => require(['../components/pages/WebRootXT/Administration/OverTime/Index.vue'], resolve),
 					meta: { title: '加班字典' },
@@ -366,6 +401,66 @@ const router = new Router({
 				// 	component: resolve => require(['pages/WebRootXT/upload.vue'], resolve),
 				// 	meta: { title: '个检' }
 				// }
+			]
+		},
+		{
+			path: '/zk',
+			component: resolve => require(['common/Home.vue'], resolve),
+			children: [
+				{
+					path: '',
+					redirect: 'criticalvalue'
+				},
+				{
+					path: 'criticalvalue',
+					component: resolve => require(['pages/WebRootZK/ZKCriticalValue.vue'], resolve),
+					meta: { title: '危急值管理' }
+				},
+				{
+					path: 'detectionrate',
+					component: resolve => require(['pages/WebRootZK/ZKDetectionRate.vue'], resolve),
+					meta: { title: '检出率' }
+				},
+				{
+					path: 'guidequality',
+					component: resolve => require(['pages/WebRootZK/ZKGuideQuality.vue'], resolve),
+					meta: { title: '导检质控' }
+				},
+				{
+					path: 'discardquality',
+					component: resolve => require(['pages/WebRootZK/ZKDiscardQuality.vue'], resolve),
+					meta: { title: '弃检质控' }
+				},
+				{
+					path: 'mainquality',
+					component: resolve => require(['pages/WebRootZK/ZKMainQuality.vue'], resolve),
+					meta: { title: '主检质控' }
+				},
+				{
+					path: 'reportcyclequality',
+					component: resolve => require(['pages/WebRootZK/ZKReportCycleQuality.vue'], resolve),
+					meta: { title: '报告周期质控' }
+				},
+				{
+					path: 'reportissuingquality',
+					component: resolve => require(['pages/WebRootZK/ZKReportIssuingQuality.vue'], resolve),
+					meta: { title: '报告发放质控' }
+				},
+				{
+					path: 'doctorqualification',
+					component: resolve => require(['pages/WebRootZK/ZKDoctorQualification.vue'], resolve),
+					meta: { title: '医生资质审核' }
+				},
+				{
+					path: 'equipmentquality',
+					component: resolve => require(['pages/WebRootZK/ZKEquipmentQuality.vue'], resolve),
+					meta: { title: '设备质检' }
+				},
+				{
+					path: 'inspectionstandard',
+					component: resolve => require(['pages/WebRootZK/ZKInspectionStandard.vue'], resolve),
+					meta: { title: '检验标本质控' }
+				}
 			]
 		},
 		{

@@ -10,7 +10,7 @@
               class="arcRadius"
               style="width: 150px;"
             >
-              <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
             </el-input>
             <div style="display: inline-block;margin: 0 16px;">
               <el-date-picker
@@ -201,7 +201,7 @@ export default {
           console.log(388, response);
           if (response.data.status == 1) {
             that.inspectionOverItemName = response.data.entity.inspectionOverItemName;
-            that.willInspectionItemName = response.data.entity.willInspectionItemName;            
+            that.willInspectionItemName = response.data.entity.willInspectionItemName;
           } else {
             that.tableData = [];
           }
@@ -210,7 +210,7 @@ export default {
           that.tableData = [];
           that.$message.error(`错误：${error}`);
         });
-      
+
     },
     //cardinfo显示此人信息
     cardInfoShow() {

@@ -33,8 +33,8 @@ export default {
 	data () {
 			return {
 					ruleForm: {
-							LoginId: '001',
-							Pwd: '001'
+							LoginId: '004',
+							Pwd: 'pwd'
 					},
 					rules: {
 							LoginId: [

@@ -8,6 +8,9 @@
       width="600px"
       :before-close="unLock"
       :close-on-click-modal="false"
+      v-loading="Loading"
+      element-loading-background="rgba(0, 0, 0, 0.5)"
+      element-loading-text="发票打印中..."
     >
       <div>
         <div class="customerName"></div>
@@ -42,16 +45,17 @@
                   @change="changePay($event,index)"
                 >
                   <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.name"
-                    :value="item.value"
+                    v-for="itemv in options"
+                    :key="itemv.value"
+                    :label="itemv.name"
+                    :value="itemv.value"
                   ></el-option>
                 </el-select>
               </template>
             </el-form-item>
             <el-form-item>
-              <el-input v-model="item.moneycount" class="inputtxt" @focus="getPrice($event,index)"></el-input>
+              <!--  @focus="getPrice($event,index)" -->
+              <el-input v-model="item.moneycount" class="inputtxt"></el-input>
             </el-form-item>
             <el-form-item>
               <span>&nbsp;元</span>
@@ -66,8 +70,8 @@
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="InvoicePrint" :disable="money <= 0">打印发票</el-button>
-        <el-button type="primary" @click="goPay">确定缴费</el-button>
+        <el-button @click="InvoicePrint" :disabled="money <= 0" :loading="printerF">打印发票</el-button>
+        <el-button type="primary" @click="goPay" :disabled="payF">确定缴费</el-button>
       </span>
     </el-dialog>
   </div>
@@ -75,7 +79,7 @@
 
 
 <script>
-import { resolve, reject } from "q";
+import { resolve, reject, promised } from "q";
 export default {
   name: "dialogpay",
   data() {
@@ -89,7 +93,10 @@ export default {
       tradeType: "",
       formLabelWidth: "120px",
       options: [],
-      MoneyDatas: []
+      MoneyDatas: [],
+      Loading: false,
+      printerF: false,
+      payF: false
     };
   },
   mounted: function() {
@@ -180,7 +187,10 @@ export default {
       obj.moneycount = 0;
       obj.ifshow = false;
       this.MoneyDatas.push(obj);
+      // 自动计算金额
+      this.getPrice(this.MoneyDatas.length - 1);
     },
+    // 支付方式选支付宝微信，弹出按钮
     changePay(ev, index) {
       if (ev == 6 || ev == 7) {
         this.MoneyDatas[index].ifshow = true;
@@ -188,7 +198,8 @@ export default {
         this.MoneyDatas[index].ifshow = false;
       }
     },
-    getPrice(ev, index) {
+    // 点击加号自动填充剩余金额 getPrice(ev, index)
+    getPrice(index) {
       let all = this.money;
       this.MoneyDatas.forEach((element, idex) => {
         if (
@@ -196,11 +207,12 @@ export default {
             typeof element.moneycount == "string") &&
           idex != index
         ) {
-          all -= parseFloat(element.moneycount);
+          all -= Number(element.moneycount);
         }
       });
-      this.MoneyDatas[index].moneycount = all;
+      this.MoneyDatas[index].moneycount = all.toFixed(2);
     },
+    // 缴费
     goPay() {
       let moneys = 0;
       this.MoneyDatas.forEach((element, idex) => {
@@ -210,6 +222,7 @@ export default {
         this.$message.error("相加金额不等，请重新计算");
         return;
       }
+      this.payF = true;
       //提交
       let that = this;
       let entity = [];
@@ -249,35 +262,80 @@ export default {
           that.$message.error(`错误：${error}`);
         });
     },
-    // 打印发票，发票入库
-    InvoicePrint() {
+    // 打印发票，发票入库(5.29做)
+    async InvoicePrint() {
+      // 按钮加载中
+      this.printerF = true;
+      // this.Loading = true;
+      // await函数 返回值是promise then中的response；async 返回值返回时会再套一层，变成promise对象，await后边的值会变成then的参数
+      let dyresult = await this.firstStep().catch(error => {
+        this.$message.error(`错误：${error}`);
+      });
+      // 成功回调,a接口无内部错误，传参给b函数执行
+      if ((dyresult.data.Status = 1)) {
+        let apiresult = await this.secondStep(dyresult.data.entity).catch(
+          error => {
+            this.$message.error(`错误：${error}`);
+          }
+        );
+        // 前两步完事后调用
+        if (apiresult) {
+          this.thirdStep();
+        }
+      }
+      // 如果接口内部错误
+      else {
+      }
+    },
+    // 打印发票
+    firstStep() {
       let that = this;
+      let a = that.$axios.post(this.$api.InvoicePrintMod, {
+        invoiceMoney: that.money,
+        invoiceNum: that.paycode,
+        accountName: that.taitou,
+        OperatorCode: that.OperatorCode
+      });
+      return a;
+    },
+    // 调用winapi
+    secondStep(basestring) {
       let pro = new Promise((resolve, reject) => {
-        that.$axios
-          .get(this.$api.InvoicePrint, {
-            params: {
-              TradeCode: that.tradeCode,
-              invoiceNum: that.paycode,
-              accountName: that.taitou,
-              OperatorCode: that.OperatorCode
-            }
-          })
-          .then(function(response) {
-            if (response.data.status == 1) {
-              if (response.data.entity == true) {
-                that.$message.success("发票绑定订单成功");
-                that.$parent.getUser();
-                that.dialogpayVisible = false;
-              }
-            } else {
-              that.$message.error(`错误：${response.data.message}`);
-            }
-          })
-          .catch(function(error) {
-            that.$message.error(`错误：${error}`);
-          });
+        // 打印
+        api.print(basestring);
+        resolve(true);
       });
       return pro;
+    },
+    // 调用发票打印成功入库接口
+    thirdStep() {
+      let that = this;
+      that.$axios
+        .get(this.$api.InvoicePrint, {
+          params: {
+            TradeCode: that.tradeCode,
+            invoiceNum: that.paycode,
+            accountName: that.taitou,
+            OperatorCode: that.OperatorCode
+          }
+        })
+        .then(function(response) {
+          // 按钮恢复
+          this.printerF = false;
+          that.Loading = false;
+          if (response.data.status == 1) {
+            if (response.data.entity == true) {
+              that.$message.success("发票绑定订单成功");
+              that.$parent.getUser();
+              that.dialogpayVisible = false;
+            }
+          } else {
+            that.$message.error(`错误：${response.data.message}`);
+          }
+        })
+        .catch(function(error) {
+          that.$message.error(`错误：${error}`);
+        });
     }
   }
 };
@@ -302,8 +360,8 @@ export default {
 #dialogpay .infomation .el-form-item {
   width: 48%;
 }
-#dialogpay .infomation .el-form-item:first-child{
-   width: 100%;
+#dialogpay .infomation .el-form-item:first-child {
+  width: 100%;
 }
 #dialogpay form {
   margin-bottom: 20px;

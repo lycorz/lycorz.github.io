@@ -18,7 +18,7 @@
               class="arcRadius"
               style="width: 150px;"
             >
-              <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
             </el-input>
             <el-button style="margin-left:10px" type="primary" @click="getData()">查询</el-button>-->
             <div class="right">

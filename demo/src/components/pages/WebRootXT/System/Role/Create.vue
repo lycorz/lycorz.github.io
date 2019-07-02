@@ -25,6 +25,17 @@
         <el-form-item label="角色名称" :label-width="formLabelWidth" prop="roleName">
           <el-input v-model="fromData.roleName"></el-input>
         </el-form-item>
+        <el-form-item label="排班类型" :label-width="formLabelWidth" prop="scheduleType">
+          <el-select  clearable v-model="fromData.scheduleType" placeholder="请选择">
+            <el-option
+              v-for="item in scheduleTypeItems"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+              filter-placement="bottom-end"
+            >{{item.name}}</el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item
           label="最低折扣"
           class="is-required"
@@ -64,7 +75,7 @@ export default {
   name: "RoleCreate",
   data() {
     var checkDic = (rule, value, callback) => {
-      if (value||value==0) {
+      if (value || value == 0) {
         var re = /^(0.\d+|0|1)$/;
         if (!re.test(value)) {
           callback(new Error("请输入0-1之间的小数(包括0和1)"));
@@ -80,6 +91,7 @@ export default {
       formLabelWidth: "100px",
       treeOptions: [],
       treeDefaultCheckd: [],
+      scheduleTypeItems: [],
       defaultProps: {
         children: "childrenNodes",
         label: "funcName"
@@ -89,6 +101,7 @@ export default {
         roleCode: "",
         roleName: "",
         funcCodes: "",
+        scheduleType: 0,
         discountLowLimit: null,
         orderNum: 0
       },
@@ -101,11 +114,16 @@ export default {
           { required: true, message: "请输入角色名称", trigger: "blur" },
           { max: 50, message: "最大支持50个字符输入", trigger: "blur" }
         ],
-        discountLowLimit: [{ validator: checkDic, trigger: "blur" }]
+        discountLowLimit: [{ validator: checkDic, trigger: "blur" }],
+        scheduleType: [
+          { required: true, message: "请选择排班类型", trigger: "change" },
+        ],
       }
     };
   },
-  created() {},
+  created() {
+    this.getscheduleTypeItems();
+  },
   inject: ["getData"],
   methods: {
     init() {
@@ -131,6 +149,19 @@ export default {
             console.error(err);
           });
       }
+    },
+    getscheduleTypeItems() {
+      this.$getType("ScheduleType")
+        .then(res => {
+          if (res.data.status == 1) {
+            this.scheduleTypeItems = res.data.entity;
+          } else {
+            console.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
     },
     //报告功能项目分级树形
     GetAllFuncSort() {
@@ -194,6 +225,7 @@ export default {
         roleName: "",
         funcCodes: "",
         discountLowLimit: 0,
+        scheduleType: 0,
         orderNum: 0
       };
       this.treeOptions = new Array();

@@ -9,7 +9,7 @@
 						@keyup.enter.native="filterData"
 						style="width: 192px;"
 					>
-						<i slot="prefix" class="el-input__icon el-icon-search"></i>
+
 					</el-input>
 					<el-select v-model="params.sex" clearable placeholder="性别" style="margin: 0 8px;width: 75px;">
 						<el-option label="男"	:value="1"></el-option>
@@ -39,7 +39,7 @@
 						<el-option label="是"	:value="true"></el-option>
 						<el-option label="否"	:value="false"></el-option>
 					</el-select>
-					<el-select v-model="params.isCheckEnd" clearable placeholder="是否完成" style="width: 100px;">
+					<el-select v-model="params.isCheckEnd" clearable placeholder="是否完成" style="width: 100px;margin-right: 8px;">
 						<el-option label="是"	:value="true"></el-option>
 						<el-option label="否"	:value="false"></el-option>
 					</el-select>
@@ -105,7 +105,11 @@
 				</el-table-column>
 				<!-- <el-table-column prop="FeeType" label="报告类型"></el-table-column> -->
 				<el-table-column prop="remark" label="备注"></el-table-column>
-				<el-table-column prop="orderMoney" label="金额"></el-table-column>
+				<el-table-column prop="orderMoney" label="金额">
+					<template slot-scope="scope">
+						￥{{scope.row.orderMoney | numFilter}}
+					</template>
+				</el-table-column>
 				<el-table-column prop="isCheckBegin" label="是否到检">
 					<template slot-scope="scope">
 						{{scope.row.isCheckBegin ? '是' : '否'}}
@@ -286,11 +290,11 @@
 		<el-dialog title="当前客户订单" :visible.sync="currentOrderModal" width="1000px" :close-on-click-modal="false" @close="cancelType">
 			<div class="peopleData">
 				<div class="searchParams">
-					<span>订单类型：</span>
-					<el-select v-model="currentType.orderType" clearable placeholder="订单类型" style="width: 130px;">
+					<!-- <span>订单类型：</span> -->
+					<!-- <el-select v-model="currentType.orderType" clearable placeholder="订单类型" style="width: 130px;display: none">
 						<el-option label="普通订单" :value="0"></el-option>
 						<el-option label="筛查订单" :value="1"></el-option>
-					</el-select>
+					</el-select> -->
 					<span style="margin-left: 8px;">定制类型：</span>
 					<el-select v-model="currentType.diyFlag" clearable placeholder="定制类型" style="width: 130px;">
 						<el-option label="固定套餐" :value="0"></el-option>
@@ -301,7 +305,7 @@
 						type="number"
 						v-show="currentType.diyFlag === 1"
 						min="0"
-						style="width: 130px;margin: 0 8px;"
+						style="width: 150px;margin: 0 8px;"
 						placeholder="请输入限定价格"
 						v-model.number="currentType.diyPrice"
 						clearable>
@@ -747,7 +751,7 @@ export default {
 		},
 		// 获取单人项目详情(当前客户订单open)
 		getCustomerDetail(data){
-			this.currentType.orderType = data.orderType;
+			//this.currentType.orderType = data.orderType;
 			this.currentType.diyFlag = data.diyFlag;
 			this.orderDetails = data;
 			this.currentOrderModal = true;
@@ -755,7 +759,7 @@ export default {
 			//当前客户订单-取消
 		cancelType(){
 			this.currentType.diyPrice = '';
-			this.currentType.orderType = '';
+			//this.currentType.orderType = '';
 			this.currentType.diyFlag = '';
 			this.currentOrderModal = false;
 		},
@@ -769,7 +773,7 @@ export default {
 					this.orderDetails.UnitPayMoney = this.currentType.diyPrice;
 				}
 			}
-			this.orderDetails.orderType = this.currentType.orderType;
+			//this.orderDetails.orderType = this.currentType.orderType;
 			this.orderDetails.diyFlag = this.currentType.diyFlag;
 			this.currentOrderModal = false;
 		},

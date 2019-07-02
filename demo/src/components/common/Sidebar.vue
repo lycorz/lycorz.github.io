@@ -2,7 +2,7 @@
     <div class="sidebar">
         <div class="sideInfo" :class="{sideMini: collapse}">
 					<i class="toggle-icon" :class="[collapse ? 'el-icon-s-unfold' : 'el-icon-s-fold']" @click="changeCollapse(!collapse)"></i>
-					<span>{{USERINFO.userName || '未登录'}}</span>
+					<span>{{USERINFO.loginName || '未登录'}}</span>
 					<div class="right">
 						<img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1752813724,2836321587&fm=26&gp=0.jpg" alt="">
 					</div>
@@ -61,7 +61,13 @@
 									return;
 							}
 					}
-        },
+				},
+				created() {
+					let TWidth = window.innerWidth;
+					if(TWidth < 1200) {
+						this.changeCollapse(true);
+					}
+				},
         computed:{
 					...mapState([
 							'collapse',

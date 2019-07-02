@@ -13,6 +13,12 @@
 
 > author:gzp
 
+### 判断是否在开发环境
+1. 只需要判断process.env.NODE_ENV，development：开发环境；production：打包之后的运行环境
+*process.env.NODE_ENV ==="development"*
+*process.env.NODE_ENV ==="production"*
+> author:cyt
+
 * table上移条目：正确示例（改变原数组datatable）：
 
 ```
@@ -117,5 +123,4 @@ function tableDataDown(tableData, currRow, currRowIndex){
     tableData.splice(currRowIndex,0, downData);
   }
 }
-```
 

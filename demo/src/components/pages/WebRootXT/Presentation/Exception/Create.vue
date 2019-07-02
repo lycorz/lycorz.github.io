@@ -17,7 +17,7 @@
         class="demo-ruleForm"
         label-position="left"
       >
-        <el-form-item label="模板编号" :label-width="formLabelWidth" prop="abnormalCode">
+        <el-form-item label="异常编号" :label-width="formLabelWidth" prop="abnormalCode">
           <el-input v-model="fromData.abnormalCode"></el-input>
         </el-form-item>
         <el-form-item label="异常名称" :label-width="formLabelWidth" prop="abnormalName">
@@ -25,6 +25,17 @@
         </el-form-item>
         <el-form-item label="是否危急值" :label-width="formLabelWidth">
           <el-select v-model="fromData.isCrisis" placeholder="请选择">
+            <el-option
+              v-for="item in boolItems"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+              filter-placement="bottom-end"
+            >{{item.name}}</el-option>
+          </el-select>
+        </el-form-item>
+         <el-form-item label="是否常见" :label-width="formLabelWidth">
+          <el-select v-model="fromData.isCommon" placeholder="请选择">
             <el-option
               v-for="item in boolItems"
               :key="item.value"
@@ -55,6 +66,7 @@ export default {
         abnormalCode: "",
         abnormalName: "",
         isCrisis: false,
+        isCommon: true,
         oldAbnormalCode: ""
       },
       boolItems: [
@@ -138,6 +150,7 @@ export default {
         abnormalCode: "",
         abnormalName: "",
         isCrisis: false,
+        isCommon: true,
         oldAbnormalCode: ""
       };
     }

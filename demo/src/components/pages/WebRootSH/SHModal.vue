@@ -32,11 +32,12 @@
         </el-checkbox-group>
       </div>
       <div class="right">
-        <div v-if="rowData.isReject==0">
-          <el-popover trigger="click" @show="showReason()" placement="bottom">
+        <div v-if="reasonData.length > 0">
+          <el-popover trigger="click" placement="bottom">
+            <!-- @show="showReason()" -->
             <div v-for="(reasonItem,reasonIndex) in reasonData" :key="reasonIndex">
               <p>时间：{{reasonItem.rejectTime | formatDate("YYYY/MM/DD-HH:MM:SS") }}</p>
-              <p>操作人：{{reasonItem.operatorCode}}</p>
+              <p>操作人：{{reasonItem.rejectOperator}}</p>
               <p>驳回原因：{{reasonItem.rejectReason}}</p>
               <hr>
             </div>
@@ -266,9 +267,9 @@
             </div>
           </div>
           <div id="pinggu" style="display:none">
-            <div style="padding: 16px 4px;">
+            <div style="padding: 16px 4px;" v-for="(item,key) in PGData" :key="key">
               <div class="quote-s">
-                <span>高血压风险评估结果</span>
+                <span>{{item.diseaseName}}</span>
                 <div class="right">
                   <el-button
                     style="padding:5px 15px"
@@ -279,32 +280,13 @@
                 </div>
               </div>
               <div class="charts">
-                <div id="main"></div>
-              </div>
-            </div>
-            <div style="padding: 4px 8px;">
-              <div class="quote-s">
-                <span>高血压风险评估结果</span>
-                <div class="right">
-                  <el-button
-                    style="padding:5px 15px"
-                    :disabled="isDisabled"
-                    @click="showchrins()"
-                    type="text"
-                  >编辑</el-button>
-                </div>
-              </div>
-              <div class="charts">
-                <div id="maintwo"></div>
+                <div :id="'main'+item.diseaseCode"></div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div
-        id="abnormal"
-        style="flex: 1 ;border-right: 1px solid #DCDFE5;display: flex;flex-direction: column;min-width:300px;"
-      >
+      <div id="abnormal">
         <div class="subTitle" style="flex:0 0 40px;">
           <span class="strong-Title">异常汇总</span>
           <div class="right">
@@ -356,7 +338,7 @@
       </div>
       <div style="flex:3;overflow: hidden;display: flex;flex-direction: column;" id="advSug">
         <div class="subTitle">
-          <span class="strong-Title">总检建议</span>
+          <span class="strong-Title">医学建议</span>
           <div class="right">
             <el-button @click="reBuildAdvice(orderCode,operatorCode)" :disabled="isDisabled">重新生成</el-button>
             <el-button @click="addAdvicelShow" :disabled="isDisabled">新增</el-button>
@@ -459,10 +441,11 @@ export default {
       operatorCode: "",
       isDisabled: true,
       checkloading: true,
+      reasonData: [],
       //    end   //
 
-      checkBoxModal: ["检查结果", "异常汇总", "总检建议"],
-      checkBoxOptions: ["检查结果", "异常汇总", "总检建议"],
+      checkBoxModal: ["检查结果", "异常汇总", "医学建议"],
+      checkBoxOptions: ["检查结果", "异常汇总", "医学建议"],
       dialogmodalName: "",
       shdialogmodalName: "",
       curItem: "01",
@@ -471,101 +454,9 @@ export default {
       rptItems: [],
       notFJData: [],
       FJData: [],
-      PGData: [
-        {
-          diseaseCode: "",
-          diseaseName: "",
-          YNames: [],
-          Ycolors: []
-        }
-      ],
+      PGData: [],
+      levels: [],
       WJData: [],
-      chartOptions: {
-        tooltip: { trigger: "axis" },
-        legend: {
-          data: ["风险等级", "当前风险"]
-        },
-        xAxis: {
-          data: ["风险等级", "当前风险"],
-          // axisLine: {
-          //   lineStyle: {
-          //     color: "#C1C4CB",
-          //     width: "1px"
-          //   }
-          // },
-          splitLine: {
-            show: false
-          }
-        },
-        grid: {
-          left: 60
-        },
-        yAxis: {
-          min: 0,
-          max: 4,
-          splitLine: {
-            show: false
-          },
-
-          // axisLine: {
-          //   lineStyle: {
-          //     color: "#C1C4CB",
-          //     width: "1px"
-          //   }
-          // },
-          axisLabel: {
-            formatter: function(value) {
-              var texts = ["低风险", "中风险", "高风险", "极高风险"];
-              // if (value == 0) {
-              //   texts.push("");
-              // } else if (value <= 1) {
-              //   texts.push("低风险");
-              // } else if (value <= 2) {
-              //   texts.push("中风险");
-              // } else if (value <= 3) {
-              //   texts.push("高风险");
-              // } else {
-              //   texts.push("极高风险");
-              // }
-              return texts;
-            }
-          }
-        },
-        series: [
-          {
-            type: "bar",
-            stack: "风险情况",
-            data: [1, 1],
-            itemStyle: {
-              normal: { color: "#3FBB49" }
-            }
-          },
-          {
-            stack: "风险情况",
-            type: "bar",
-            data: [1, 0],
-            itemStyle: {
-              normal: { color: "#FFDF3E" }
-            }
-          },
-          {
-            stack: "风险情况",
-            type: "bar",
-            data: [1, 0],
-            itemStyle: {
-              normal: { color: "#FC9C20" }
-            }
-          },
-          {
-            stack: "风险情况",
-            type: "bar",
-            data: [1, 0],
-            itemStyle: {
-              normal: { color: "#FF5454" }
-            }
-          }
-        ]
-      },
       //以下是异常汇总等。
       multipleSelection: [],
       loading: true,
@@ -588,6 +479,7 @@ export default {
     this.operatorCode = this.$route.query.operatorCode;
     this.isDisabled = !!this.$route.query.isDisabled;
     this.orderCode = this.$route.query.rowData.orderCode;
+    this.showReason();
     this.getRptItems();
     this.getNoFJItems();
     //获取异常汇总
@@ -662,37 +554,174 @@ export default {
     },
     //获取评估数据 start
     getPGItems() {
-      let that = this;
-      that.getPGDisease().then(res => {
-        res.forEach(DiseaseCode => {
-          that.$axios;
-        });
-      });
-    },
-    getPGDisease() {
-      let that = this;
-      let pro = new Promise((resolve, reject) => {
-        that.$axios
-          .post(that.$api.GetDomainPgDiseaseAssessRstByOrderCode, {
-            orderCode: that.orderCode,
-            operatorCode: that.operatorCode,
-            // Condition: this.condition,
-            Condition: 1 //暂时没定，是否表示异常与否
-          })
-          .then(res => {
-            if (res.data.status == 1) {
-              if (res.data.entity > 0) {
-                resolve(res.data.entity);
-              }
+      this.$axios
+        .post(this.$api.GetPgDiseaseAssessRstByOrderCode, {
+          OrderCode: this.rowData.orderCode
+        })
+        .then(res => {
+          if (res.status == 200 && res.data.status == 1) {
+            let data = res.data.entity;
+            if (data.length > 0) {
+              this.PGData = data;
+              data.forEach(val => {
+                setTimeout(() => {
+                  this.showCharts(val);
+                }, 500);
+              });
             } else {
-              that.$message(res.data.message);
+              if (process.env.NODE_ENV != "production") {
+                data = [
+                  {
+                    orderCode: "1111111",
+                    diseaseCode: "00002",
+                    diseaseName: "糖尿病",
+                    riskLevelCode: "005",
+                    lstDicDiseaseRickLevel: [
+                      {
+                        levelCode: "004",
+                        levelName: "中风险  ",
+                        diseaseCode: "00002",
+                        levelColor: "E8D54D"
+                      },
+
+                      {
+                        levelCode: "002",
+                        levelName: "低风险",
+                        diseaseCode: "00002",
+                        levelColor: "61A8C1"
+                      },
+                      {
+                        levelCode: "006",
+                        levelName: "极高风险",
+                        diseaseCode: "00002",
+                        levelColor: "EF4B4B"
+                      },
+                      {
+                        levelCode: "005",
+                        levelName: "高风险",
+                        diseaseCode: "00002",
+                        levelColor: "EF7F25"
+                      }
+                    ]
+                  }
+                ];
+                this.PGData = data;
+                data.forEach(val => {
+                  setTimeout(() => {
+                    this.showCharts(val);
+                  }, 500);
+                });
+              } else {
+                alert(1);
+              }
             }
-          })
-          .catch(err => {
-            console.error(err.message);
-          });
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+
+      // that.getPGDisease().then(res => {
+      //   that.recursionPG(0, res);
+      // });
+    },
+    showCharts(val) {
+      let that = this;
+      let myCharts = echarts.init(
+        document.getElementById("main" + val.diseaseCode)
+      );
+      that.levels = val.lstDicDiseaseRickLevel
+        .sort(function(a, b) {
+          return a.levelCode - b.levelCode;
+        })
+        .map((item, index) => {
+          if (item.levelCode == val.riskLevelCode) {
+            val.riskLevelCode = index;
+          }
+          item.levelCode = index;
+          return item;
+        });
+
+      // let colors = {};
+      let chartseries = new Array();
+      that.levels.forEach((item, index) => {
+        // colors[item.levelCode] = item.levelColor;
+        let series = {};
+        let now = val.riskLevelCode;
+        if (index == now) {
+          series = {
+            type: "bar",
+            stack: "风险情况",
+            data: [1, now + 1],
+            itemStyle: {
+              normal: { color: "#" + item.levelColor }
+            }
+          };
+        } else {
+          series = {
+            type: "bar",
+            stack: "风险情况",
+            data: [1],
+            itemStyle: {
+              normal: { color: "#" + item.levelColor }
+            }
+          };
+        }
+        chartseries.push(series);
       });
-      return pro;
+      let chartOptions = {
+        // title: {
+        //   text: "ECharts 入门示例"
+        // },
+        tooltip: { trigger: "axis" },
+        legend: {
+          data: ["风险等级", "当前风险"]
+        },
+        xAxis: {
+          data: ["风险等级", "当前风险"],
+          // axisLine: {
+          //   lineStyle: {
+          //     color: "#C1C4CB",
+          //     width: "1px"
+          //   }
+          // },
+          splitLine: {
+            show: false
+          }
+        },
+        grid: {
+          left: 60
+        },
+        yAxis: {
+          min: 0,
+          max: val.lstDicDiseaseRickLevel.length,
+          splitLine: {
+            show: false
+          },
+          // axisLine: {
+          //   lineStyle: {
+          //     color: "#C1C4CB",
+          //     width: "1px"
+          //   }
+          // },
+          axisLabel: {
+            formatter: function(value) {
+              var texts = [];
+              let item = "";
+              if (value != 0) {
+                item = that.levels.find(z => z.levelCode == value - 1)
+                  .levelName;
+              }
+              texts.push(item);
+              return texts;
+            }
+          }
+        },
+        series: chartseries
+      };
+      myCharts.setOption(chartOptions);
     },
     //获取评估数据 end
     //获取体检问卷信息。
@@ -782,8 +811,7 @@ export default {
           fuzhu.style.display = "none";
           tijian.style.display = "none";
           pinggu.style.display = "block";
-          // this.getPGItems();
-          // this.drawLine();
+          this.getPGItems();
           break;
         case "06":
           yiban.style.display = "none";
@@ -800,14 +828,14 @@ export default {
       this.getAbnormalDefault(this.orderCode, this.curItem);
     },
     //echarts
-    drawLine() {
-      // 基于准备好的dom，初始化echarts实例
-      let myChart = echarts.init(document.getElementById("main"));
-      let myChart2 = echarts.init(document.getElementById("maintwo"));
-      // 绘制图表
-      myChart.setOption(this.chartOptions);
-      myChart2.setOption(this.chartOptions);
-    },
+    // drawLine() {
+    //   // 基于准备好的dom，初始化echarts实例
+    //   let myChart = echarts.init(document.getElementById("main"));
+    //   let myChart2 = echarts.init(document.getElementById("maintwo"));
+    //   // 绘制图表
+    //   myChart.setOption(this.chartOptions);
+    //   myChart2.setOption(this.chartOptions);
+    // },
     //checkbox选中事件
     checkboxChange(val) {
       //true ：只看异常
@@ -816,7 +844,7 @@ export default {
       } else {
         this.condition = "";
       }
-      // this.getPGItems();
+      this.getPGItems();
       this.getFJItems();
       this.getNoFJItems();
     },
@@ -853,9 +881,9 @@ export default {
     },
     //慢性病、评估
     showchrins(row, index) {
-      let dialogmodal = this.$refs.shdialogmodal;
+      let dialogmodal = this.$refs.dialogmodal;
       dialogmodal.chrSearch = row;
-      dialogmodal.chrItemName = row.itemName;
+      dialogmodal.chrItemName = row.diseaseName;
       dialogmodal.dialogchrinsIsShow = true;
     },
     //辅助检查-图片弹出层
@@ -954,7 +982,7 @@ export default {
         this.$refs.shdialogmodal.dialogrejIsShow = true;
       });
     },
-     //查看驳回原因
+    //查看驳回原因
     showReason() {
       this.$axios
         .post(this.$api.GetLstShFinalRejectRecordByOrderCode, {
@@ -963,7 +991,6 @@ export default {
         .then(res => {
           if (res.data.status == 1) {
             this.reasonData = res.data.entity;
-            console.log(this.reasonData);
           } else {
             this.$message.error(res.data.message);
           }
@@ -1603,7 +1630,7 @@ export default {
   margin: 0px 0px -1px -1px;
   box-sizing: border-box;
   border: 1px solid #ebeef5;
-  padding: 0 50px;
+  padding: 0 23px;
 }
 .charts div {
   width: 400px;
@@ -1627,11 +1654,11 @@ export default {
   float: left;
 }
 .reverseChoose {
-  margin-right: 24px;
+  margin-right: 10px;
   cursor: pointer;
 }
 .allCount {
-  margin-right: 16px;
+  margin-right: 8px;
 }
 .floatRight {
   float: right;
@@ -1640,5 +1667,12 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+#abnormal {
+  flex: 1;
+  border-right: 1px solid #dcdfe5;
+  display: flex;
+  flex-direction: column;
+  min-width: 350px;
 }
 </style>

@@ -13,7 +13,7 @@
              @keyup.enter.native="getData()"
             style="width: 150px;"
           >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+            
           </el-input>
           <div class="searchItem" style="display: inline-block;margin: 0 8px;">
             <el-select
@@ -50,6 +50,9 @@
         <el-table-column property="abnormalName" show-overflow-tooltip label="异常名称" align="center"></el-table-column>
         <el-table-column property="isCrisis" label="是否危急值" align="center">
           <template slot-scope="scope">{{scope.row.isCrisis | boolFilter}}</template>
+        </el-table-column>
+           <el-table-column property="isCommon" label="是否常见" align="center">
+          <template slot-scope="scope">{{scope.row.isCommon | boolFilter}}</template>
         </el-table-column>
         <el-table-column label="操作" align="center"  fixed="right" width="230px">
           <template slot-scope="scope">

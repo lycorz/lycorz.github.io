@@ -14,7 +14,7 @@
 										@keyup.enter.native="getData(true)"
 										style="width: 150px;"
 									>
-										<i slot="prefix" class="el-input__icon el-icon-search"></i>
+
 									</el-input>
 									<div style="display: inline-block;margin: 0 16px;">
 										<el-date-picker
@@ -35,6 +35,7 @@
                 </div>
             </div>
             <el-table :data="tableData" tooltip-effect="dark"  v-loading="loading">
+							<el-table-column type="selection" width="55"></el-table-column>
 								<el-table-column type="expand">
 									<template slot-scope="scope">
 										<el-table :data="scope.row.orders" class="inTable">
@@ -130,7 +131,7 @@
 										class="arcRadius"
 										style="width: 150px;"
 									>
-										<i slot="prefix" class="el-input__icon el-icon-search"></i>
+
 									</el-input>
 									<el-select v-model="importParams.Sex" clearable placeholder="性别" style="margin: 0 8px;width: 75px;">
 										<el-option label="男"	:value="1"></el-option>
@@ -192,7 +193,7 @@
 										<el-button icon="el-icon-delete" @click="delBtn">删除</el-button>
 										<el-button icon="el-icon-edit" @click="openAddPackage">套餐配置</el-button>
 										<el-button icon="el-icon-edit" @click="openSetType">定制类型</el-button>
-										<el-button icon="el-icon-edit" @click="openSetOrderType">订单类型</el-button>
+										<el-button icon="el-icon-edit" @click="openSetReportType">报告类型</el-button>
 										<!-- <el-button icon="el-icon-edit" >报告类别</el-button> -->
 									</el-button-group>
 								</div>
@@ -236,7 +237,7 @@
 								<el-table-column prop="Remark" label="备注"></el-table-column>
 								<el-table-column prop="OrderMoney" label="金额">
 									<template slot-scope="scope">
-										{{scope.row.DiyFlag === 0 ? scope.row.OrderMoney : ''}}
+										￥{{scope.row.DiyFlag === 0 ? scope.row.OrderMoney : 0}}
 									</template>
 								</el-table-column>
 								<el-table-column prop="FeeType" fixed="right" label="操作">
@@ -251,10 +252,10 @@
 							</div>
 						</el-dialog>
 						<!-- 选择套餐 -->
-						<el-dialog title="选择套餐" :visible.sync="addPackageModal" :close-on-click-modal="false" width="500px" @open="getPackageList">
+						<el-dialog title="选择套餐" :visible.sync="addPackageModal" :close-on-click-modal="false" width="800px" @open="getPackageList">
 							<div class="modal-tree addPackage">
 								<div class="modal-top">名称</div>
-								<div class="modal-con">
+								<div class="modal-con addPackage">
 									<el-tree
 										:data="GetPackageList"
 										show-checkbox
@@ -265,9 +266,14 @@
 									</el-tree>
 								</div>
 								<div class="packageDis">
-									<span class="item">原价：￥ <span>{{packageDiscount.totalPrice || 0}}</span></span>
-									<span class="item">折扣：<el-input type="number" v-model.number="packageDiscount.discount" @keydown.13.native="packageDiscountHandle"></el-input></span>
-									<span class="item">实收：<el-input type="number" v-model.number="packageDiscount.exePrice" @keydown.13.native="packageExePriceHandle"></el-input>元</span>
+									<span class="item">原价：￥ <span>{{packageDiscount.totalPrice2 | numFilter}}</span></span>
+									<div class="right">
+										<el-checkbox v-model="isFree">优惠自由</el-checkbox>
+										折扣：<div class="item-list iptNum">
+												<el-input-number v-model="packageDiscount.discount" @blur="discountHandle('packageDiscount')" @change="discountHandle('packageDiscount')" :min="0" :max="1" :step="0.1"></el-input-number>
+											</div>&nbsp;&nbsp;&nbsp;&nbsp;
+										实收：<el-input v-model.number="packageDiscount.exePrice2" type="number" style="width: 100px;" @blur="realPriceHandle('packageDiscount')"></el-input>&nbsp;元
+									</div>
 								</div>
 							</div>
 							<div slot="footer" class="dialog-footer">
@@ -297,18 +303,18 @@
 							</div>
 						</el-dialog>
 						<!-- 订单类型 -->
-						<el-dialog title="订单类型" :visible.sync="setOrderTypeModal" :close-on-click-modal="false" width="500px" class="setType">
-							<el-radio-group v-model="OrderType">
-									<el-radio v-for="item in orderTypes" :key="item.value" :label="item.value">{{item.name}}</el-radio>
+						<!-- <el-dialog title="报告类型" :visible.sync="setReportTypeModal" :close-on-click-modal="false" width="500px" class="setType">
+							<el-radio-group v-model="ReportType">
+									<el-radio v-for="item in reportTypes" :key="item.value" :label="item.value">{{item.name}}</el-radio>
 							</el-radio-group>
 							<div slot="footer" class="dialog-footer">
-								<el-button @click="setOrderTypeModal = false;">取消</el-button>
-								<el-button type="primary" @click="addOrderTypeBtn" >确定</el-button>
+								<el-button @click="setReportTypeModal = false;">取消</el-button>
+								<el-button type="primary" @click="addReportTypeBtn" >确定</el-button>
 							</div>
-						</el-dialog>
+						</el-dialog> -->
 						<!-- 人员信息 -->
-						<el-dialog title="人员信息" :visible.sync="peopleInfoModal" width="1000px" :close-on-click-modal="false" class="peopleInfoForm">
-							<el-form :model="peopleInfo.Customer" :rules="rulesPeople"  ref="peopleForm" :inline="true" label-width="50px" >
+						<el-dialog title="人员信息" :visible.sync="peopleInfoModal" width="1000px" :close-on-click-modal="false" class="peopleInfoForm" @close="$refs.peopleForm.resetFields()">
+							<el-form :model="peopleInfo.Customer" :rules="rulesPeople" ref="peopleForm" :inline="true" label-width="50px" >
 								<el-form-item label="身份证号" prop="IdcardNum" :label-width="formLabelWidth">
 									<el-input
 										v-model="peopleInfo.Customer.IdcardNum"
@@ -417,6 +423,7 @@ import orderDetails from './orderDetails.vue'
 				}
 			};
       return{
+				isFree: false,//优惠自由权限
 				isPeopleSave: true,
 				isMoreOrder: false,//是否允许单位同时存在多个订单
 				url: 'http://192.168.0.254:8889' + this.$api.ImportCustomer, // 上传路径需修改
@@ -471,15 +478,17 @@ import orderDetails from './orderDetails.vue'
 				addPackageModal: false,
 				setTypeModal: false,
 				peopleInfoModal: false,
-				setOrderTypeModal: false,
+				setReportTypeModal: false,
 				GetPackageList: [],//套餐项目集合
 				selectedLeft: [],// 选择套餐选中得集合
 				visible: false,
 				packageDiscount: {//选择套餐打折数据
 					totalPrice: 0,
+					totalPrice2: 0,
 					discount: 0,
 					discount2: 0,
-					exePrice: 0
+					exePrice: 0,
+					exePrice2: 0,
 				},
 				// 单位提交数据
         form: {
@@ -545,6 +554,7 @@ import orderDetails from './orderDetails.vue'
 							PackageCode: "00000000-0000-0000-0000-000000000000",
 							OrderVipFlag: 0,
 							OrderType: 0,
+							ReportType: '',//缺少一个报告类型ReportType
 							CreateOrderTime: moment().format(),
 							Status: "",
 							IsReped: false,
@@ -623,11 +633,12 @@ import orderDetails from './orderDetails.vue'
 					],
 					Tele: [
 							{ required: true, message: '请输入联系电话', trigger: 'blur' },
-							{ max: 11, min: 11, message: '请输入正确的手机号码', trigger: 'blur' }
+							{ pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur'  }
 					]
 				},
 				load: '',
 				OrderType: 0,
+				ReportType: 0,//报告类型
 				orderTypes: []
       }
     },
@@ -681,6 +692,11 @@ import orderDetails from './orderDetails.vue'
 						this.orderTypes = res.data.entity;
 					}
 				})
+				// this.$getType('ReportType').then(res => {
+				// 	if (res.status === 200 && res.data.status === 1) {
+				// 		this.reportTypes = res.data.entity;
+				// 	}
+				// })
 			},
 			//获取单位团检订单号
 			subOrders(UnitCode){
@@ -713,7 +729,7 @@ import orderDetails from './orderDetails.vue'
 					return;
 				}
 				for(let key of this.importAllData) {
-					if (!key.Items || key.Items.length === 0) {
+					if ((!key.Items && key.Items.length === 0) || ((key.Items && key.Items.length == 0) || key.ReportType)) {
 						this.$message.error('请对所有人员配置套餐');
 						return;
 					}
@@ -721,8 +737,8 @@ import orderDetails from './orderDetails.vue'
 						this.$message.error('请对所有人员选择定制类型');
 						return;
 					}
-					if (!key.OrderType && key.OrderType != 0) {
-						this.$message.error('请对所有人员选择订单类型');
+					if (!key.ReportType && key.ReportType != 0) {
+						this.$message.error('请对所有人员选择报告类型');
 						return;
 					}
 				}
@@ -788,7 +804,9 @@ import orderDetails from './orderDetails.vue'
 								type: 'warning'
 							}).then(() => {
 								this.subOrders(data.unitCode);
-							}).catch(() => {})
+							}).catch(() => {
+								this.$message.warning('不能新建订单');
+							})
 						}
 					} else {
 						this.subOrders(data.unitCode);
@@ -928,7 +946,7 @@ import orderDetails from './orderDetails.vue'
 			//删除单位
 			delUnit(data){
 				if (data.orders.length > 0) {
-					this.$message.error('该单位已存在订单，不允许删除！');
+					this.$message.error('当前单位存在订单，不能删除！');
 					return;
 				}
 				this.$axios.post(this.$api.DeleteUnit, {
@@ -951,7 +969,7 @@ import orderDetails from './orderDetails.vue'
 					this.$message.error('请先选择后删除！')
 				}
 				this.importData = this.importData.filter(x => {
-					return this.multipleSelection.every(y => y.customerCode !== x.customerCode);
+					return this.multipleSelection.some(y => y.CustomerCode !== x.CustomerCode);
 				})
 			},
 			// 获取身份信息
@@ -1103,22 +1121,20 @@ import orderDetails from './orderDetails.vue'
 			treeClick(a,b){
 				if (b.checkedKeys.length > 0) {
 					this.$refs.tree.setCheckedKeys([a.id]);
+				} else {
+					this.$refs.tree.setCheckedKeys([]);
 				}
-				this.package.PackageCode = '';
-				this.package.PackageName = '';
-				this.package.packageType = '';
+				if(b.checkedNodes.length === 0) {
+					this.package.PackageCode = '00000000-0000-0000-0000-000000000000';
+					this.package.PackageName = '';
+					this.package.packageType = '';
+				} else {
+					this.selectedLeft = a.children;
+					this.package.PackageCode = a.packageCode;
+					this.package.PackageName = a.packageName;
+				}
 				this.diy = 0;
 				this.diyPrice = 0;
-				this.selectedLeft = this.$refs.tree.getCheckedNodes().filter(x => {
-					if (x.id.substr(0, 1) === '#') return;
-					if (x.packageName && x.packageCode) {
-						this.package.PackageName = x.packageName;
-						this.package.PackageCode = x.packageCode;
-						this.package.PackageType = x.packageType;
-						return;
-					}
-					return x;
-				})
 				this.getDiscount('packageDiscount', this.selectedLeft);
 			},
 			//套餐配置按钮
@@ -1137,13 +1153,13 @@ import orderDetails from './orderDetails.vue'
 				}
 				this.setTypeModal = true;
 			},
-			// 定单类型按钮
-			openSetOrderType(){
+			// 报告类型按钮
+			openSetReportType(){
 				if (this.multipleSelection.length === 0) {
-					this.$message.error('请先选择后选择订单类型！');
+					this.$message.error('请先选择后选择报告类型！');
 					return;
 				}
-				this.setOrderTypeModal = true;
+				this.setReportTypeModal = true;
 			},
 			// 添加套餐取消按钮
 			cancelPackageBtn() {
@@ -1181,11 +1197,6 @@ import orderDetails from './orderDetails.vue'
 							this.importData[index].OrderMoney = 0;
 							if(!this.diy && !this.importData[index].DiyFlag) {
 								this.importData[index].DiyFlag = 0;
-							}
-							if(!this.package.PackageType && !this.importData[index].OrderType) {
-								this.importData[index].OrderType = 0;
-							} else if (!this.importData[index].OrderType && this.package.PackageType){
-								this.importData[index].OrderType = this.package.PackageType;
 							}
 							this.selectedLeft.forEach(y => {
 								this.importData[index].OrderMoney += y.exePrice;
@@ -1234,23 +1245,23 @@ import orderDetails from './orderDetails.vue'
 				}
 			},
 			//订单类型-确定
-			addOrderTypeBtn(){
+			addReportTypeBtn(){
 				this.multipleSelection.forEach(x => {
 						this.importData.forEach((y, index) => {
 							if (x.IdcardNum === y.IdcardNum) {
-								this.importData[index].OrderType = this.OrderType;
+								this.importData[index].ReportType = this.ReportType;
 								this.$set(this.importData, index, y);
 							}
 						})
 					})
-				this.setOrderTypeModal = false;
+				this.setReportTypeModal = false;
 			},
 			//获取套餐列表-选择套餐
 			getPackageList(){
 				if (this.GetPackageList.length > 0) return;
-				this.$axios.get(this.$api.GetPackageListDD).then(res => {
+				this.$axios.get(this.$api.GetPackageListDD, {params: {PackageType: 0}}).then(res => {
 					if (res.status === 200 && res.data.status === 1) {
-						this.GetPackageList =  res.data.entity;
+						this.GetPackageList =  res.data.entity[0].items;
 						this.handleTreeChildren(this.GetPackageList, 0);
 					} else {
 						this.$message.error(res.data.message);
@@ -1265,7 +1276,14 @@ import orderDetails from './orderDetails.vue'
 				data.map((i,index) => {
 					i.id = (i.packageCode || i.itemCode || i.deptCode || ('#' + index))
 					i.label = (i.packageName || i.itemName || i.deptName || i.name)
-					i.type = type
+					i.type = type;//1- 套餐（已删除） 2- 科室  3-项目
+					if (type === 1) {
+						// this.GetPackageFilterNum++;
+					} else if(type === 2) {
+						this.GetDeptListNum++;
+					} else if(type === 3) {
+						this.GetItemListNum++;
+					}
 					if (i.items && i.items.length > 0) {
 						i.children = i.items;
 						this.handleTreeChildren(i.children, type);
@@ -1276,14 +1294,76 @@ import orderDetails from './orderDetails.vue'
 			getDiscount(key, data){//key - 修改字符   data - 数据源
 				this[key].totalPrice = 0;
 				this[key].exePrice = 0;
+				if(data.length === 0) {
+					this[key].exePrice2 = 0;
+					this[key].totalPrice2 = 0;
+					this[key].discount2 = 0;
+					this[key].discount = 0;
+					return;
+				}
+				data = data.filter(x => {
+					return x.itemCode;
+				});
 				data.forEach(x => {
-					this[key].exePrice += x.exePrice;
-					this[key].totalPrice += x.fullPrice;
+					this[key].exePrice += x.exePrice || 0;
+					this[key].totalPrice += x.fullPrice || 0;
 				})
-				this[key].discount = parseInt(this[key].exePrice / this[key].totalPrice *100) / 100;
-				this[key].discount2 = this[key].exePrice / this[key].totalPrice;
+				this[key].discount = (parseInt(this[key].exePrice / this[key].totalPrice *100) / 100) || 0;
+				this[key].discount2 = (this[key].exePrice / this[key].totalPrice) || 0;
+				this.handleTwo(key);
 			},
-			// 按回车后对打折进行处理
+			//关于打折保留2位小数的处理
+			handleTwo(key) {
+				let num1 = this[key].totalPrice.toFixed(3);
+				let num2 = this[key].exePrice.toFixed(3);
+				this[key].totalPrice2 = Number(num1.substring(0, (num1 + '').length - 1));
+				this[key].exePrice2 = Number(num2.substring(0, (num2 + '').length - 1));
+				if(this[key].difPrice || this[key].difPrice == 0) {
+					let num3 = this[key].difPrice.toFixed(3);
+					this[key].difPrice2 = Number(num3.substring(0, (num3 + '').length - 1));
+				}
+			},
+			//按回车后对折扣的进行处理
+			discountHandle(key) {
+				if (this[key].discount >= 0 || this[key].discount <= 1) {
+					this.isDisCount = true;
+				} else {
+					this.$message.error('请输入正确的折扣');
+					return;
+				}
+				this[key].exePrice = (this[key].totalPrice * this[key].discount).toFixed(4);
+				this[key].exePrice = Number(this[key].exePrice.substring(0, this[key].exePrice.length - 1));
+				this[key].difPrice = this[key].totalPrice - this[key].exePrice;
+				this[key].discount2 = this[key].discount;
+				this.handleTwo(key);
+			},
+			//按回车后对折扣金额的进行处理
+			difPriceHandle(key) {
+				if(this[key].difPrice2 < 0 || this[key].difPrice2 > this[key].totalPrice) {
+					this.$message.error('请输入正确的折扣金额');
+					return;
+				}
+				this[key].difPrice = this[key].difPrice2;
+				this[key].exePrice = this[key].totalPrice - this[key].difPrice;
+				this[key].discount = parseInt(this[key].exePrice / this[key].totalPrice * 100) / 100;
+				this[key].discount2 = this[key].exePrice / this[key].totalPrice;
+				let num = this[key].exePrice.toFixed(3);
+				this[key].exePrice2 = Number(num.substring(0, (num + '').length - 1));
+			},
+			//按回车后对实收金额的进行处理
+			realPriceHandle(key) {
+				if(this[key].exePrice2 > this[key].totalPrice || this[key].exePrice2 < 0) {
+					this.$message.error('请输入正确的折扣金额');
+					return;
+				}
+				this[key].exePrice = this[key].exePrice2;
+				this[key].discount = parseInt(this[key].exePrice / this[key].totalPrice * 100) / 100;
+				this[key].discount2 =this[key].exePrice / this[key].totalPrice;
+				this[key].difPrice = this[key].totalPrice - this[key].exePrice;
+				let num = this[key].difPrice.toFixed(3);
+				this[key].difPrice2 = Number(num.substring(0, (num + '').length - 1));
+			},
+			// 按回车后对打折进行处理-废弃
 			packageDiscountHandle(){
 				if (this.packageDiscount.discount < 0.1 || this.packageDiscount.discount > 1) {
 					this.$message.error('请输入正确的折扣');
@@ -1385,6 +1465,18 @@ import orderDetails from './orderDetails.vue'
 .setType >>> .el-radio {
 	width: 100%;
 	line-height: 35px;
+}
+.content .right > * {
+    display: inline-block;
+}
+.content .right .el-select {
+    width: 120px;
+}
+.content .right .el-checkbox {
+    margin: 0 16px;
+}
+.content .right .el-select {
+    margin-right: 16px;
 }
 </style>
 

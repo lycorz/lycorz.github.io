@@ -17,7 +17,7 @@
           style="width:100%"
           highlight-current-row
         >
-          <el-table-column type="index"></el-table-column>
+          <el-table-column type="index" label="序号"></el-table-column>
           <el-table-column
             v-for="(item,index) in master_data.columns"
             :prop="item.field"
@@ -153,6 +153,10 @@ export default {
             this.$message.success("保存成功！");
             this.close();
           } else {
+            if (res.data.message.indexOf("重复键") != -1) {
+              let msg = res.data.message.match(/\((.+?)\)/g);
+              return this.$message.error(`外部子项目编号${msg}重复`); //TODO:明确标识为某个报告子项目
+            }
             this.$message.error(res.data.message);
           }
         })

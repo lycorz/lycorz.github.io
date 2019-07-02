@@ -24,12 +24,14 @@
     </el-menu>
     <div class="right">
       <el-button style="background: none;color: #fff;">数据同步</el-button>
+      <el-button style="background: none;color: #fff;" @click="printer">配置打印机</el-button>
       <el-button style="background: none;color: #fff;" @click="process">进度查询</el-button>
       <el-button icon="el-icon-location" style="background: none;color: #fff;" @click="checkin">客户到检</el-button>
     </div>
     <div class="isGoto" @click="GotoHandle" v-show="!isGoto"></div>
     <process ref="process"></process>
     <checkin ref="checkin"></checkin>
+    <printer ref="printer"></printer>
   </div>
 </template>
 <script>
@@ -37,18 +39,20 @@ import { mapState, mapMutations, mapActions } from "vuex";
 // 引入进度查询界面
 import process from "@/components/pages/WebRootFZ/Process.vue";
 import checkin from "@/components/pages/WebRootFZ/CheckIn.vue";
+import printer from "@/components/pages/WebRootFZ/DialogPrinter.vue";
 export default {
-  components: { process, checkin },
+  components: { process, checkin, printer },
   data() {
     return {
       isCollapse: false
     };
   },
   created() {
-    this.getMenu(this.USERINFO.operatorCode);
+    // this.getMenu(USERINFO.operatorCode);
+    this.getMenu('001');
   },
   methods: {
-    ...mapMutations(["changeCollapse", "changeActiveIndex", "GotoHandle"]),
+    ...mapMutations(["changeActiveIndex", "GotoHandle"]),
     ...mapActions(["getMenu"]),
     handleSelect(key) {
       if (key == this.activeIndex) {
@@ -61,13 +65,16 @@ export default {
     },
     checkin() {
       this.$refs.checkin.checkInVisible = true;
+    },
+    printer() {
+      this.$refs.printer.printerVisible = true;
     }
   },
   watch: {
     // 侧边栏折叠
     isCollapse(val, oldVal) {
       if (val != oldVal) {
-        this.$store.commit("changeCollapse", val);
+				this.$store.commit("changeCollapse", val);
       }
     },
     collapse(val, oldVal) {
@@ -77,7 +84,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(["collapse", "Menus", "activeIndex", "isGoto", "USERINFO"])
+    ...mapState(["collapse", "Menus", "activeIndex", "isGoto"])
   }
 };
 </script>

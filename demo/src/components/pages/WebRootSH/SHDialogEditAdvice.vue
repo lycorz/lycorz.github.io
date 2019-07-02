@@ -44,8 +44,8 @@
           </el-col>
           <el-col :span="4">
             <el-select v-model="isStar" placeholder="请选择">
-              <el-option :key="true"  :value=true label="是"></el-option>
-              <el-option :key="false" :value=false label="否"></el-option>
+              <el-option :key="true" :value="true" label="是"></el-option>
+              <el-option :key="false" :value="false" label="否"></el-option>
             </el-select>
           </el-col>
         </el-row>
@@ -70,7 +70,7 @@
     </ul>
     <div slot="footer" class="dialog-footer">
       <el-button @click="adviceEditVisible = false">取 消</el-button>
-      <el-button type="primary" @click="saveChange()">保 存</el-button>
+      <el-button type="primary" @click="saveChange()" :loading="saveF">保 存</el-button>
     </div>
   </el-dialog>
 </template>
@@ -86,15 +86,16 @@ export default {
       adviceName: "",
       itemValue: "",
       orderCode: "",
-      adviceType:"",
+      adviceType: "",
       Priority: 1,
-      proOptions:"",
+      proOptions: "",
       content: "",
       options: [],
       operatorCode: "",
       title: "主检建议编辑",
       innerCode: "",
-      entity: {}
+      entity: {},
+      saveF: false
     };
   },
   methods: {
@@ -120,7 +121,7 @@ export default {
       });
       return pro;
     },
-        getPriorityType() {
+    getPriorityType() {
       var that = this;
       that.options = [];
       this.$axios
@@ -160,7 +161,6 @@ export default {
         })
         .then(function(response) {
           if (response.data.status == 1) {
-            alert(1);
             that.adviceName = response.data.entity.advName;
             that.content = response.data.entity.content;
             that.isStar = response.data.entity.isStar;
@@ -173,9 +173,7 @@ export default {
           }
         })
         .catch(function(error) {
-          that.$message.error(
-            `GetShFinalRstDetailByInnerCode错误：${error}`
-          );
+          that.$message.error(`GetShFinalRstDetailByInnerCode错误：${error}`);
         });
     },
     saveChange() {
@@ -188,6 +186,7 @@ export default {
         that.$message.error("建议内容不能为空");
         return;
       }
+      this.saveF = true;
       //组织数据
       this.entity.advName = that.adviceName;
       this.entity.content = that.content;
@@ -218,22 +217,22 @@ export default {
     getinit() {
       let that = this;
       this.orderCode = this.$parent.orderCode;
+      this.saveF = false;
       this.getPriorityType();
       //根据订单编号获取组合项目 并 初始化
       this.getItemsByOrderCode(this.orderCode).then(res => {
         that.getInitData(that.innerCode);
       });
-
     }
   }
 };
 </script>
 
 <style>
-#addadvice .el-dialog__body{
+#addadvice .el-dialog__body {
   padding-left: 20px;
 }
-#addadvice .el-dialog__title{
+#addadvice .el-dialog__title {
   font-family: Microsoft YaHei;
 }
 </style>

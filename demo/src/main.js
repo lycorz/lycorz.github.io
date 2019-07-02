@@ -33,8 +33,8 @@ Vue.directive('noMoreClick', {
 	}
 })
 Vue.directive('focus', {
-	inserted: function (el) {
-		el.focus()
+	update(el) {
+		el.firstElementChild.focus()
 	}
 })
 Vue.config.devtools = true

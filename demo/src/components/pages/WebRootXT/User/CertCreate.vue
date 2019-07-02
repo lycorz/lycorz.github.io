@@ -24,6 +24,17 @@
         <el-form-item label="证书编号" :label-width="formLabelWidth" prop="certCode">
           <el-input v-model="fromData.certCode"></el-input>
         </el-form-item>
+        <el-form-item label="证书类型" :label-width="formLabelWidth" prop="certType">
+          <el-select clearable v-model="fromData.certType" placeholder="请选择">
+            <el-option
+              v-for="item in certTypeItems"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+              filter-placement="bottom-end"
+            >{{item.name}}</el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="颁发机构" :label-width="formLabelWidth" prop="certAuthority">
           <el-input v-model="fromData.certAuthority"></el-input>
         </el-form-item>
@@ -48,32 +59,6 @@
         </el-form-item>
         <el-col :span="24">
           <el-form-item label="上传图片" :label-width="formLabelWidth">
-            <!-- <el-upload
-              ref="upload"
-              :file-list="imgList"
-              :before-upload="beforeUpload"
-              :on-success="onSuccess"
-              :drag="true"
-              :auto-upload="false"
-              :action="uploadPath"
-              list-type="picture-card"
-              :on-preview="handlePictureCardPreview"
-              :on-remove="handleRemove"
-            >
-              <i class="el-icon-plus"></i>
-            </el-upload>-->
-            <!-- <el-upload
-              :action="uploadPath"
-              list-type="picture-card"
-              :file-list="fileList"
-              :before-upload="beforeUpload"
-              :auto-upload="false"
-              :on-success="onSuccess"
-              :on-preview="handlePictureCardPreview"
-              :on-remove="handleRemove"
-            >
-              <i class="el-icon-plus"></i>
-            </el-upload>-->
             <el-upload
               :action="uploadPath"
               list-type="picture-card"
@@ -117,6 +102,7 @@ export default {
       fileList: [],
       imgPath: [],
       allPath: [],
+      certTypeItems: [],
       imgdialogVisible: false,
       fromData: {
         oldInnerCode: null,
@@ -124,6 +110,7 @@ export default {
         operatorCode: "",
         certCode: "",
         certName: "",
+        certType: null,
         certAuthority: "",
         getTime: null,
         expireTime: null,
@@ -144,6 +131,9 @@ export default {
           { required: true, message: "请输入颁发机构", trigger: "blur" },
           { max: 20, message: "最大支持20个字符输入", trigger: "blur" }
         ],
+        certType: [
+          { required: true, message: "请选择证书类型", trigger: "change" }
+        ],
         getTime: [
           { required: true, message: "请选择颁发日期", trigger: "change" }
         ],
@@ -158,7 +148,9 @@ export default {
       }
     };
   },
-  created() {},
+  created() {
+    this.getCertType();
+  },
   inject: ["getData"],
   methods: {
     handleRemove(file, fileList) {
@@ -195,6 +187,15 @@ export default {
       this.imgPath.push(response.entity[0]);
       console.log(this.imgPath);
       this.allPath.push(response.entity[0]);
+    },
+    getCertType() {
+      this.$getType("CertType")
+        .then(res => {
+          this.certTypeItems = res.data.entity;
+        })
+        .catch(err => {
+          console.error(err);
+        });
     },
     init() {
       if (this.$refs.createFrom !== undefined) {
@@ -303,6 +304,7 @@ export default {
         operatorCode: "",
         certCode: "",
         certName: "",
+        certType: null,
         certAuthority: "",
         getTime: null,
         expireTime: null,
@@ -345,6 +347,9 @@ export default {
   width: 178px;
   height: 178px;
   display: block;
+}
+.el-select {
+  width: 178px;
 }
 </style>
 

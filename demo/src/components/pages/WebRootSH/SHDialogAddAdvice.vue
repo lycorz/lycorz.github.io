@@ -70,7 +70,7 @@
     </ul>
     <div slot="footer" class="dialog-footer">
       <el-button @click="adviceVisible = false">取 消</el-button>
-      <el-button type="primary" @click="saveChange()">保 存</el-button>
+      <el-button type="primary" @click="saveChange()" :loading="saveF">保 存</el-button>
     </div>
   </el-dialog>
 </template>
@@ -92,7 +92,8 @@ export default {
       operatorCode: "",
       title: "主检建议新增",
       //1新增 2编辑
-      flag: 1
+      flag: 1,
+      saveF:false
     };
   },
   methods: {
@@ -158,6 +159,7 @@ export default {
         that.$message.error("建议内容不能为空");
         return;
       }
+      that.saveF = true;
       let entity = {};
       entity.OrderCode = this.orderCode;
       entity.AdvCode = this.itemValue;
@@ -190,6 +192,7 @@ export default {
     },
    getinit() {
       this.orderCode = this.$parent.orderCode;
+      this.saveF = false;
       //根据订单编号获取组合项目 并 初始化
       this.getItemsByOrderCode(this.orderCode);
       this.getPriorityType();

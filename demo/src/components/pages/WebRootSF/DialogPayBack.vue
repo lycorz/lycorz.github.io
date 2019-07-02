@@ -163,8 +163,8 @@
       </el-tabs>
       <span slot="footer" class="dialog-footer" v-if="activeName == 'first'">
         <!-- <el-button @click="unLock">取 消</el-button> -->
-        <el-button :disabled="printMoney <= 0">打印发票</el-button>
-        <el-button type="primary" @click="goPay">确定退费</el-button>
+        <el-button @click="InvoicePrint" :disabled="printMoney <= 0" :loading="printerF">打印发票</el-button>
+        <el-button type="primary" @click="goPay" :disabled="payF">确定退费</el-button>
       </span>
     </el-dialog>
   </div>
@@ -195,7 +195,9 @@ export default {
       //pane2
       paidMoney: 0,
       //pane2表格
-      usedInvoices: []
+      usedInvoices: [],
+      printerF: false,
+      payF: false
     };
   },
   methods: {
@@ -366,6 +368,8 @@ export default {
         this.$message.error("退费金额与应退金额不一致，请重新核对！");
         return;
       }
+      
+      this.payF = true;
       //提交
       let entity = [];
       let arr = [];
@@ -416,6 +420,81 @@ export default {
         });
       });
       that.printMoney = parseFloat(that.money) + parseFloat(that.selectedMoney);
+    },
+    // 打印发票，发票入库(5.29做)
+    async InvoicePrint() {
+      // 按钮加载中
+      this.printerF = true;
+      // this.Loading = true;
+      // async函数 返回值是promise then中的response；async 返回值返回时会再套一层，变成promise对象，await后边的值会变成then的参数
+      let dyresult = await this.firstStep().catch(error => {
+        this.$message.error(`错误：${error}`);
+      });
+      // 成功回调,a接口无内部错误，传参给b函数执行
+      if ((dyresult.data.Status = 1)) {
+        let apiresult = await this.secondStep(dyresult.data.entity).catch(
+          error => {
+            this.$message.error(`错误：${error}`);
+          }
+        );
+        // 前两步完事后调用
+        if (apiresult) {
+          this.thirdStep();
+        }
+      }
+      // 如果接口内部错误
+      else {
+      }
+    },
+    // 打印发票
+    firstStep() {
+      let that = this;
+      let a = that.$axios.post(this.$api.InvoicePrintMod, {
+        invoiceMoney: that.money,
+        invoiceNum: that.paycode,
+        accountName: that.taitou,
+        OperatorCode: that.OperatorCode
+      });
+      return a;
+    },
+    // 调用winapi
+    secondStep(basestring) {
+      let pro = new Promise((resolve, reject) => {
+        // 打印
+        api.print(basestring);
+        resolve(true);
+      });
+      return pro;
+    },
+    // 调用发票打印成功入库接口
+    thirdStep() {
+      let that = this;
+      that.$axios
+        .get(this.$api.InvoicePrint, {
+          params: {
+            TradeCode: that.tradeCode,
+            invoiceNum: that.paycode,
+            accountName: that.taitou,
+            OperatorCode: that.OperatorCode
+          }
+        })
+        .then(function(response) {
+          that.Loading = false;
+          // 按钮恢复
+          this.printerF = false;
+          if (response.data.status == 1) {
+            if (response.data.entity == true) {
+              that.$message.success("发票绑定订单成功");
+              that.$parent.getUser();
+              that.dialogpayVisible = false;
+            }
+          } else {
+            that.$message.error(`错误：${response.data.message}`);
+          }
+        })
+        .catch(function(error) {
+          that.$message.error(`错误：${error}`);
+        });
     }
   }
 };

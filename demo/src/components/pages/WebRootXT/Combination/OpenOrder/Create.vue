@@ -207,7 +207,7 @@ export default {
   name: "CombinationCreate",
   data() {
     var checkDic = (rule, value, callback) => {
-    if (value||value==0) {
+      if (value || value == 0) {
         // var re = /^[0-9]+([.]{1}[0-9]+){0,3}$/;
         var re = /^-?\d+(\.\d{1,3})?$/;
         if (!re.test(value)) {
@@ -284,8 +284,8 @@ export default {
   },
   inject: ["getData"],
   methods: {
-    fullChange(val){
-      if (val||value==0) {
+    fullChange(val) {
+      if (val || value == 0) {
         this.fromData.exePrice = val;
       }
     },
@@ -332,6 +332,16 @@ export default {
     submitForm() {
       this.$refs.createFrom.validate(valid => {
         if (valid) {
+          
+          if (parseFloat(this.fromData.exePrice) > parseFloat(this.fromData.fullPrice)) {
+            return this.$message.error("执行价格不得超过原价");
+          }
+          if (parseFloat(this.fromData.lowestPrice) > parseFloat(this.fromData.fullPrice)) {
+            return this.$message.error("最低价格不得超过原价");
+          }
+          if (parseFloat(this.fromData.costPrice) > parseFloat(this.fromData.fullPrice)) {
+            return this.$message.error("成本价格不得超过原价");
+          }
           this.fromData.OldItemCode = this.Code;
           this.$axios
             .post(this.$api.SaveOrderItem, this.fromData)

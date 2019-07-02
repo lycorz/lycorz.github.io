@@ -32,15 +32,6 @@
             >{{item.name}}</el-option>
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="执行价格"
-          class="is-required"
-          :label-width="formLabelWidth"
-          autocomplete="off"
-          prop="exePrice"
-        >
-          <el-input v-model="fromData.exePrice"></el-input>
-        </el-form-item>
         <el-form-item label="适用性别" :label-width="formLabelWidth" prop="sexType">
           <el-select clearable v-model="fromData.sexType" placeholder="请选择">
             <el-option
@@ -51,6 +42,16 @@
               filter-placement="bottom-end"
             >{{item.name}}</el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item
+          label="执行价格"
+          class="is-required"
+          v-show="priceIsShow"
+          :label-width="formLabelWidth"
+          autocomplete="off"
+          prop="exePrice"
+        >
+          <el-input v-model="fromData.exePrice"></el-input>
         </el-form-item>
         <el-form-item label="筛选条件" :label-width="formLabelWidth" prop="filterType">
           <el-select clearable v-model="fromData.filterType" placeholder="请选择">
@@ -76,6 +77,7 @@
         <el-transfer
           v-model="transferValue"
           filterable
+          @change="transferChange"
           :titles="['选择列表', '添加列表']"
           style="text-align: left; display: inline-block;height:200px;margin-left:70px"
           filter-placeholder="请输入"
@@ -96,7 +98,7 @@ export default {
   name: "SetmealCreat",
   data() {
     var checkDic = (rule, value, callback) => {
-    if (value||value==0) {
+      if (value || value == 0) {
         // var re = /^[0-9]+([.]{1}[0-9]+){0,3}$/;
         var re = /^-?\d+(\.\d{1,3})?$/;
         if (!re.test(value)) {
@@ -114,6 +116,7 @@ export default {
       Code: "",
       isShow: false,
       formLabelWidth: "100px",
+      priceIsShow: false, //默认隐藏套餐价格
       fromData: {
         packageName: "",
         exePrice: null,
@@ -155,7 +158,20 @@ export default {
     this.getPackageTypeItems();
   },
   inject: ["getData"],
+  // watch:{
+  //   transferValue:function (newArr,oldArr) {
+  //     console.log(newArr);
+  //     console.log(oldArr);
+  //   }
+  // },
   methods: {
+    transferChange(arr, move) {
+      let price = 0;
+      arr.forEach(Code => {
+        price += this.transferData.find(z => z.itemCode == Code).exePrice;
+      });
+      this.fromData.exePrice = price;
+    },
     init() {
       if (this.$refs.createFrom !== undefined) {
         this.$refs.createFrom.resetFields();
@@ -203,12 +219,19 @@ export default {
         if (valid) {
           this.fromData.OldItemCode = this.Code;
           //子项目赋值
+          let itemsPrice = 0;
           this.transferValue.forEach(val => {
             let item = this.transferData.find(z => z.itemCode == val);
             this.fromData.dicPackageItemList.push(item);
+            itemsPrice += parseInt(item.exePrice);
           });
           if (this.fromData.dicPackageItemList.length <= 0) {
             return this.$message.warning("套餐内必须含有子项目");
+          }
+          if (this.fromData.exePrice > itemsPrice) {
+            return this.$message.warning(
+              `套餐价格不得大于所含子项目的总执行价格,子项目总执行价格为：${itemsPrice}`
+            );
           }
           this.$axios
             .post(this.$api.SavePackage, this.fromData)

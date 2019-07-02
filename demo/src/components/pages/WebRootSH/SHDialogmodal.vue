@@ -92,15 +92,15 @@
     >
       <el-form :model="chrData">
         <el-form-item label="项目名称" :label-width="formLabelWidth">
-          <span class="span-text">高血压风险评估结果</span>
+          <span class="span-text">{{chrItemName}}</span>
         </el-form-item>
         <el-form-item label="结果类型" :label-width="formLabelWidth">
-          <el-select style="width:100px" v-model="chrData.resultType">
+          <el-select style="width:100px" v-model="chrData.riskLevelCode">
             <el-option
-              v-for="(item,index) of laboptions"
+              v-for="(item,index) of chrOptions"
               :key="index"
-              :label="item.label"
-              :value="item.value"
+              :label="item.levelName"
+              :value="item.levelCode"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -139,7 +139,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="内容" :label-width="formLabelWidth">
+        <el-form-item label="内容" class="is-required" :label-width="formLabelWidth">
           <el-input
             type="textarea"
             placeholder="我是异常内容"
@@ -177,6 +177,7 @@ export default {
       genSearch: {},
       labSearch: {},
       chrSearch: {},
+      chrOptions: [],
       genData: {},
       labData: {},
       chrData: {},
@@ -252,13 +253,16 @@ export default {
     },
     //获取评估数据
     getchrData() {
+      this.chrOptions = this.chrSearch.lstDicDiseaseRickLevel;
       this.$axios
-        .post(this.$api.GetFjRptSubItemRstNoLisByInnerCode, {
-          innerCode: this.chrSearch.innerCode
+        .post(this.$api.GetPgDiseaseAssessRst, {
+          orderCode: this.chrSearch.orderCode,
+          diseaseCode: this.diseaseCode
         })
         .then(res => {
           if (res.data.status == 1) {
             this.chrData = res.data.entity;
+            console.log(this.chrData);
           } else {
             this.$message(res.data.message);
           }
@@ -351,6 +355,9 @@ export default {
     },
     //插入驳回原因
     InsertReject() {
+      if (!this.rejCondition) {
+        return this.$message.error("驳回内容不能为空");
+      }
       let that = this;
       new Promise((resolve, reject) => {
         that.$axios
@@ -429,6 +436,7 @@ export default {
       this.chrData = {};
       this.chrItemName = "";
       this.chrSearch = {};
+      this.chrOptions = [];
       this.dialogchrinsIsShow = false;
     },
     closeImg() {

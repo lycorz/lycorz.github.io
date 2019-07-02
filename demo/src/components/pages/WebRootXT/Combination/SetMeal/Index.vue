@@ -13,7 +13,7 @@
             class="arcRadius"
             style="width: 150px;"
           >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
           </el-input>
           <div class="searchItem" style="display: inline-block;margin: 0 8px;">
             <el-select clearable v-model="searchParams.packageType" placeholder="套餐类型">
@@ -68,11 +68,11 @@
           <template slot-scope="scope">￥{{scope.row.exePrice}}</template>
         </el-table-column>
         <el-table-column property="packageTypeName" label="套餐类型" align="center"></el-table-column>
-        <el-table-column property="sexTypeName" label="使用性别" align="center"></el-table-column>
+        <el-table-column property="sexTypeName" label="适用性别" align="center"></el-table-column>
         <el-table-column property="filterTypeName" label="筛选条件" align="center"></el-table-column>
         <el-table-column
           property="inspectPurpose"
-          label="检查目的与意义"
+          label="检查目的及意义"
           show-overflow-tooltip
           width="120px"
           align="left"

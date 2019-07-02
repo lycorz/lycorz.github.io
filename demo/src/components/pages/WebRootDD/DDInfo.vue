@@ -14,7 +14,7 @@
 										class="arcRadius"
 										style="width: 150px;"
 									>
-										<i slot="prefix" class="el-input__icon el-icon-search"></i>
+
 									</el-input>
 									<div style="display: inline-block;margin: 0 16px;">
 											<el-date-picker
@@ -36,7 +36,7 @@
             </div>
             <el-table :data="tableData" tooltip-effect="dark" style="width: 100%" v-loading="loading"
                 @selection-change="handleSelectionChange">
-                <el-table-column prop="customerName" label="客户姓名">
+                <el-table-column prop="customerName" label="客户姓名" width="80">
                 </el-table-column>
                 <el-table-column prop="sex" label="性别" width="50">
 									<template slot-scope="scope">
@@ -53,12 +53,12 @@
                 </el-table-column>
 								<el-table-column prop="teamName" label="组别">
                 </el-table-column>
-                <el-table-column prop="lastModifyTime" label="最后编辑时间">
+                <el-table-column prop="lastModifyTime" label="最后编辑时间" width="120">
 									<template slot-scope="scope">
 										{{scope.row.lastModifyTime | formatDate('YYYY-MM-DD')}}
 									</template>
                 </el-table-column>
-                <el-table-column prop="state" label="操作">
+                <el-table-column prop="state" label="操作" width="80">
 									<template slot-scope="scope">
 										<el-button type="text" @click="editPeople(scope.row.idcardNum)">编辑客户</el-button>
 									</template>
@@ -80,7 +80,7 @@
 
             <!-- 弹窗块 -->
 						<el-dialog title="客户信息" :visible.sync="peopleInfoModal" width="1000px" :close-on-click-modal="false" class="peopleInfoForm" @close="closeModal">
-							<el-form :model="peopleInfo.Customer" :rules="rules"  ref="peopleForm" :inline="true" label-width="50px" >
+							<el-form :model="peopleInfo.Customer" :rules="rules"  ref="peopleForm" :inline="true" label-width="50px">
 								<el-form-item label="身份证号" prop="IdcardNum" :label-width="formLabelWidth">
 									<el-input
 										v-model="peopleInfo.Customer.IdcardNum"
@@ -273,7 +273,7 @@ export default {
 							{ required: true, message: '请输入姓名', trigger: 'blur' }
 					],
 					Sex: [
-							{  required: true, message: '请输入性别', trigger: 'blur' }
+							{ required: true, message: '请输入性别', trigger: 'blur' }
 					],
 					IdcardNum: [
 							{ required: true, message: '请输入身份证号', trigger: 'blur' },
@@ -287,7 +287,7 @@ export default {
 					],
 					Tele: [
 							{ required: true, message: '请输入联系电话', trigger: 'blur' },
-							{ max: 11, min: 11, message: '请输入正确的手机号码', trigger: 'blur' }
+							{ pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur'  }
 					]
 				},
       }
@@ -356,7 +356,7 @@ export default {
 				this.clearPropleInfo();
 				this.peopleInfoModal = true;
 				this.peopleInfo.Customer.IdcardNum = data;
-				this.setCustomer(data)
+				//this.setCustomer(data)
 				// this.peopleInfo = data;
 			},
 			// 清空客户信息
@@ -396,6 +396,7 @@ export default {
 			},
 			closeModal(){
 				this.peopleInfo.Customer.IdcardNum = '';
+				this.$refs.peopleForm.resetFields();
 			},
 			setCustomer(obj){
 				for(let key in obj) {
@@ -486,7 +487,7 @@ export default {
   display: inline-block;
 	width: 120px;
 }
-.DDInfo .peopleInfoForm .w100 .el-form-item__content{
+.DDInfo .peopleInfoForm .w100 >>> .el-form-item__content{
     width: 90%;
 }
 .DDInfo  .peopleInfoForm .el-form-item__content , .DDInfo  .peopleInfoForm .el-form-item__content .el-select{
@@ -495,6 +496,9 @@ export default {
 .DDInfo .el-form--inline .el-form-item {
     margin-right: 20px;
     margin-top: 24px;
+}
+.DDInfo .el-form-item .el-form-item__label {
+	    text-align: left;
 }
 .DDInfo .currentOrder ul {
     overflow: hidden;

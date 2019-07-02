@@ -23,8 +23,8 @@
         <el-form-item label="报告项目名称" :label-width="formLabelWidth" prop="subItemName">
           <el-input v-model="fromData.subItemName"></el-input>
         </el-form-item>
-        <el-form-item label="排序号" :label-width="formLabelWidth">
-          <el-input v-model="fromData.orderNum"></el-input>
+        <el-form-item label="排序号" :label-width="formLabelWidth" prop="orderNum">
+          <el-input v-model.number="fromData.orderNum"></el-input>
         </el-form-item>
         <el-form-item label="是否启用" :label-width="formLabelWidth">
           <el-select v-model="fromData.isEnable" placeholder="请选择">
@@ -84,6 +84,10 @@ export default {
         subItemName: [
           { required: true, message: "报告项目名称", trigger: "blur" },
           { min: 1, max: 50, message: "最大支持100个字符输入", trigger: "blur" }
+        ],
+        orderNum: [
+          { required: true, message: "请输入排序号", trigger: "blur" },
+          { type: "number", message: "排序号必须为数字" }
         ]
       }
     };
@@ -92,7 +96,7 @@ export default {
   inject: ["getData"],
   methods: {
     init() {
-       if (this.$refs.createFrom !== undefined) {
+      if (this.$refs.createFrom !== undefined) {
         this.$refs.createFrom.resetFields();
       }
       let that = this;

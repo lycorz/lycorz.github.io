@@ -7,12 +7,13 @@
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
-            placeholder="姓名/卡号/首字母"
+            placeholder="姓名/卡号/单位名"
             v-model="searchParams.condition"
             class="arcRadius"
+             @keyup.enter.native="getData()"
             style="width: 150px;"
           >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
           </el-input>
           <div class="searchItem" style="display: inline-block;margin: 0 16px;">
             <el-select v-model="searchParams.status" @change="selChange" placeholder="评估结果">
@@ -37,8 +38,8 @@
             ></el-date-picker>
           </div>
           <el-button type="primary" @click="getData">查询</el-button>
-          
-           
+
+
         </div>
       </div>
       <el-table ref="singleTable" :data="tableData" v-loading="loading" style="width: 100%">
@@ -265,7 +266,7 @@ export default {
             if (data.entity) {
               //已锁定
               //DONE:提示已被锁定
-              that.$message.warning(data.message + "请刷新页面");
+              that.$message.warning("已被锁定请刷新页面");//data.message +
             } else {
               //未锁定
               this.notlocked(row);

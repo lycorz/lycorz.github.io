@@ -7,7 +7,7 @@
       <div class="peopleData">
         <div class="propleSearch">
           <el-input placeholder="请搜索" v-model="tradeName" class="arcRadius" style="width: 130px;">
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
           </el-input>
           <div class="searchItem" style="display: inline-block;margin: 0 8px;">
             <el-select v-model="tradeType" clearable placeholder="交易类型">
@@ -16,6 +16,7 @@
                 :key="item.value"
                 :label="item.name"
                 :value="item.value"
+                 @keyup.enter.native="getData()"
                 filter-placement="bottom-end"
               >{{item.name}}</el-option>
             </el-select>
@@ -33,7 +34,7 @@
           <div style="display: inline-block;margin: 0 0px;">
             <el-date-picker
               v-model="tfDate"
-              type="datetimerange"
+              type="daterange"
               :picker-options="pickerOptions2"
               range-separator="至"
               start-placeholder="开始日期"
@@ -70,15 +71,15 @@
         <div class="summey">
           <el-row>
             <el-col :span="6">
-              <span>原价总金额:￥{{sfCollectMessage.realMoney}}</span>
+              <span>原价总金额:￥{{sfCollectMessage.paidMoney}}</span>
             </el-col>
             <el-col :span="6">
               <span>折扣总金额:￥{{sfCollectMessage.discountMoney}}</span>
             </el-col>
             <el-col :span="6">
-              <span>应收总金额:￥{{sfCollectMessage.paidMoney}}</span>
+              <span>应收总金额:￥{{sfCollectMessage.realMoney}}</span>
             </el-col>
-            <el-col  :span="6">
+            <el-col :span="6">
               <span>开票数量:{{sfCollectMessage.usedInvoiceNum}}&nbsp;&nbsp;&nbsp;退票数量:{{sfCollectMessage.returnInvoiceNum}}</span>
             </el-col>
           </el-row>
@@ -138,8 +139,9 @@
             :current-page="pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
+            :total="total"
             :page-sizes="[10,20,50,100]"
-            layout="sizes, prev, pager, next, jumper"
+            layout="total,sizes, prev, pager, next, jumper"
             :page-count="pageNum"
           ></el-pagination>
         </div>
@@ -158,6 +160,7 @@ import dialoggroup from "./DialogGroup.vue";
 import dialogcharge from "./DialogCharge.vue";
 import dialogrefund from "./DialogRefund.vue";
 import moment from "moment";
+import consts from "../../../utils/const";
 import $ from "jquery";
 export default {
   name: "SFHistory",
@@ -167,7 +170,7 @@ export default {
       groupname: "",
       dialogchargename: "",
       dialogrefundname: "",
-
+      reportUrl: consts.SF_REPORT_PATH,
       total: 0,
       loading: false,
       tradeName: "",
@@ -285,6 +288,7 @@ export default {
             TradeName: this.tradeName,
             TradeForm: this.tradeForm,
             TradeType: this.tradeType,
+            Operator: this.person,
             TimeType: 2
           },
           headers: {
@@ -441,28 +445,25 @@ export default {
     /*  弹出层方法end  */
     derive: function() {
       this.$message("正在导出明细，请稍后！");
+      let req = {
+        BeginTime:
+          this.tfDate != null ? this.tfDate[0] : new Date(2018, 10, 10, 10, 10),
+        EndTime: this.tfDate != null ? this.tfDate[1] : new Date(),
+        TradeName: this.tradeName,
+        TradeForm: this.tradeForm,
+        TradeType: this.tradeType,
+        TimeType: 2, // 时间类型=1创建时间，=2交易时间
+        Operator: this.person,
+        TradeStatus: 1, //因为是历史，已完成的才是历史，所以默认为1
+        IsHide: "" //TODO:是否隐藏已经退过发票的交易，适用于团检退费时，要将已经退过发票的交易隐藏，避免再次选中退费，不隐藏为空，隐藏则传1
+      };
       this.$axios
-        .post(this.$api.ExportSFReportDetail, {
-          params: {
-            BeginTime:
-              this.tfDate != null
-                ? this.tfDate[0]
-                : new Date(2018, 10, 10, 10, 10),
-            EndTime: this.tfDate != null ? this.tfDate[1] : new Date(),
-            TradeName: this.tradeName,
-            TradeForm: this.tradeForm,
-            TradeType: this.tradeType,
-            TimeType: 2,
-            Operator: this.person,
-            TradeStatus: 1, //因为是历史，已完成的才是历史，所以默认为1
-            IsHide: "" //TODO:是否隐藏已经退过发票的交易，适用于团检退费时，要将已经退过发票的交易隐藏，避免再次选中退费，不隐藏为空，隐藏则传1
-          }
-        })
+        .post(this.$api.ExportSFReportDetail, req)
         .then(res => {
           if (res.data.status == 1) {
-            let url = res.data.message;
+            let url = res.data.entity;
             let $form = $('<form method="GET"></form>');
-            $form.attr("action", url);
+            $form.attr("action", this.reportUrl + url);
             $form.appendTo($("body"));
             $form.submit();
           }
@@ -472,26 +473,23 @@ export default {
         });
     },
     deriveSummary() {
+      let req = {
+        BeginTime:
+          this.tfDate != null ? this.tfDate[0] : new Date(2018, 10, 10, 10, 10),
+        EndTime: this.tfDate != null ? this.tfDate[1] : new Date(),
+        OperatorCode: this.person,
+        InvoiceNum: this.sfCollectMessage.usedInvoiceNum,
+        TradeTypes: this.sfCollectMessage.tradeTypes,
+        RealMoney: this.sfCollectMessage.realMoney
+      };
       this.$message("正在导出汇总，请稍后！");
       this.$axios
-        .post(this.$api.ExportSFReport, {
-          params: {
-            BeginTime:
-              this.tfDate != null
-                ? this.tfDate[0]
-                : new Date(2018, 10, 10, 10, 10),
-            EndTime: this.tfDate != null ? this.tfDate[1] : new Date(),
-            OperatorCode: this.person,
-            InvoiceNum: this.tableData.sfCollectMessage.usedInvoiceNum,
-            TradeTypes: this.sfCollectMessage.tradeTypes,
-            RealMoney: this.sfCollectMessage.realMoney
-          }
-        })
+        .post(this.$api.ExportSFReport, req)
         .then(res => {
           if (res.data.status == 1) {
-            let url = res.data.message;
+            let url = res.data.entity;
             let $form = $('<form method="GET"></form>');
-            $form.attr("action", url);
+            $form.attr("action", this.reportUrl + url);
             $form.appendTo($("body"));
             $form.submit();
           }
@@ -519,7 +517,7 @@ export default {
   color: rgba(96, 98, 102, 1);
   opacity: 1;
 }
-.item .el-row{
+.item .el-row {
   margin-top: 10px;
 }
 .summey {
@@ -529,6 +527,9 @@ export default {
   line-height: 16px;
   color: rgba(48, 49, 51, 1);
   opacity: 1;
+}
+.el-date-editor{
+	width: 230px;
 }
 </style>
 

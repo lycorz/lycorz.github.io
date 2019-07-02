@@ -9,10 +9,10 @@
           placeholder="请搜索"
           v-model="params.Condition"
           class="arcRadius"
-          style="width: 150px;"
+          style="width: 150px;margin-right: 16px"
 					@keyup.enter.native="getData(true)"
         >
-          <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
         </el-input>
         <el-select v-model="params.ReportStatus" placeholder="报告状态" clearable>
           <el-option
@@ -22,7 +22,7 @@
             :value="item.value"
           ></el-option>
         </el-select>
-        <div style="display: inline-block;margin: 0 16px;">
+        <div style="display: inline-block;margin-right: 16px;">
           <el-date-picker
             v-model="params.timeRange"
             type="daterange"
@@ -218,7 +218,7 @@ export default {
 .SMSManage .propleSearch .el-select {
   display: inline-block;
   width: 120px;
-  margin-left: 16px;
+  margin-right: 16px;
 }
 .SMSManage .bgModal .el-input--suffix .el-input__inner {
   padding-right: 13px;

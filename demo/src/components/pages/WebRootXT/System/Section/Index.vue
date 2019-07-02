@@ -13,7 +13,7 @@
              @keyup.enter.native="getData()"
             style="width: 150px;"
           >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+            
           </el-input>
           <div class="searchItem" style="display: inline-block;margin: 0 8px; ">
             <el-select

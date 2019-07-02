@@ -3,7 +3,7 @@
     <el-dialog
       class="infoucs"
       width="660px"
-      title="报告项目"
+      title="报告项目分类"
       :visible.sync="isShow"
       :before-close="close"
       :close-on-click-modal="false"
@@ -18,10 +18,10 @@
             class="demo-ruleForm"
             label-position="left"
           >
-            <el-form-item label="报告项目编号" :label-width="formLabelWidth" prop="itemCode">
+            <el-form-item label="报告项目分类编号" :label-width="formLabelWidth" prop="itemCode">
               <el-input v-model="fromData.itemCode"></el-input>
             </el-form-item>
-            <el-form-item label="报告项目名称" :label-width="formLabelWidth" prop="itemName">
+            <el-form-item label="报告项目分类名称" :label-width="formLabelWidth" prop="itemName">
               <el-input v-model="fromData.itemName"></el-input>
             </el-form-item>
             <el-form-item label="项目类型" :label-width="formLabelWidth" prop="typeCode">
@@ -127,7 +127,7 @@ export default {
       isShow: false,
       loading: false,
       activeName: "first",
-      formLabelWidth: "100px",
+      formLabelWidth: "110px",
       /* tab1 */
       fromData: {
         oldItemCode: "",

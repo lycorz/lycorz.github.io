@@ -19,7 +19,6 @@ const api = {
 	DeleteOrder: '/api/DD/DeleteOrder', //订单删除
 	GiveUpItem: '/api/DD/GiveUpItem', //订单项目弃检
 	GetCustomerList: '/api/DD/GetCustomerList', //查询客户列表(分页)
-	CancelSubmitOrder: '/api/DD/CancelSubmitOrder', //撤销提交订单
 	GetPackageFilter: '/api/DD/GetPackageFilter', //按过滤（分组）获取套餐列表
 	ImportCustomer: '/api/DD/ImportCustomer', //上传excel
 	GetUnitList: '/api/DD/GetUnitList', //获取单位列表
@@ -67,6 +66,7 @@ const api = {
   GetLisSubItemResult:"/api/FJ/GetLisSubItemResult",//获取所有lis检验结果
   GetCrisis: "/api/FJ/GetCrisis",//获取危急值用户列表
   UpdateSmsContent:"/api/FJ/UpdateSmsContent",//修改短信内容
+  SaveOrUpdateCommonSubItemResult:"/api/FJ/SaveOrUpdateCommonSubItemResult",//修改订单后保存
   SendCrisisSms:"/api/FJ/SendCrisisSms",//发送短信
   /*          财务收费-交易管理  start         */
   TransactionQuery: '/api/SF/TransactionQuery', //交易管理-获取财务收退费客户列表
@@ -77,6 +77,7 @@ const api = {
   TransactionOK: '/api/SF/TransactionOK', //交易管理-缴费
   RefundTradeMessageQuery: '/api/SF/RefundTradeMessageQuery', //交易管理-根据订单号获取已开发票
   TradeLock: '/api/SF/TradeLock', //交易管理-标记交易是否正在处理
+  InvoicePrintMod:'/api/SF/InvoicePrintMod',//打印发票
   InvoicePrint:'/api/SF/InvoicePrint',//打印发票，发票入库接口
   /*          财务收费-交易管理  end         */
 
@@ -109,6 +110,7 @@ const api = {
   PassSHFinalRst:'/api/SH/PassSHFinalRst',  //通过订单号和操作者编码 审核通过并生成报告
   InsertSHFinalRejectByOrderCodeCondition:'/api/SH/InsertSHFinalRejectByOrderCodeCondition',  //【驳回按钮先插入驳回记录再调用驳回接口】插入总检驳回记录 Condition为驳回原因 通过订单编码和原因
 
+
   //建议
   InsertIntoShFinalRstDetail:'/api/SH/InsertIntoShFinalRstDetail',  //插入总检建议明细
   UpdateShFinalRstDetail:'/api/SH/UpdateShFinalRstDetail',  //更新总检建议明细
@@ -119,7 +121,9 @@ const api = {
   SHGetAKeySequenceByOrderCode:'/api/SH/GetAKeySequenceByOrderCode',  //总检一键排序通过订单编码
   DeleteLstShFinalRstDetailByOrderCode:'/api/SH/DeleteLstShFinalRstDetailByOrderCode', //通过订单编码删除总检全部明细
   GetShFinalRstDetailByInnerCode:'/api/SH/GetShFinalRstDetailByInnerCode',//【查看、编辑明细】获取总检建议明细
-
+  GenerateMedicalGuidancesByOrderCode:"/api/SH/GenerateMedicalGuidancesByOrderCode",//重新生成建议
+  InsertIntoShFinalRstDetail:"/api/SH/InsertIntoShFinalRstDetail",//添加建议
+  GetShFinalRstDetailsByOrderCode:"/api/SH/GetShFinalRstDetailsByOrderCode",//通过订单获取订单建议全部明细
 
 
   /*          总检审核  end         */
@@ -217,6 +221,7 @@ const api = {
   GetOrderStatusRollBackEnum:'/api/FZGN/GetOrderStatusRollBackEnum',//【允许回退状态列表】获取订单回退状态枚举
   ChangeOrderStatusProgressByOrderCodeAndCondition:'/api/FZGN/ChangeOrderStatusProgressByOrderCodeAndCondition',//【变更状态】 OrderCode订单编码、Condition回退状态，OperatorCode（需记录回退人编码） 必填
   GetOrderStatusTimeInfo:'/api/FZGN/GetOrderStatusTimeInfo',//获取订单状态
+  BeginCheckByCardNum:'/api/FZGN/BeginCheckByCardNum',//到检
 
 
 
@@ -257,6 +262,7 @@ const api = {
 
   GetDeptList:'/api/DIC/GetDeptList',    //  获取科室列表接口
   GetAllDeptList:'/api/DIC/GetAllDeptList', //获取所有科室list
+  GetListByDistributionType:'/api/DIC/GetListByDistributionType',//分成类型调用
   GetDept:'/api/DIC/GetDept',   //获取一条科室记录
   SaveDept:'/api/DIC/SaveDept',   // 保存一条科室记录的接口
   BatchDeleteDept:'/api/DIC/BatchDeleteDept',    //批量删除科室记录接口
@@ -385,7 +391,28 @@ const api = {
   GetCostList:'/api/DIC/GetCostList',   //获取成本列表
   GetCost:'/api/DIC/GetCost',   //获取单个成本
   SaveCost:'/api/DIC/SaveCost',   //保存单个成本
-	BatchDeleteCost:'/api/DIC/BatchDeleteCost',   //批量删除成本
+  BatchDeleteCost:'/api/DIC/BatchDeleteCost',   //批量删除成本
+
+  GetDistributionTypeList:'/api/DIC/GetDistributionTypeList',   //获取分成列表
+  GetDistributionType:'/api/DIC/GetDistributionType',   //获取单个分成
+  SaveDistributionType:'/api/DIC/SaveDistributionType',   //保存单个分成
+  BatchDeleteDistributionType:'/api/DIC/BatchDeleteDistributionType',   //批量删除分成
+
+  GetEquipmentList:'/api/DIC/GetEquipmentList',   //获取设备列表
+  GetEquipment:'/api/DIC/GetEquipment',   //获取单个设备
+  SaveEquipment:'/api/DIC/SaveEquipment',   //保存单个设备
+
+  GetEquipmentCheck:'/api/DIC/GetEquipmentCheck',   //获取一条设备维护
+  GetEquipmentCheckList:'/api/DIC/GetEquipmentCheckList',   //获取设备维护列表
+  SaveEquipmentCheck:'/api/DIC/SaveEquipmentCheck',   //保存一条设备维护
+  BatchDeleteEquipmentCheck:'/api/DIC/BatchDeleteEquipmentCheck',   //批量删除设备维护
+
+  DICGetGuideClassList:'/api/DIC/GetGuideClassList',   //获取导检单列表
+  GetGuideClass:'/api/DIC/GetGuideClass',   //获取单个导检单
+  SaveGuideClass:'/api/DIC/SaveGuideClass',   //保存单个导检单
+  BatchDeleteGuideClass:'/api/DIC/BatchDeleteGuideClass',   //批量删除导检单
+  GetDeptListByGuideClass:'/api/DIC/GetDeptListByGuideClass',   //获取科室字典列表（导检单相关）
+  GetOrderItemListByGuideClass:'/api/DIC/GetOrderItemListByGuideClass',   //获取科室字典列表（导检单相关）
 
 	//排班api-主检
 	GetPGMasterDoctor: '/api/PG/GetPGMasterDoctor',//获取医生列表
@@ -400,10 +427,72 @@ const api = {
 	DeleteShScheduleFinalByDateRange: '/api/SH/DeleteShScheduleFinalByDateRange',//根据时间段批量删除排班总检记录
 	UpdateSHScheduleFinal: '/api/SH/UpdateSHScheduleFinal',//【更新当天排班记录】更新排班信息
 
+	GetAllUser: '/api/PG/GetAllUser',//【获取所有用户列表】获取所有用户列表
+	CheckCanEditSchedulePG: '/api/PG/CheckCanEditSchedule',//【编辑单条排班】判断当前排班医生列表是否允许编辑
+	CheckCanEditScheduleSH: '/api/SH/CheckCanEditSchedule',//【编辑单条排班】判断当前排班医生列表是否允许编辑
 	//排班节假日
 	GetTjHoliday: '/api/PG/GetTjHoliday',//查询全部假期-获取已存在的假期
 	DeleteTjHoliday: '/api/PG/DeleteTjHoliday',//批量删除节假日信息
 	InsertTjHoliday: '/api/PG/InsertTjHoliday',//批量保存节假日信息
+
+
+	//统计分析api
+	//财务统计
+	GetFJDoctor: '/api/TJ/GetFJDoctor',//获取分检医生列表
+	TjCostQuery: '/api/TJ/TjCostQuery',//成本统计查询
+	TjCostDetailQuery: '/api/TJ/TjCostDetailQuery',//成本明细统计查询
+	ExportTjFinanceDetailReport: '/api/TJ/ExportTjFinanceDetailReport',//导出财务单月统计报表
+	ExportTjFinanceReport: '/api/TJ/ExportTjFinanceReport',//导出财务统计报表(总)
+	TjReceivablesQueryDetail: '/api/TJ/TjReceivablesQueryDetail',//统计应收款明细查询
+	TjReceivablesQuery: '/api/TJ/TjReceivablesQuery',//统计应收款汇总查询
+  ExportTjReceivablesReport: '/api/TJ/ExportTjReceivablesReport',//导出应收款统计报表
+
+  //工作量统计
+  //医生工作量统计
+  GetDoctorType:"/api/TJ/GetDoctorType",//获取医生类型
+  GetHolidayType:"/api/TJ/GetHolidayType",//获取统计类型
+  GetOvertimeType:"/api/TJ/GetOvertimeType",//获取工时类型
+  GetWorkLoadInfos:"/api/TJ/GetWorkLoadInfos",//获取工作量
+  ShowDetailInfo:"/api/TJ/ShowDetailInfo",//工作量详情
+  GetHolidayByDataRange:"/api/TJ/GetHolidayByDataRange",//获取假期类型
+  ExportWorkLoadToExcel:"/api/TJ/ExportWorkLoadToExcel",//导出列表报表
+  ExportDetailToExcel:"/api/TJ/ExportDetailToExcel",//导出工作量报表
+  // VIP统计
+  TjVIPQuery:"/api/TJ/TjVIPQuery",
+  // 财务报表统计
+  GetReportTypeEnum:"/api/TJ/GetReportTypeEnum",//【获取报表类型】 报表类型 月报 季报 年报
+  GetQuarterTypeEnum:"/api/TJ/GetQuarterTypeEnum", //【获取季度类型】 季度类型
+  GetPackageEnum:"/api/TJ/GetPackageEnum",//【获取套餐种类】 //套餐种类 =0 普通套餐 =1 筛查套餐 =2 DIY套餐
+  GetOrderType:"/api/TJ/GetOrderType",//【订单类型】 //订单类型 0=普通 1= 筛查
+  QueryStatisticsReportForFinance:"/api/TJ/QueryStatisticsReportForFinance",//获取报表
+  // 业务综合报表
+  TjMonthReportQuery:"/api/TJ/TjMonthReportQuery",
+
+	ReturnDICCost: '/api/TJ/ReturnDICCost',//返回成本字典
+	InsertOrUpdateCost: '/api/TJ/InsertOrUpdateCost',//插入或更新成本
+	TjDiscountQuery: '/api/TJ/TjDiscountQuery',//统计折扣查询
+	ExportTjDiscountReport: '/api/TJ/ExportTjDiscountReport',//导出折扣统计报表
+	TjDeptDistributionQuery: '/api/TJ/TjDeptDistributionQuery',//统计科间分成查询
+	TjDeptDistributionDetailQuery: '/api/TJ/TjDeptDistributionDetailQuery',//统计科间分成明细查询
+	ExportTjDeptDistributionReport: '/api/TJ/ExportTjDeptDistributionReport',//导出科间分成统计报表
+	ExportTjDeptDistributionDetailReport: '/api/TJ/ExportTjDeptDistributionDetailReport',//导出科间分成统计明细报表
+
+	TjItemDistributionQuery: '/api/TJ/TjItemDistributionQuery',//统计项目分成查询
+	TjItemDistributionDetailQuery: '/api/TJ/TjItemDistributionDetailQuery',//统计项目分成明细查询
+	ExportTjItemDistributionReport: '/api/TJ/ExportTjItemDistributionReport',//导出科间分成统计报表
+
+
+
+
+	//体检质控
+	GetGuideClassList: '/api/ZK/GetGuideClassList',//导检质控列表
+	GetAbandonList: '/api/ZK/GetAbandonList',//弃检质控列表
+	GetResMainInsList: '/api/ZK/GetResMainInsList',//主检质控列表
+	GetResReportTakeList: '/api/ZK/GetResReportTakeList',//报告发放质控列表
+	GetDocetrQuaList: '/api/ZK/GetDocetrQuaList',//医生资质审核
+	GetResReportCycleList: '/api/ZK/GetResReportCycleList',//报告周期质控
+	GetEquipmentList: '/api/DIC/GetEquipmentList',//报告周期质控
+
 }
 
 export default api;

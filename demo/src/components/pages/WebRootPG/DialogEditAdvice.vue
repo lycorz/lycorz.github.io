@@ -70,7 +70,7 @@
     </ul>
     <div slot="footer" class="dialog-footer">
       <el-button @click="adviceEditVisible = false">取 消</el-button>
-      <el-button type="primary" @click="saveChange()">保 存</el-button>
+      <el-button type="primary" @click="saveChange()" :loading="saveF">保 存</el-button>
     </div>
   </el-dialog>
 </template>
@@ -93,7 +93,8 @@ export default {
       operatorCode: "",
       title: "主检建议编辑",
       innerCode: "",
-      entity: {}
+      entity: {},
+      saveF:false
     };
   },
   methods: {
@@ -125,7 +126,6 @@ export default {
       this.$axios
         .post(this.$api.getPriorityType)
         .then(function(response) {
-          console.log(2, response.data.entity);
           if (response.data.status == 1) {
             that.proOptions = response.data.entity;
           } else {
@@ -186,6 +186,7 @@ export default {
         that.$message.error("建议内容不能为空");
         return;
       }
+      this.saveF = true;
       //组织数据
       this.entity.advName = that.adviceName;
       this.entity.content = that.content;
@@ -216,6 +217,7 @@ export default {
     getinit() {
       let that = this;
       this.orderCode = this.$parent.orderCode;
+      this.saveF = false;
       this.getPriorityType();
       //根据订单编号获取组合项目 并 初始化
       this.getItemsByOrderCode(this.orderCode).then(res => {

@@ -48,10 +48,16 @@ export default {
 		Vue.prototype.cancelSelection = function (target) { // target当前table的ref
 			this.$refs[target].clearSelection();
 		},
+		// 数组删除扩展方法 
 		Array.prototype.remove = function (from, to) {
 			var rest = this.slice((to || from) + 1 || this.length);
 			this.length = from < 0 ? this.length + from : from;
 			return this.push.apply(this, rest);
-		};
+		},
+		// 数组数字排序方法
+		Vue.prototype.sortNumbers = function (a,b)
+		{
+			return a - b;
+		}
 	}
 }

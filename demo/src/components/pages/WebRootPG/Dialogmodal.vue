@@ -81,7 +81,7 @@
       </div>
     </el-dialog>
     <el-dialog
-      title="慢性病风险评估编辑"
+      title="风险评估编辑"
       :visible.sync="dialogchrinsIsShow"
       :close-on-click-modal="false"
       @open="getchrData"
@@ -89,15 +89,15 @@
     >
       <el-form :model="chrData">
         <el-form-item label="项目名称" :label-width="formLabelWidth">
-          <span class="span-text">高血压风险评估结果</span>
+          <span class="span-text">{{chrItemName}}</span>
         </el-form-item>
         <el-form-item label="结果类型" :label-width="formLabelWidth">
-          <el-select style="width:100px" v-model="chrData.resultType">
+          <el-select style="width:100px" v-model="chrData.riskLevelCode">
             <el-option
-              v-for="(item,index) of laboptions"
+              v-for="(item,index) of chrOptions"
               :key="index"
-              :label="item.label"
-              :value="item.value"
+              :label="item.levelName"
+              :value="item.levelCode"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -130,14 +130,15 @@ export default {
       dialoglabinsIsShow: false,
       dialogchrinsIsShow: false,
       dialogimgIsShow: false,
-      imgPath:"",
-      imgBase64:"",
+      imgPath: "",
+      imgBase64: "",
       genItemName: "",
       labItemName: "",
       chrItemName: "",
       genSearch: {},
       labSearch: {},
       chrSearch: {},
+      chrOptions: [],
       genData: {},
       labData: {},
       chrData: {},
@@ -171,7 +172,7 @@ export default {
       ]
     };
   },
-  inject:['getPGItems','getNoFJItems','getFJItems'],
+  inject: ["getPGItems", "getNoFJItems", "getFJItems"],
   methods: {
     //获取分检非LIS数据
     getGenData() {
@@ -209,13 +210,16 @@ export default {
     },
     //获取评估数据
     getchrData() {
+      this.chrOptions = this.chrSearch.lstDicDiseaseRickLevel;
       this.$axios
-        .post(this.$api.GetFjRptSubItemRstNoLisByInnerCode, {
-          innerCode: this.chrSearch.innerCode
+        .post(this.$api.GetPgDiseaseAssessRst, {
+          orderCode: this.chrSearch.orderCode,
+          diseaseCode: this.diseaseCode
         })
         .then(res => {
           if (res.data.status == 1) {
             this.chrData = res.data.entity;
+            console.log(this.chrData);
           } else {
             this.$message(res.data.message);
           }
@@ -225,18 +229,23 @@ export default {
         });
     },
     //获取图片(base64)
-    getImg(){
-      this.$axios.post(this.$api.GetBase64StringByImagePath,{Condition : "E:\\project\\vue\\src\\assets\\img\\xiongbu.jpg"}).then(res => {
-        // Condition : "E:\\project\\vue\\src\\assets\\img\\xiongbu.jpg"Condition:this.imgPath
-        if (res.data.status==1) {
-          let path = "data:image/jpg;base64,"+ res.data.entity;
-          this.imgBase64 = path;
-        }else{
-          this.$message(res.data.message);
-        }
-      }).catch(err => {
-        console.error(err.message);
-      });
+    getImg() {
+      this.$axios
+        .post(this.$api.GetBase64StringByImagePath, {
+          Condition: "E:\\project\\vue\\src\\assets\\img\\xiongbu.jpg"
+        })
+        .then(res => {
+          // Condition : "E:\\project\\vue\\src\\assets\\img\\xiongbu.jpg"Condition:this.imgPath
+          if (res.data.status == 1) {
+            let path = "data:image/jpg;base64," + res.data.entity;
+            this.imgBase64 = path;
+          } else {
+            this.$message(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err.message);
+        });
     },
     //更新分检非LIS数据
     UpdateGenData() {
@@ -317,9 +326,10 @@ export default {
       this.chrData = {};
       this.chrItemName = "";
       this.chrSearch = {};
+      this.chrOptions = [];
       this.dialogchrinsIsShow = false;
     },
-    closeImg(){
+    closeImg() {
       this.imgPath = "";
       this.imgBase64 = "";
       this.dialogimgIsShow = false;

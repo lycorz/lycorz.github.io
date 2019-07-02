@@ -15,9 +15,14 @@
             <div class="item-list" style="color:#F56C6C;font-size:14px;">￥{{usedMoney}}元</div>
           </li>
           <div>
-            <li class="item" style="margin-top:16px" >
+            <li class="item" style="margin-top:16px">
               <span>作废发票：</span>
-              <div style="margin-right:5px" v-for="(item,index) of ordreHistoryData.UsedInvoices" :key="index" class="item-list">{{item.invoiceNum}}(￥{{item.invoiceMoney}})</div>
+              <div
+                style="margin-right:5px"
+                v-for="(item,index) of ordreHistoryData.UsedInvoices"
+                :key="index"
+                class="item-list"
+              >{{item.invoiceNum}}(￥{{item.invoiceMoney}})</div>
             </li>
           </div>
         </ul>
@@ -43,14 +48,23 @@
       <div class="con">
         <ul>
           <li class="item">
-            <span>退费详情：</span>
-            <div style="margin-right:5px" v-for="(item,index) in ordreHistoryData.paidTypes" :key="index" class="item-list">退回{{item.paidType | tradetype }}￥{{item.tradeMoney}}</div>
+            <!-- <span>退费详情：</span> -->
+            <div
+              style="margin-right:5px"
+              v-for="(item,index) in ordreHistoryData.paidTypes"
+              
+              :key="index"
+              class="item-list"
+            >退回{{item.paidType | tradetype }}￥{{item.tradeMoney}}</div>
           </li>
           <!-- <li class="item">
             <span>退费金额：</span>
             <div class="item-list">元</div>
           </li>-->
         </ul>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="close()">取消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -69,7 +83,15 @@ export default {
       ordreHistoryData: []
     };
   },
+  filters:{
+    numAbs(val){
+      return Math.abs(val);
+    }
+  },
   methods: {
+    close: function() {
+      this.dialogrefundIsShow = false;
+    },
     getData: function() {
       let that = this;
       this.$axios

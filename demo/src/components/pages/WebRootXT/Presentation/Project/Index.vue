@@ -13,7 +13,7 @@
             class="arcRadius"
             style="width: 150px;"
           >
-            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+            
           </el-input>
           <div class="searchItem" style="display: inline-block;margin: 0 8px;">
             <el-select clearable v-model="searchParams.itemName" placeholder="报告分类">
@@ -56,7 +56,7 @@
       </div>
       <el-table ref="singleTable" :data="tableData" v-loading="loading" style="width: 100%">
         <el-table-column type="index" width="55" label="序号"></el-table-column>
-        <el-table-column property="subItemCode" label="报告项目" align="center"></el-table-column>
+        <el-table-column property="subItemCode" label="报告项目编号" align="center"></el-table-column>
         <el-table-column property="subItemName" label="报告项目名称" align="center"></el-table-column>
         <!-- <el-table-column property label="外部子项目编号" align="center"></el-table-column>
         <el-table-column property label="外部组合项目编号" align="center"></el-table-column> -->

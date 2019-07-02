@@ -17,9 +17,9 @@
           v-model="params.Condition"
           class="arcRadius"
 					@keyup.enter.native="getData(true)"
-          style="width: 150px;"
+          style="width: 150px;margin-right: 16px;"
         >
-          <i slot="prefix" class="el-input__icon el-icon-search"></i>
+
         </el-input>
         <el-select v-model="params.IfPrint" placeholder="是否打印" clearable>
           <el-option label="是" :value="true"></el-option>
@@ -49,7 +49,7 @@
             :value="item.value"
           ></el-option>
         </el-select>
-        <div style="display: inline-block;margin: 0 16px;">
+        <div style="display: inline-block;margin-right: 16px">
           <el-date-picker
             v-model="params.timeRange"
             type="daterange"
@@ -61,7 +61,7 @@
         <el-button @click="getData(true)">查询</el-button>
       </div>
     </div>
-    <el-table :data="tableData" style="width: 100%;" v-loading="loading" ref="multipleTable" @row-click="clickRow2"  @selection-change="handleSelectionChange">
+    <el-table :data="tableData" style="width: 100%;" height="9999" v-loading="loading" ref="multipleTable" @row-click="clickRow2"  @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column prop="customerName" label="姓名"></el-table-column>
       <el-table-column prop="sex" label="性别"  width="50"></el-table-column>
@@ -187,6 +187,7 @@
 </template>
 <script>
 import moment from "moment";
+import consts from "../../../utils/const";
 export default {
   name: "BGManage",
   data() {
@@ -540,10 +541,10 @@ export default {
     //预览
     preview(data) {
 			let ReportCodes = [data.reportCode];
-			this.$axios.post(this.$api.ReportPrint, ReportCodes).then(res => {
+			this.$axios.post(this.$api.ReportPreview, ReportCodes).then(res => {
 				if(res.data.status === 1) {
 					if (res.data.entity.path[0]) {
-						this.pdfUrl = window.location.href.split('/#')[0] + '/PDFjs/web/viewer.html?file=http://192.168.0.254:8889' + res.data.entity.path[0];
+						this.pdfUrl = window.location.href.split('/#')[0] + '/PDFjs/web/viewer.html?file=' + consts.DEFAULT_URL.SF_REPORT_PATH + res.data.entity.path[0];
 						this.bgPreview = true;
 					} else {
 						this.$message.error('请先生成报告后预览');
@@ -590,7 +591,7 @@ export default {
 .MGManage .propleSearch .el-select {
   display: inline-block;
   width: 120px;
-  margin-left: 16px;
+  margin-right: 16px;
 }
 .MGManage .bgModal .el-input--suffix .el-input__inner {
   padding-right: 13px;
