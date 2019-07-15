@@ -16,7 +16,7 @@
         class="demo-ruleForm"
         label-position="left"
       >
-        <el-form-item label="报告子项目" :label-width="formLabelWidth" prop="rptSubItemCode">
+        <el-form-item label="报告组合项目" :label-width="formLabelWidth" prop="rptSubItemCode">
           <el-select filterable v-model="fromData1.rptSubItemCode" placeholder="请选择">
             <el-option
               v-for="item in rptSubItem"

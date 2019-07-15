@@ -39,7 +39,7 @@
               <p>时间：{{reasonItem.rejectTime | formatDate("YYYY/MM/DD-HH:MM:SS") }}</p>
               <p>操作人：{{reasonItem.rejectOperator}}</p>
               <p>驳回原因：{{reasonItem.rejectReason}}</p>
-              <hr>
+              <hr />
             </div>
             <el-button
               type="text"
@@ -52,6 +52,12 @@
           </el-popover>
         </div>
         <el-button :disabled="isDisabled" @click="reject">驳回</el-button>
+        <el-button
+          v-show="advShow==false"
+          @click="showShaiCha"
+          :disabled="isDisabled"
+          size="medium"
+        >筛查建议</el-button>
         <!--DONE:需要从父页面传来的信息表示是否显示此条信息。-->
         <el-button type="success" @click="via" :disabled="isDisabled" size="medium">通过</el-button>
       </div>
@@ -336,7 +342,11 @@
           </div>
         </div>
       </div>
-      <div style="flex:3;overflow: hidden;display: flex;flex-direction: column;" id="advSug">
+      <div
+        style="flex:3;overflow: hidden;display: flex;flex-direction: column;"
+        v-show="advShow"
+        id="advSug"
+      >
         <div class="subTitle">
           <span class="strong-Title">医学建议</span>
           <div class="right">
@@ -446,6 +456,7 @@ export default {
 
       checkBoxModal: ["检查结果", "异常汇总", "医学建议"],
       checkBoxOptions: ["检查结果", "异常汇总", "医学建议"],
+      advShow: true,
       dialogmodalName: "",
       shdialogmodalName: "",
       curItem: "01",
@@ -475,6 +486,11 @@ export default {
   created() {
     this.$store.commit("changeCollapse", true);
     this.rowData = this.$route.query.rowData;
+    if (this.rowData.orderType == 1) {
+      this.checkBoxModal.remove(1, 1);
+      this.checkBoxOptions.remove(1, 1);
+      this.advShow = false;
+    }
     this.parentName = this.$route.query.parentName;
     this.operatorCode = this.$route.query.operatorCode;
     this.isDisabled = !!this.$route.query.isDisabled;
@@ -612,7 +628,7 @@ export default {
                   }, 500);
                 });
               } else {
-                alert(1);
+                this.$message.worning("无数据");
               }
             }
           } else {
@@ -730,7 +746,7 @@ export default {
       this.$axios
         .post(this.$api.GetPhysicalEexamQuestionPaperByOrderCode, {
           // orderCode: this.rowData.orderCode,
-          orderCode: "544B4A4F-107A-48B4-96BB-86597463D875"
+          orderCode: this.rowData.orderCode
         })
         .then(res => {
           this.checkloading = false;
@@ -950,6 +966,12 @@ export default {
         });
       });
     },
+    //筛查建议
+    showShaiCha() {
+      this.$refs.shaichaSearch = row;
+      this.$refs.operatorCode = this.operatorCode;
+      this.$refs.dialogmodal.dialogshaichaIsShow = true;
+    },
     //判断是否可以进行驳回或通过操作
     isViaOrReject() {
       let that = this;
@@ -1100,9 +1122,7 @@ export default {
             that.abnormalCount = response.data.entity.length;
           } else {
             that.$message.error(
-              `QuerySubtestExceptionItemSummaryByOrderCode错误：${
-                response.data.message
-              }`
+              `QuerySubtestExceptionItemSummaryByOrderCode错误：${response.data.message}`
             );
           }
         })
@@ -1159,9 +1179,7 @@ export default {
         })
         .catch(function(error) {
           console.log(
-            `GetShFinalRstDetailsByOrderCode错误(新增的建议没有项目组合)：${
-              response.data.message
-            }`
+            `GetShFinalRstDetailsByOrderCode错误(新增的建议没有项目组合)：${response.data.message}`
           );
         });
     },
@@ -1195,9 +1213,7 @@ export default {
                 //取消加载遮罩
               } else {
                 that.$message.error(
-                  `GenerateAbnomalSummaryByOrderCode错误：${
-                    response.data.message
-                  }`
+                  `GenerateAbnomalSummaryByOrderCode错误：${response.data.message}`
                 );
               }
             })
@@ -1236,9 +1252,7 @@ export default {
                 //取消加载遮罩
               } else {
                 that.$message.error(
-                  `GenerateMedicalGuidancesByOrderCode错误：${
-                    response.data.message
-                  }`
+                  `GenerateMedicalGuidancesByOrderCode错误：${response.data.message}`
                 );
               }
             })

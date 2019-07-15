@@ -9,9 +9,7 @@
               v-model="customerName"
               class="arcRadius"
               style="width: 150px;"
-            >
-
-            </el-input>
+            ></el-input>
             <el-select
               v-model="deptCode"
               filterable
@@ -69,14 +67,12 @@
           @click="shuaCard = 'none';"
         >关闭</el-button>
         <div class="nameSexAge">{{custname}}，{{sex}}，{{age}}岁</div>
-        <div
-          class="notCheck"
-        >未检项目：{{willInspectionItemName}}</div>
+        <div class="notCheck">未检项目：{{willInspectionItemName}}</div>
         <div class="checked">已检项目：{{inspectionOverItemName}}</div>
       </div>
       <el-table
         :data="tableData"
-        style="width: 100%;"
+        style="width: 100%;height:9999px;"
         v-loading="loading"
         :default-sort="{prop: 'date', order: 'descending'}"
       >
@@ -129,13 +125,15 @@ export default {
       name: "",
       //查询条件，用户姓名
       customerName: "",
-      custname:"",
-      sex:"",
-      age:1,
+      custname: "",
+      sex: "",
+      age: 1,
       tfDate: [
         new Date(new Date().getTime() - 3600 * 1000 * 24 * 60),
         new Date()
       ],
+      // 是否被主检锁定标记
+      ifmasterl: true,
       //科室类型枚举
       options: [],
       //查询条件,科室类型选中值
@@ -146,9 +144,9 @@ export default {
       shuaCard: "none",
       cardNum: "",
       //已检项目
-      inspectionOverItemName:[],
+      inspectionOverItemName: [],
       //未检项目
-      willInspectionItemName:[],
+      willInspectionItemName: [],
       operatorCode: "001",
       typecode1: "",
       pageSize: 10,
@@ -248,21 +246,25 @@ export default {
           .then(function(response) {
             that.loading = false;
             console.log(32, response);
-            if (response.data.status == 1 && response.data.entity.resultData.length != 0) {
+            if (
+              response.data.status == 1 &&
+              response.data.entity.resultData.length != 0
+            ) {
               that.tableData = response.data.entity.resultData;
               that.pagesz = response.data.entity.totalPages;
               that.totalData = response.data.entity.totalCount;
               //刷卡显示信息
               that.custname = response.data.entity.resultData[0].customerName;
-              if(response.data.entity.resultData[0].sex == 1){
+              if (response.data.entity.resultData[0].sex == 1) {
                 that.sex = "男";
-              }else{
+              } else {
                 that.sex = "女";
               }
               that.age = response.data.entity.resultData[0].age;
               //获取已检未检项目
-              console.log(55555,response.data.entity)
-              that.getCheckedNoCheckedItems(response.data.entity.resultData[0].orderCode);
+              that.getCheckedNoCheckedItems(
+                response.data.entity.resultData[0].orderCode
+              );
               //cardinfo显示此人信息
               that.cardInfoShow();
               setTimeout(() => {
@@ -278,18 +280,20 @@ export default {
           });
       }
     },
-    getCheckedNoCheckedItems(OrderCode){
+    getCheckedNoCheckedItems(OrderCode) {
       let that = this;
       this.$axios
         .get(this.$api.GetOrderChargeItemInspectionState, {
-          params:{OrderCode}
-          })
+          params: { OrderCode }
+        })
         .then(function(response) {
           that.loading = false;
           console.log(388, response);
           if (response.data.status == 1) {
-            that.inspectionOverItemName = response.data.entity.inspectionOverItemName;
-            that.willInspectionItemName = response.data.entity.willInspectionItemName;
+            that.inspectionOverItemName =
+              response.data.entity.inspectionOverItemName;
+            that.willInspectionItemName =
+              response.data.entity.willInspectionItemName;
           } else {
             that.tableData = [];
           }
@@ -298,7 +302,6 @@ export default {
           that.tableData = [];
           that.$message.error(`错误：${error}`);
         });
-
     },
     //cardinfo显示此人信息
     cardInfoShow() {
@@ -337,7 +340,10 @@ export default {
         .then(function(response) {
           that.loading = false;
           console.log(32, response);
-          if (response.data.status == 1 && response.data.entity.resultData.length != 0) {
+          if (
+            response.data.status == 1 &&
+            response.data.entity.resultData.length != 0
+          ) {
             that.tableData = response.data.entity.resultData;
             that.pagesz = response.data.entity.totalPages;
             that.totalData = response.data.entity.totalCount;
@@ -352,15 +358,47 @@ export default {
     },
     //查看详情，父传子
     watch(row, index) {
-      this.$refs.dialogcheck.FJCheckVisible = true;
-      this.$refs.dialogcheck.orderCode = row.orderCode;
-      this.$refs.dialogcheck.depts = this.options;
-      this.$refs.dialogcheck.customerName = row.customerName;
-      this.$refs.dialogcheck.sex = row.sex;
-      this.$refs.dialogcheck.age = row.age;
-      this.$refs.dialogcheck.idcardNum = row.idcardNum;
-      this.$refs.dialogcheck.marriageState = row.marriageState;
-      this.$refs.dialogcheck.headImg = "data:image/png;base64," + row.headImg;
+      // 先判断是否已锁定
+      let that = this;
+            // 发送条件
+      let entity = {};
+      entity.orderCode = row.orderCode;
+      entity.cardNum = row.cardNum;
+      this.$axios
+        .post(this.$api.GetProgressQueryInfoByCardNum, entity)
+        .then(function(response) {
+          console.log(response);
+          //取消加载遮罩
+          that.loading = false;
+          if (response.data.status == 1) {
+            if (response.data.entity[0].orderStatus < 4) {
+              that.$refs.dialogcheck.forWatch = false;
+            } else {
+              that.$message.error("订单已被主检或总检锁定，只提供查看，不允许编辑");
+              that.$refs.dialogcheck.forWatch = true;
+            }
+            resolve(true);
+          } else {
+            that.tableData = [];
+            that.$message.error(`错误：${response.data.message}`);
+            reject(`GetProgressQueryInfo:${response.data.message}`);
+          }
+        })
+        .catch(function(error) {
+          that.tableData = [];
+          that.$message.error(`错误：${error}`);
+          reject(`GetProgressQueryInfo:${error}`);
+        });
+      that.$refs.dialogcheck.FJCheckVisible = true;
+      that.$refs.dialogcheck.cardNum = row.cardNum;
+      that.$refs.dialogcheck.orderCode = row.orderCode;
+      that.$refs.dialogcheck.depts = that.options;
+      that.$refs.dialogcheck.customerName = row.customerName;
+      that.$refs.dialogcheck.sex = row.sex;
+      that.$refs.dialogcheck.age = row.age;
+      that.$refs.dialogcheck.idcardNum = row.idcardNum;
+      that.$refs.dialogcheck.marriageState = row.marriageState;
+      that.$refs.dialogcheck.headImg = "data:image/png;base64," + row.headImg;
     },
     //根据用户编码获取科室
     getEunmType(operatorCode) {

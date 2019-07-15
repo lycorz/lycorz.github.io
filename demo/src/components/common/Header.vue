@@ -23,6 +23,7 @@
       <el-menu-item v-for="item in Menus" :index="item.path" :key="item.part">{{item.name}}</el-menu-item>
     </el-menu>
     <div class="right">
+			<!-- level == 0&&parentCode ！== '' 就是辅助功能按钮 -->
       <el-button style="background: none;color: #fff;">数据同步</el-button>
       <el-button style="background: none;color: #fff;" @click="printer">配置打印机</el-button>
       <el-button style="background: none;color: #fff;" @click="process">进度查询</el-button>

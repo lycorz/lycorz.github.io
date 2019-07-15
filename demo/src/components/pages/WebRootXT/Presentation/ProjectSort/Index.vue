@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>报告项目分类</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
@@ -12,9 +11,7 @@
             @keyup.enter.native="getData()"
             class="arcRadius"
             style="width: 150px;"
-          >
-            
-          </el-input>
+          ></el-input>
           <div class="searchItem" style="display: inline-block;margin: 0 8px;">
             <el-select clearable v-model="searchParams.deptCode" placeholder="所属科室">
               <el-option
@@ -54,7 +51,13 @@
           </div>
         </div>
       </div>
-      <el-table ref="singleTable" :data="tableData" v-loading="loading" style="width: 100%">
+      <el-table
+        ref="singleTable"
+        :data="tableData"
+        height="9999"
+        v-loading="loading"
+        style="width: 100%"
+      >
         <el-table-column type="index" label="序号" width="55"></el-table-column>
         <el-table-column property="itemCode" label="报告项目分类编号" align="center"></el-table-column>
         <el-table-column property="itemName" label="报告项目分类名称" align="center"></el-table-column>
@@ -64,7 +67,7 @@
         <el-table-column property="isEnable" label="是否启用" align="center">
           <template slot-scope="scope">{{scope.row.isEnable | boolFilter}}</template>
         </el-table-column>
-        <el-table-column label="操作" align="center"  fixed="right" width="80px">
+        <el-table-column label="操作" align="center" fixed="right" width="80px">
           <template slot-scope="scope">
             <el-button type="text" @click="edit(scope.$index,scope.row)">编辑</el-button>
           </template>
@@ -77,14 +80,13 @@
             :current-page="searchParams.pageIndex"
             @current-change="handleCurrentChange"
             @size-change="sizeChange"
-             :page-sizes="[10,20,50,100]"
+            :page-sizes="[10,20,50,100]"
             layout="total,sizes, prev, pager, next, jumper"
             :total="total"
             :page-count="pageNum"
           ></el-pagination>
         </div>
       </div>
-    </div>
     <ProjectSortCreate ref="ProjectSortCreate"></ProjectSortCreate>
     <ProjectSortEdit ref="ProjectSortEdit"></ProjectSortEdit>
   </div>

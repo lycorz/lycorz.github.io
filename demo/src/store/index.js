@@ -15,7 +15,7 @@ const state = {
 	isGoto: true,  // 当前页面是否允许调转
 	USERINFO: {
 		loginName: "test1234",
-		operatorCode: "004",
+		operatorCode: "001",
 		roleCode: "J0001",
 		roleName: "总检",
 		userName: "test1234",

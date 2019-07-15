@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>菜单功能项</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
@@ -44,11 +43,12 @@
         @selection-change="handleSelectionChange"
         v-loading="loading"
         style="width: 100%"
+        height="9999"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column property="funcCode" label="功能项编号" align="left"></el-table-column>
         <el-table-column property="levelName" label="功能项级别" align="left"></el-table-column>
-        <el-table-column property="parentCode" show-overflow-tooltip label="父类编号" align="center"></el-table-column>
+        <el-table-column property="parentName" show-overflow-tooltip label="父类名称" align="center"></el-table-column>
         <el-table-column property="funcName" show-overflow-tooltip label="功能项目名称" align="center"></el-table-column>
         <el-table-column property="url" label="跳转地址" align="left"></el-table-column>
         <el-table-column property="icon" label="展示图标" align="center"></el-table-column>
@@ -72,7 +72,6 @@
           ></el-pagination>
         </div>
       </div>
-    </div>
     <FuncItemsCreate ref="FuncItemsCreate"></FuncItemsCreate>
     <!-- <FuncItemsEdit ref="FuncItemsEdit"></FuncItemsEdit> -->
   </div>

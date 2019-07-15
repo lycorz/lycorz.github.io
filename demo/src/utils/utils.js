@@ -27,6 +27,10 @@ export default {
 			}
 			return result;
 		}
+		Vue.prototype.$isNull = function isNull(arg1)
+		{
+		 	//return !arg1  && typeof arg1!=="boolean"?true:false;//&& arg1!==0 因为不判断null
+		}
 		// table全选
 		Vue.prototype.allSelection = function (source, target) {//source操作的总数据  target当前table的ref
 			this.$refs[target].clearSelection();

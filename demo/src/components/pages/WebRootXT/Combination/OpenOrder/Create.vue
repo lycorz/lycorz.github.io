@@ -233,7 +233,7 @@ export default {
         inspectPurpose: "",
         sexType: 0,
         virginDisabled: true,
-        isFee: true,
+        isFee: false,
         isEmpty: true,
         isSelectAll: true,
         fullPrice: null,
@@ -336,12 +336,12 @@ export default {
           if (parseFloat(this.fromData.exePrice) > parseFloat(this.fromData.fullPrice)) {
             return this.$message.error("执行价格不得超过原价");
           }
-          if (parseFloat(this.fromData.lowestPrice) > parseFloat(this.fromData.fullPrice)) {
-            return this.$message.error("最低价格不得超过原价");
+          if (parseFloat(this.fromData.lowestPrice) > parseFloat(this.fromData.exePrice)) {
+            return this.$message.error("最低价格不得超过执行价");
           }
-          if (parseFloat(this.fromData.costPrice) > parseFloat(this.fromData.fullPrice)) {
-            return this.$message.error("成本价格不得超过原价");
-          }
+          // if (parseFloat(this.fromData.costPrice) > parseFloat(this.fromData.fullPrice)) {
+          //   return this.$message.error("成本价格不得超过原价");
+          // }
           this.fromData.OldItemCode = this.Code;
           this.$axios
             .post(this.$api.SaveOrderItem, this.fromData)

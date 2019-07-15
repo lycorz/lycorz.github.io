@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>角色</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
@@ -28,6 +27,7 @@
         @selection-change="handleSelectionChange"
         v-loading="loading"
         style="width: 100%"
+        height="9999"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column property="roleCode"  label="角色编号" align="left"></el-table-column>
@@ -74,7 +74,6 @@
           ></el-pagination>
         </div>
       </div>
-    </div>
     <RoleCreate ref="RoleCreate"></RoleCreate>
   </div>
 </template>

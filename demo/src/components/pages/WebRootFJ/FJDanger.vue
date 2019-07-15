@@ -233,6 +233,7 @@ export default {
       entity.pageSize = this.pageSize;
       entity.startDate = this.tfDate == null ? null : this.tfDate[0];
       entity.endDate = this.tfDate == null ? null : this.tfDate[1];
+      entity.HadSended = this.sendFlag
       entity.visitState = this.visitState;
       if (this.keyStr != "") {
         entity.keyStr = this.keyStr;

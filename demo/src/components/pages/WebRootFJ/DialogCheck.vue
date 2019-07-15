@@ -18,7 +18,7 @@
           <div style="float:left">
             <div>
               <span>客户姓名:</span>
-              <span>&nbsp;{{customerName}}</span>
+              <span class="customerNameCol" :title="customerName">&nbsp;{{customerName}}</span>
             </div>
             <div>
               <span>性别：</span>
@@ -31,7 +31,7 @@
             </div>
           </div>
           <div style="float:right;margin-top:10px">
-            <img class="avatar" src="./login-bg.jpg" alt="头像">
+            <img class="avatar" src="./login-bg.jpg" alt="头像" />
           </div>
           <div style="clear:both;">
             <span>身份证号:</span>
@@ -52,7 +52,11 @@
             @click="highLight(index,item)"
             :key="index"
             v-for="(item,index) in items"
-          >{{item.rptItemName}}</div>
+          >
+            <span v-if="item.checkStatus == 1" style="color:#67C23A;margin-right:4px;">已提交</span>
+            <span v-else style="color:#999999;margin-right:4px;">未提交</span>
+            {{item.rptItemName}}
+          </div>
         </div>
       </div>
       <div class="middleContainer" id="resizable">
@@ -144,10 +148,10 @@
                             :id="'scFzjc'+index"
                             @change="previewFileFzjc(index)"
                             accept="image/*"
-                          >上传
+                          />上传
                         </a>
                       </div>
-                      <el-button @click="delFzjc(index)" v-if="item.ifHandAdd">移除</el-button>
+                      <el-button class="removeBtn" @click="delFzjc(index)" v-if="item.ifHandAdd">移除</el-button>
                     </div>
                   </div>
                   <div>
@@ -191,11 +195,18 @@
                       </section>
                       <section>
                         报告时间 :&nbsp;
-                        <el-input
+                        <el-date-picker
+                          style="display:inline-block;height:30px;width:110px;"
+                          format="yyyy/MM/dd HH:mm:ss"
+                          v-model="item.reportDate"
+                          type="datetime"
+                          placeholder="选择日期时间"
+                        ></el-date-picker>
+                        <!-- <el-input
                           style="display:inline-block;height:30px;width:110px;"
                           type="text"
                           v-model="item.reportDate"
-                        />
+                        />-->
                       </section>
                       <section>
                         审核医生 :&nbsp;
@@ -207,11 +218,18 @@
                       </section>
                       <section>
                         审核时间 :&nbsp;
-                        <el-input
+                        <el-date-picker
+                          style="display:inline-block;height:30px;width:110px;"
+                          format="yyyy/MM/dd HH:mm:ss"
+                          v-model="item.reviewDate"
+                          type="datetime"
+                          placeholder="选择日期时间"
+                        ></el-date-picker>
+                        <!-- <el-input
                           style="display:inline-block;height:30px;width:110px;"
                           type="text"
                           v-model="item.reviewDate"
-                        />
+                        />-->
                       </section>
                     </div>
                   </div>
@@ -276,17 +294,19 @@
           <span style="float:left;">图片列表</span>
           <div style="padding-top:5px">
             <a href="javascript:;" class="a-upload">
-              <input type="file" name id="sc" @change="previewFile()" accept="image/*">上传
+              <input type="file" name id="sc" @change="previewFile()" accept="image/*" />上传
             </a>
           </div>
         </div>
         <div class="tplb" style>
           <div class="tpcontainer" :key="index" v-for="(item,index) in picList">
-            <img class="tp" @click="showBigPic(item)" :src="item.imageBase64">
+            <img class="tp" @click="showBigPic(item)" :src="item.imageBase64" />
             <div class="del" @click="delPic(index)">删除</div>
           </div>
         </div>
       </div>
+      <!-- 遮罩 -->
+      <div id="boxes" v-if="forWatch"></div>
     </div>
     <span slot="footer" class="dialog-footer" style="display:flex;">
       <el-button style="flex:1">暂 存</el-button>
@@ -319,12 +339,15 @@ export default {
   data() {
     return {
       FJCheckVisible: false,
+      // 是否订单锁定，显示罩子，不允许操作
+      forWatch: false,
       // 加载等待
       loading: true,
       //当前工作人员
       operatorCode: "001",
       //用户信息
-      orderCode: "c0015e6f-d95e-4deb-94cd-e2035af42b1a",
+      orderCode: "",
+      cardNum: "",
       depts: ["K01"],
       items: [],
       customerName: "",
@@ -589,7 +612,7 @@ export default {
           .post(this.$api.InspectionItemDetail, entity)
           .then(function(response) {
             that.loading = false;
-            if (response.data.entity != 0) {
+            if (response.data.status == 1) {
               console.log(response.data.entity, 5656);
               //页面加载后的要操作的数据对象
               that.xiaojieSelect = response.data.entity.resSubItems;
@@ -656,6 +679,8 @@ export default {
     },
     // 一般检查，物理检查删除图片
     delPic(index) {
+      let that = this;
+      console.log("test", this.picList[index], this.fileList[index]);
       this.$confirm(
         '<span>您确定要删除该图片吗？</span><br /><i style="color:#8F9399;">确定删除后将不可恢复</i>',
         "删除确认",
@@ -666,8 +691,29 @@ export default {
           type: "error"
         }
       ).then(() => {
-        this.picList.splice(index, 1);
-        this.fileList.splice(index, 1);
+        // 上传过的再删除要调用如下接口
+        if (this.fileList[index].hasOwnProperty("innerCode")) {
+          this.$axios
+            .post(this.$api.DeleCommonSubItemResult, {
+              InnerCode: this.fileList[index].innerCode
+            })
+            .then(function(response) {
+              if (response.data.status != 0) {
+                that.$message.success(`图片删除成功`);
+                that.picList.splice(index, 1);
+                that.fileList.splice(index, 1);
+              } else {
+                that.$message.error(`错误：${response.data.message}`);
+              }
+            })
+            .catch(function(error) {
+              that.$message.error(`错误：${error}`);
+            });
+        } else {
+          this.$message.success(`图片删除成功`);
+          this.picList.splice(index, 1);
+          this.fileList.splice(index, 1);
+        }
       });
     },
     // 辅助检查图片上传
@@ -719,14 +765,37 @@ export default {
             type: "error"
           }
         ).then(() => {
-          this.dataTable.forEach((item, index) => {
-            that.multipleSelection.forEach((it, idx) => {
-              if (item == it) {
-                //要用选中长度，删除所有选中的项目
-                that.dataTable.splice(index, that.multipleSelection.length);
-              }
-            });
+          // 带innercode的小结（数据库已有的小结）
+          let havesum = [];
+          that.multipleSelection.forEach((it, idx) => {
+            if (it.hasOwnProperty("innerCode")) {
+              havesum.push(it.innerCode);
+            } else {
+            }
           });
+
+          this.$axios
+            .post(this.$api.DeleCommonSubItemResults, havesum)
+            .then(function(response) {
+              if (response.data.status != 0) {
+                that.dataTable.forEach((item, index) => {
+                  that.multipleSelection.forEach((it, idx) => {
+                    if (item == it) {
+                      //要用选中长度，删除所有选中的项目
+                      that.dataTable.splice(
+                        index,
+                        that.multipleSelection.length
+                      );
+                    }
+                  });
+                });
+              } else {
+                that.$message.error(`错误：${response.data.message}`);
+              }
+            })
+            .catch(function(error) {
+              that.$message.error(`错误：${error}`);
+            });
         });
       }
     },
@@ -757,9 +826,18 @@ export default {
         }
         // 设置异常标志
         this.xiaojieSelect[index].resultType = "H";
-
-        this.xiaojieSelect[index].defaultResSubResultTemplate.finding +=
-          value.finding + "；";
+        // 重复选择的所见不要
+        let spArr = this.xiaojieSelect[
+          index
+        ].defaultResSubResultTemplate.finding.split("；");
+        let ifappend = spArr.filter((item, index) => {
+          return item == value.finding;
+        });
+        if (ifappend != "" && ifappend !== null) {
+        } else {
+          this.xiaojieSelect[index].defaultResSubResultTemplate.finding +=
+            value.finding + "；";
+        }
       } else {
         // 设置正常标志
         this.xiaojieSelect[index].resultType = "N";
@@ -771,7 +849,7 @@ export default {
         });
       }
     },
-    // 提交结果，需要判断提交的是物理检查（包含一般检查）结果还是辅助检查结果
+    // 提交结果，需要判断提交的是物理检查（包含一般检查）结果还是辅助检查结果;保存成功之后组合项目也要变成“已提交“
     saveResult() {
       if (this.choosedObj.typeCode == "04") {
         this.summitFzjc();
@@ -788,6 +866,7 @@ export default {
     // 判断一般检查是否修改过
     ybjcChanged() {
       let ifchanged = false;
+      console.log(this.xiaojieSelect, 889961);
       this.xiaojieSelect.forEach(ele => {
         if (
           ele.defaultResSubResultTemplate.innerCode != "" &&
@@ -799,212 +878,225 @@ export default {
       return ifchanged;
     },
     // 修改一般检查后保存调用
-    SaveOrUpdateCommonSubItemResult() {
+    async SaveOrUpdateCommonSubItemResult() {
       let that = this;
-      //所见和结论数组
-      let entity = {};
-      //要提交的对象
-      let arr = [];
-      //拼接所见上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
-      if (this.xiaojieSelect.length != 0) {
-        //循环子项目获取所见数据
-        this.xiaojieSelect.forEach((item, index) => {
-          console.log("所见对象", item);
-          //拼接所见传输参数
-          let entityFinding = {};
-          //判断是否是编辑所见
-          if (
-            item.defaultResSubResultTemplate.innerCode != null &&
-            item.defaultResSubResultTemplate.innerCode != ""
-          ) {
-            entityFinding.innerCode =
-              item.defaultResSubResultTemplate.innerCode;
-          }
-          entityFinding.orderCode = this.orderCode;
-          entityFinding.rptItemCode = this.choosedObj.rptItemCode;
-          entityFinding.rptSubItemCode = item.subItemCode;
-          //若填写了finding
-          if (item.defaultResSubResultTemplate.finding) {
-            entityFinding.findings = item.defaultResSubResultTemplate.finding;
-          }
-          entityFinding.resultType = item.resultType;
-          entityFinding.rptDoctor = this.operatorCode;
-          entityFinding.operator = this.operatorCode;
-          entityFinding.reviewDoctor = this.operatorCode;
-          //将所见对象放入数组
-          arr.push(entityFinding);
-        });
-      }
-      //拼接小结上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
-      if (this.xiaojieSelect.length != 0) {
-        //循环子项目获取所见数据
-        this.dataTable.forEach((item, index) => {
-          //拼接小结传输参数
-          let entitySummary = {};
-          //判断是否是编辑所见
-          if (item.innerCode != null && item.innerCode != "") {
-            entitySummary.innerCode = item.innerCode;
-          }
-          entitySummary.orderCode = this.orderCode;
-          entitySummary.rptItemCode = this.choosedObj.rptItemCode;
-          if (item.rptSubItemCode) {
-            entitySummary.rptSubItemCode = item.rptSubItemCode;
-          }
-          if (item.summary) {
-            entitySummary.summary = item.summary;
-          }
-          entitySummary.rptDoctor = this.operatorCode;
-          entitySummary.operator = this.operatorCode;
-          entitySummary.reviewDoctor = this.operatorCode;
-          //将小结对象放入数组
-          arr.push(entitySummary);
-        });
-      }
-      entity.reqCommonSubItemResults = arr;
-      //拼接图片上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
-      let images = [];
-      if (this.fileList.length != 0) {
-        console.log(this.fileList);
-        //循环新增图片列表获取所见数据
-        this.fileList.forEach((item, index) => {
-          console.log(item, 6655);
-          //拼接图片上传传输参数
-          let entityPhoto = {};
-          entityPhoto.orderCode = this.orderCode;
-          entityPhoto.rptItemCode = this.choosedObj.rptItemCode;
-          entityPhoto.imgBase64 = item.imageBase64;
-          if (item.innerCode) {
-            entityPhoto.innerCode = item.innerCode;
-          }
-          //将图片base64对象放入数组
-          images.push(entityPhoto);
-        });
-        entity.images = images;
-      }
-      let pro = new Promise((resolve, reject) => {
-        that.$axios
-          .post(this.$api.SaveOrUpdateCommonSubItemResult, entity)
-          .then(function(response) {
-            that.$message.success(`结论修改成功`);
-            if (response.data.entity != 0) {
-              resolve(true);
-              // 如果提交成功就不做切换验证
-              that.notChangeSubmit();
-            } else {
-              that.$message.error(`错误：${response.data.message}`);
-              reject(false);
+      // 判断是否订单被主检锁定，如果被主键锁定不允许提交
+      await this.ifMasterLocked();
+      if (!that.ifmasterl) {
+        return;
+      } else {
+        //所见和结论数组
+        let entity = {};
+        //要提交的对象
+        let arr = [];
+        //拼接所见上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
+        if (this.xiaojieSelect.length != 0) {
+          //循环子项目获取所见数据
+          this.xiaojieSelect.forEach((item, index) => {
+            //拼接所见传输参数
+            let entityFinding = {};
+            //判断是否是编辑所见
+            if (
+              item.defaultResSubResultTemplate.innerCode != null &&
+              item.defaultResSubResultTemplate.innerCode != ""
+            ) {
+              entityFinding.innerCode =
+                item.defaultResSubResultTemplate.innerCode;
             }
-          })
-          .catch(function(error) {
-            that.$message.error(`错误：${error}`);
-            reject(false);
+            entityFinding.orderCode = this.orderCode;
+            entityFinding.rptItemCode = this.choosedObj.rptItemCode;
+            entityFinding.rptSubItemCode = item.subItemCode;
+            //若填写了finding
+            if (item.defaultResSubResultTemplate.finding) {
+              entityFinding.findings = item.defaultResSubResultTemplate.finding;
+            }
+            entityFinding.resultType = item.resultType;
+            entityFinding.rptDoctor = this.operatorCode;
+            entityFinding.operator = this.operatorCode;
+            entityFinding.reviewDoctor = this.operatorCode;
+            //将所见对象放入数组
+            arr.push(entityFinding);
           });
-      });
-      return pro;
-      this.FJCheckVisible = false;
+        }
+        //拼接小结上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
+        if (this.xiaojieSelect.length != 0) {
+          //循环子项目获取所见数据
+          this.dataTable.forEach((item, index) => {
+            //拼接小结传输参数
+            let entitySummary = {};
+            //判断是否是编辑所见
+            if (item.innerCode != null && item.innerCode != "") {
+              entitySummary.innerCode = item.innerCode;
+            }
+            entitySummary.orderCode = this.orderCode;
+            entitySummary.rptItemCode = this.choosedObj.rptItemCode;
+            if (item.rptSubItemCode) {
+              entitySummary.rptSubItemCode = item.rptSubItemCode;
+            }
+            if (item.summary) {
+              entitySummary.summary = item.summary;
+            }
+            entitySummary.rptDoctor = this.operatorCode;
+            entitySummary.operator = this.operatorCode;
+            entitySummary.reviewDoctor = this.operatorCode;
+            //将小结对象放入数组
+            arr.push(entitySummary);
+          });
+        }
+        entity.reqCommonSubItemResults = arr;
+        //拼接图片上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
+        let images = [];
+        if (this.fileList.length != 0) {
+          console.log(this.fileList);
+          //循环新增图片列表获取所见数据
+          this.fileList.forEach((item, index) => {
+            console.log(item, 6655);
+            //拼接图片上传传输参数
+            let entityPhoto = {};
+            entityPhoto.orderCode = this.orderCode;
+            entityPhoto.rptItemCode = this.choosedObj.rptItemCode;
+            entityPhoto.imgBase64 = item.imageBase64;
+            if (item.innerCode) {
+              entityPhoto.innerCode = item.innerCode;
+            }
+            //将图片base64对象放入数组
+            images.push(entityPhoto);
+          });
+          entity.images = images;
+        }
+        let pro = new Promise((resolve, reject) => {
+          that.$axios
+            .post(this.$api.SaveOrUpdateCommonSubItemResult, entity)
+            .then(function(response) {
+              if (response.data.status == 1) {
+                that.$message.success(`结论修改成功`);
+                resolve(true);
+                // 如果提交成功就不做切换验证
+                that.notChangeSubmit();
+                // 组合项目变为已提交
+                that.getItems();
+              } else {
+                that.$message.error(`错误：${response.data.message}`);
+                reject(false);
+              }
+            })
+            .catch(function(error) {
+              that.$message.error(`错误：${error}`);
+              reject(false);
+            });
+        });
+        return pro;
+        this.FJCheckVisible = false;
+      }
     },
     //提交一般检查结果
-    postResult() {
+    async postResult() {
       let that = this;
-      //所见和结论数组
-      let entity = {};
-      //要提交的对象
-      let arr = [];
-      //拼接所见上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
-      if (this.xiaojieSelect.length != 0) {
-        //循环子项目获取所见数据
-        this.xiaojieSelect.forEach((item, index) => {
-          console.log("所见对象", item);
-          //拼接所见传输参数
-          let entityFinding = {};
-          //判断是否是编辑所见
-          if (
-            item.defaultResSubResultTemplate.innerCode != null &&
-            item.defaultResSubResultTemplate.innerCode != ""
-          ) {
-            entityFinding.innerCode =
-              item.defaultResSubResultTemplate.innerCode;
-          }
-          entityFinding.orderCode = this.orderCode;
-          entityFinding.rptItemCode = this.choosedObj.rptItemCode;
-          entityFinding.rptSubItemCode = item.subItemCode;
-          //若填写了finding
-          if (item.defaultResSubResultTemplate.finding) {
-            entityFinding.findings = item.defaultResSubResultTemplate.finding;
-          }
-          entityFinding.resultType = item.resultType;
-          entityFinding.rptDoctor = this.operatorCode;
-          entityFinding.operator = this.operatorCode;
-          entityFinding.reviewDoctor = this.operatorCode;
-          //将所见对象放入数组
-          arr.push(entityFinding);
-        });
-      }
-      //拼接小结上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
-      if (this.xiaojieSelect.length != 0) {
-        //循环子项目获取所见数据
-        this.dataTable.forEach((item, index) => {
-          //拼接小结传输参数
-          let entitySummary = {};
-          //判断是否是编辑所见
-          if (item.innerCode != null && item.innerCode != "") {
-            entitySummary.innerCode = item.innerCode;
-          }
-          entitySummary.orderCode = this.orderCode;
-          entitySummary.rptItemCode = this.choosedObj.rptItemCode;
-          if (item.rptSubItemCode) {
-            entitySummary.rptSubItemCode = item.rptSubItemCode;
-          }
-          if (item.summary) {
-            entitySummary.summary = item.summary;
-          }
-          entitySummary.rptDoctor = this.operatorCode;
-          entitySummary.operator = this.operatorCode;
-          entitySummary.reviewDoctor = this.operatorCode;
-          //将小结对象放入数组
-          arr.push(entitySummary);
-        });
-      }
-      entity.reqCommonSubItemResults = arr;
-      //拼接图片上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
-      let images = [];
-      if (this.fileList.length != 0) {
-        console.log(this.fileList);
-        //循环新增图片列表获取所见数据
-        this.fileList.forEach((item, index) => {
-          console.log(item, 6655);
-          //拼接图片上传传输参数
-          let entityPhoto = {};
-          entityPhoto.orderCode = this.orderCode;
-          entityPhoto.rptItemCode = this.choosedObj.rptItemCode;
-          entityPhoto.imgBase64 = item.imageBase64;
-          //将图片base64对象放入数组
-          images.push(entityPhoto);
-        });
-        entity.images = images;
-      }
-      let pro = new Promise((resolve, reject) => {
-        that.$axios
-          .post(this.$api.SaveCommonSubItemResult, entity)
-          .then(function(response) {
-            console.log(response.data, 999);
-            if (response.data.entity != 0) {
-              that.$message.success(`结论提交成功`);
-              // 如果提交成功就不做切换验证
-              that.notChangeSubmit();
-              resolve(true);
-            } else {
-              that.$message.error(`错误：${response.data.message}`);
-              reject(false);
+      // 判断是否订单被主检锁定，如果被主键锁定不允许提交
+      await this.ifMasterLocked();
+      if (!that.ifmasterl) {
+        return;
+      } else {
+        //所见和结论数组
+        let entity = {};
+        //要提交的对象
+        let arr = [];
+        //拼接所见上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
+        if (this.xiaojieSelect.length != 0) {
+          //循环子项目获取所见数据
+          this.xiaojieSelect.forEach((item, index) => {
+            //拼接所见传输参数
+            let entityFinding = {};
+            //判断是否是编辑所见
+            if (
+              item.defaultResSubResultTemplate.innerCode != null &&
+              item.defaultResSubResultTemplate.innerCode != ""
+            ) {
+              entityFinding.innerCode =
+                item.defaultResSubResultTemplate.innerCode;
             }
-          })
-          .catch(function(error) {
-            that.$message.error(`错误：${error}`);
-            reject(false);
+            entityFinding.orderCode = this.orderCode;
+            entityFinding.rptItemCode = this.choosedObj.rptItemCode;
+            entityFinding.rptSubItemCode = item.subItemCode;
+            //若填写了finding
+            if (item.defaultResSubResultTemplate.finding) {
+              entityFinding.findings = item.defaultResSubResultTemplate.finding;
+            }
+            entityFinding.resultType = item.resultType;
+            entityFinding.rptDoctor = this.operatorCode;
+            entityFinding.operator = this.operatorCode;
+            entityFinding.reviewDoctor = this.operatorCode;
+            //将所见对象放入数组
+            arr.push(entityFinding);
           });
-      });
-      return pro;
-      this.FJCheckVisible = false;
+        }
+        //拼接小结上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
+        if (this.xiaojieSelect.length != 0) {
+          //循环子项目获取所见数据
+          this.dataTable.forEach((item, index) => {
+            //拼接小结传输参数
+            let entitySummary = {};
+            //判断是否是编辑所见
+            if (item.innerCode != null && item.innerCode != "") {
+              entitySummary.innerCode = item.innerCode;
+            }
+            entitySummary.orderCode = this.orderCode;
+            entitySummary.rptItemCode = this.choosedObj.rptItemCode;
+            if (item.rptSubItemCode) {
+              entitySummary.rptSubItemCode = item.rptSubItemCode;
+            }
+            if (item.summary) {
+              entitySummary.summary = item.summary;
+            }
+            entitySummary.rptDoctor = this.operatorCode;
+            entitySummary.operator = this.operatorCode;
+            entitySummary.reviewDoctor = this.operatorCode;
+            //将小结对象放入数组
+            arr.push(entitySummary);
+          });
+        }
+        entity.reqCommonSubItemResults = arr;
+        //拼接图片上传参数 由于接口要一起传所见，小结，图片,所以三者分开拼接
+        let images = [];
+        if (this.fileList.length != 0) {
+          console.log(this.fileList);
+          //循环新增图片列表获取所见数据
+          this.fileList.forEach((item, index) => {
+            console.log(item, 6655);
+            //拼接图片上传传输参数
+            let entityPhoto = {};
+            entityPhoto.orderCode = this.orderCode;
+            entityPhoto.rptItemCode = this.choosedObj.rptItemCode;
+            entityPhoto.imgBase64 = item.imageBase64;
+            //将图片base64对象放入数组
+            images.push(entityPhoto);
+          });
+          entity.images = images;
+        }
+        let pro = new Promise((resolve, reject) => {
+          that.$axios
+            .post(this.$api.SaveCommonSubItemResult, entity)
+            .then(function(response) {
+              if (response.data.status == 1) {
+                that.$message.success(`结论提交成功`);
+                // 如果提交成功就不做切换验证
+                that.notChangeSubmit();
+                // 组合项目变为已提交
+                that.getItems();
+                resolve(true);
+              } else {
+                that.$message.error(`错误：${response.data.message}`);
+                reject(false);
+              }
+            })
+            .catch(function(error) {
+              that.$message.error(`错误：${error}`);
+              reject(false);
+            });
+        });
+        return pro;
+        this.FJCheckVisible = false;
+      }
     },
     //获取历次对比订单
     getCompare(orderCode) {
@@ -1025,9 +1117,7 @@ export default {
             }
           } else {
             that.$message.error(
-              `ReviewSummaryEachExceptionByOrderCode错误：${
-                response.data.message
-              }`
+              `ReviewSummaryEachExceptionByOrderCode错误：${response.data.message}`
             );
           }
         })
@@ -1073,6 +1163,7 @@ export default {
     //查看其它检查项目结论
     watchOther() {
       this.$refs.dialogresultwatch.resultwatch = true;
+      this.$refs.dialogresultwatch.orderCode = this.orderCode;
     },
     //辅助检查查看大图
     showImg(src) {
@@ -1085,8 +1176,8 @@ export default {
     },
     //手动添加辅助检查项目
     addFzjc() {
-      console.log(this.fzjc,6654)
       let empty = {};
+      empty.operatorCode = this.operatorCode;
       empty.itemName = this.fzjc[0].itemName;
       empty.rptItemCode = this.fzjc[0].rptItemCode;
       empty.rptSubItemCode = this.fzjc[0].rptSubItemCode;
@@ -1182,28 +1273,36 @@ export default {
       }
     },
     //提交辅助检查数据
-    summitFzjc() {
+    async summitFzjc() {
       let that = this;
-      let pro = new Promise((resolve, reject) => {
-        that.$axios
-          .post(this.$api.SaveFZJCItemResult, this.fzjc)
-          .then(function(response) {
-            if (response.data.status == 1) {
-              that.$message.success(`提交成功`);
-              // 如果提交成功就不做切换验证
-              that.notChangeSubmit();
-              resolve(true);
-            } else {
-              that.$message.error(`错误：${response.data.message}`);
+      // 判断是否订单被主检锁定，如果被主键锁定不允许提交
+      await this.ifMasterLocked();
+      if (!that.ifmasterl) {
+        return;
+      } else {
+        let pro = new Promise((resolve, reject) => {
+          that.$axios
+            .post(this.$api.SaveFZJCItemResult, this.fzjc)
+            .then(function(response) {
+              if (response.data.status == 1) {
+                that.$message.success(`提交成功`);
+                // 如果提交成功就不做切换验证
+                that.notChangeSubmit();
+                // 组合项目变为已提交
+                that.getItems();
+                resolve(true);
+              } else {
+                that.$message.error(`错误：${response.data.message}`);
+                reject(false);
+              }
+            })
+            .catch(function(error) {
+              that.$message.error(`错误：${error}`);
               reject(false);
-            }
-          })
-          .catch(function(error) {
-            that.$message.error(`错误：${error}`);
-            reject(false);
-          });
-      });
-      return pro;
+            });
+        });
+        return pro;
+      }
     },
     // 一般检查处理规则，keyup
     ybcjRules(item) {
@@ -1425,6 +1524,36 @@ export default {
           item.resultType = "H";
         }
       }
+    },
+    //提交前要判断是否被主检锁定
+    async ifMasterLocked() {
+      // 先判断是否已锁定
+      let that = this;
+      that.ifmasterl = true;
+      // 发送条件
+      let entity = {};
+      entity.orderCode = that.orderCode;
+      entity.cardNum = that.cardNum;
+      await this.$axios
+        .post(this.$api.GetProgressQueryInfoByCardNum, entity)
+        .then(function(response) {
+          if (response.data.status == 1) {
+            if (response.data.entity[0].orderStatus >= 4) {
+              that.$message.error("主检已锁定，不允许提交");
+              that.ifmasterl = false;
+            } else {
+            }
+          } else {
+            that.tableData = [];
+            that.$message.error(`错误：${response.data.message}`);
+            that.ifmasterl = false;
+          }
+        })
+        .catch(function(error) {
+          that.tableData = [];
+          that.$message.error(`错误：${error}`);
+          that.ifmasterl = false;
+        });
     }
   }
 };
@@ -1639,5 +1768,30 @@ export default {
 }
 #fjcheck .el-input__inner {
   height: 24px !important;
+}
+#fjcheck .removeBtn {
+  width: 50px;
+  padding: 8px 13px;
+  border-radius: 4px;
+  margin-right: 5px;
+  background: #fafafa;
+}
+#fjcheck .a-upload {
+  text-decoration: none;
+}
+#fjcheck .customerNameCol {
+  width: 50px;
+  line-height: 11px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#boxes {
+  position: absolute;
+  width: 764px;
+  height: 484px;
+  right: 17px;
+  background: rgba(0, 0, 0, 0.1);
 }
 </style>

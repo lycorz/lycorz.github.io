@@ -99,7 +99,11 @@
 						</template>
 					</el-table-column>
           <el-table-column prop="status" label="订单状态" width="100px"></el-table-column>
-          <el-table-column prop="status" label="是否弃检" width="100px"></el-table-column>
+          <el-table-column prop="isGiveup" label="是否弃检" width="100px">
+						<template slot-scope="scope">
+							{{scope.row.isReped ? '弃检' : '未弃检'}}
+						</template>
+					</el-table-column>
           <el-table-column prop="isReped" label="替检状态" width="100px">
 						<template slot-scope="scope">
 							{{scope.row.isReped ? '替检' : '未替检'}}
@@ -165,7 +169,11 @@
             <el-table-column prop="feeType" label="付费方式" sortable></el-table-column>
             <el-table-column prop="fullPrice" label="项目原价" sortable></el-table-column>
             <el-table-column prop="exePrice" label="项目现价" sortable></el-table-column>
-            <el-table-column prop="status" label="项目状态"></el-table-column>
+            <el-table-column prop="checkStatus" label="项目状态">
+							<template slot-scope="scope">
+								{{scope.row.isGiveUp ? '弃检' : scope.row.checkStatus === 1 ? '已检' : scope.row.checkStatus === 2 ? '已获取结果' : '未检'}}
+							</template>
+						</el-table-column>
           </el-table>
 					<div slot="footer" class="dialog-footer">
             <el-button @click="orderInfoModal = false;itemsData = [];">关 闭</el-button>
@@ -259,7 +267,10 @@
 							<el-table-column type="selection" width="55"></el-table-column>
               <el-table-column prop="itemName" label="项目名称"></el-table-column>
               <el-table-column prop="feeType" label="付款方式"></el-table-column>
-              <el-table-column prop="status" label="项目状态" :filters="[{text: '未检', value: '未检'}, {text: '已检', value: '已检'}, {text: '报告回传', value: '报告回传'}, {text: '弃检', value: '弃检'}]" :filter-method="filterHandler">
+              <el-table-column prop="checkStatus" label="项目状态" :filters="[{text: '未检', value: '未检'}, {text: '已检', value: '已检'}, {text: '已获取结果', value: '已获取结果'}, {text: '弃检', value: '弃检'}]" :filter-method="filterHandler">
+								<template slot-scope="scope">
+									{{scope.row.isGiveUp ? '弃检' : scope.row.checkStatus === 1 ? '已检' : scope.row.checkStatus === 2 ? '已获取结果' : '未检'}}
+								</template>
 							</el-table-column>
             </el-table>
           </div>
@@ -564,17 +575,17 @@ export default {
           if (res.data.entity && res.data.status === 1) {
             this.orderList = res.data.entity.resultData;
 						this.total = res.data.entity.totalCount;
-						this.orderList.forEach((x, index) => {
-							x.items.forEach((y,i) => {
-								if (y.isGiveUp) {
-									this.orderList[index].items[i].status = '弃检';
-								} else if(y.checkStatus === 1) {
-									this.orderList[index].items[i].status = '已检';
-								} else{
-									this.orderList[index].items[i].status = '未检';
-								}
-							})
-						})
+						// this.orderList.forEach((x, index) => {
+						// 	x.items.forEach((y,i) => {
+						// 		if (y.isGiveUp) {
+						// 			this.orderList[index].items[i].status = '弃检';
+						// 		} else if(y.checkStatus === 1) {
+						// 			this.orderList[index].items[i].status = '已检';
+						// 		} else{
+						// 			this.orderList[index].items[i].status = '未检';
+						// 		}
+						// 	})
+						// })
           } else {
 						this.$message.error(res.data.message);
 						 this.total = 0;
@@ -591,7 +602,6 @@ export default {
     },
 		//编辑
 		editBtn(data){
-			console.log(data);
 			this.currentOrderModal = true;
 			this.itemsData = data;
 		},
@@ -603,16 +613,21 @@ export default {
 		//弃检
 		qjBtn(data, key){
 			if (key === 1) {
+				if (this.qjSelection.length === 0) {
+					this.$message.error('请先勾选项目后点击弃检');
+					return;
+				}
 				let OrderCode = data.orderCode;
 				let ItemCodes = this.qjSelection.map(x => {
 					return x.itemCode;
 				});
-				if (this.qjSelection.every(x => x.status === '弃检')) {
+
+				if (this.qjSelection.every(x => x.isGiveUp)) {
 					this.$message.error('项目中包含已弃检项目，请重新选择');
 					return;
 				}
-				if (this.qjSelection.every(x => x.status === '已检')) {
-					this.$message.error('项目中包含已已检项目，请重新选择');
+				if (this.qjSelection.every(x =>  x.checkStatus !== 0)) {
+					this.$message.error('项目中包含已检项目，请重新选择');
 					return;
 				}
 				this.$axios.post(this.$api.GiveUpItem, {  //订单项目弃检
@@ -677,11 +692,11 @@ export default {
 							this.$message.success('替检成功！');
 							this.peopleInfo.OrderCode = '';
 						} else {
-							this.$message.error(res.data.message);
+							this.$message.error(res.data.message || '');
 						}
 						this.peopleInfoModal = false;
 					}).catch(err => {
-						this.$message.error(err.data.message)
+						this.$message.error(err.data.message);
 					})
 				} else {
 					return;

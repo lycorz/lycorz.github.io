@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>异常</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
@@ -44,6 +43,7 @@
         @selection-change="handleSelectionChange"
         v-loading="loading"
         style="width: 100%"
+        height="9999"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column property="abnormalCode" label="异常编号" align="left"></el-table-column>
@@ -83,7 +83,6 @@
           ></el-pagination>
         </div>
       </div>
-    </div>
     <ExceptionCreate ref="ExceptionCreate"></ExceptionCreate>
     <QuestionnaireIndex ref="QuestionnaireIndex"></QuestionnaireIndex>
     <NotCheckIndex ref="NotCheckIndex"></NotCheckIndex>

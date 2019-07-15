@@ -264,28 +264,29 @@ export default {
     },
     // 打印发票，发票入库(5.29做)
     async InvoicePrint() {
-      // 按钮加载中
-      this.printerF = true;
-      // this.Loading = true;
-      // await函数 返回值是promise then中的response；async 返回值返回时会再套一层，变成promise对象，await后边的值会变成then的参数
-      let dyresult = await this.firstStep().catch(error => {
-        this.$message.error(`错误：${error}`);
-      });
-      // 成功回调,a接口无内部错误，传参给b函数执行
-      if ((dyresult.data.Status = 1)) {
-        let apiresult = await this.secondStep(dyresult.data.entity).catch(
-          error => {
-            this.$message.error(`错误：${error}`);
-          }
-        );
-        // 前两步完事后调用
-        if (apiresult) {
+      ///////////////套壳前注释掉，套壳后解注
+      // // 按钮加载中
+      // this.printerF = true;
+      // // this.Loading = true;
+      // // await函数 返回值是promise then中的response；async 返回值返回时会再套一层，变成promise对象，await后边的值会变成then的参数
+      // let dyresult = await this.firstStep().catch(error => {
+      //   this.$message.error(`错误：${error}`);
+      // });
+      // // 成功回调,a接口无内部错误，传参给b函数执行
+      // if ((dyresult.data.Status = 1)) {
+      //   let apiresult = await this.secondStep(dyresult.data.entity).catch(
+      //     error => {
+      //       this.$message.error(`错误：${error}`);
+      //     }
+      //   );
+      //   // 前两步完事后调用
+      //   if (apiresult) {
           this.thirdStep();
-        }
-      }
-      // 如果接口内部错误
-      else {
-      }
+      //   }
+      // }
+      // // 如果接口内部错误
+      // else {
+      // }
     },
     // 打印发票
     firstStep() {

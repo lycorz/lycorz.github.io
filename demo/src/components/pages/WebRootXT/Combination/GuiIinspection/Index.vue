@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>导检单</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <div class="right">
@@ -18,6 +17,7 @@
         @selection-change="handleSelectionChange"
         v-loading="loading"
         style="width: 100%"
+        height="9999"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column property="classCode" width="80" label="类别编号" align="left"></el-table-column>
@@ -45,7 +45,6 @@
           ></el-pagination>
         </div>
       </div>
-    </div>
     <GuideClassCreate ref="GuideClassCreate"></GuideClassCreate>
   </div>
 </template>

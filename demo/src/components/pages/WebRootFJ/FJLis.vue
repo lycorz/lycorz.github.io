@@ -229,6 +229,9 @@ export default {
       if (this.customerName != "") {
         entity.PersonKey = this.customerName;
       }
+       let arr = [];
+        arr.push('K09');
+      entity.DeptCodes=arr;
       let that = this;
       this.$axios
         .post(this.$api.OrderList, entity)

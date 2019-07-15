@@ -9,12 +9,15 @@
 				</el-select>
 				<el-button @click="addPackageModal = true" :disabled="isEdit" icon="el-icon-plus">添加套餐</el-button>
 				<el-checkbox v-model="orderVipFlag" :disabled="isEdit">VIP</el-checkbox>
-				<el-select v-model="submitParams.Order.ReportTakeWay"  placeholder="报告领取方式" :disabled="isEdit">
-					<el-option v-for="item in reportTake" :key="item.value" :label="item.name" :value="item.value"></el-option>
+				<el-select v-model="submitParams.Order.ReportTakeWay" placeholder="请选择" :disabled="isEdit">
+					<el-option
+						v-for="item in reportTake"
+						:key="item.value"
+						:label="item.name"
+						:value="item.value">
+					</el-option>
 				</el-select>
-				<!-- <el-select v-model="submitParams.Order.ReportType" placeholder="报告类型" :disabled="isEdit">
-					<el-option v-for="item in reportType" :key="item.value" :label="item.name" :value="item.value"></el-option>
-				</el-select> -->
+				<el-button @click="setReportTypeModal = true" :disabled="isEdit">报告类型</el-button>
 				<el-button type="primary" @click="submitOrder" :disabled="isEdit" :loading="isSubmit">提交</el-button>
 			</div>
     </div>
@@ -60,7 +63,7 @@
 								</el-form-item>
 							</el-col>
 							<el-col :span="8">
-								<el-button-group style="margin-top: 17px; width: 100%;">
+								<el-button-group style="margin-top: 17px; width: 100%;" disabled="true">
 									<el-button style="padding: 7px 18px;width: 50%;">{{age}}</el-button>
 									<el-button style="padding: 7px 18px;width: 50%;">岁</el-button>
 								</el-button-group>
@@ -167,7 +170,7 @@
 					</el-table-column>
 					<el-table-column prop="checkStatus" label="项目状态" width="150">
 						<template slot-scope="scope">
-							{{scope.row.checkStatus === 1 ? '已检' : '未检'}}
+							{{scope.row.isGiveUp ? '弃检' : scope.row.checkStatus === 1 ? '已检' : scope.row.checkStatus === 2 ? '已获取结果' : '未检'}}
 						</template>
 					</el-table-column>
 				</el-table>
@@ -202,7 +205,7 @@
 					</div>
 				</div>
 				<!-- 弹窗块 -->
-				<el-dialog title="套餐详情" :visible.sync="packageDetailModal" :close-on-click-modal="false" width="800px" @close="packageDatail = []">
+				<el-dialog title="套餐详情" :visible.sync="packageDetailModal" :close-on-click-modal="false" width="800px" @close="packageDatail = [];isFree = false;">
 					<el-table :data="packageDatail" style="width: 100%">
 						<el-table-column prop="itemName" label="项目名称"></el-table-column>
 						<el-table-column prop="fullPrice" label="原价">
@@ -217,7 +220,7 @@
 						</el-table-column>
 						<el-table-column prop="checkStatus" label="项目状态">
 							<template slot-scope="scope">
-								￥{{scope.row.checkStatus === 1 ? '已检' : '未检'}}
+								{{scope.row.isGiveUp ? '弃检' : scope.row.checkStatus === 1 ? '已检' : scope.row.checkStatus === 2 ? '已获取结果' : '未检'}}
 							</template>
 						</el-table-column>
 					</el-table>
@@ -280,34 +283,6 @@
 					<div class="addProject">
 						<div class="project-left">
 							<el-tabs v-model="activeTabName" type="card" @tab-click="tabsClick" class="addTabs" style="user-select: none;">
-								<!-- <el-tab-pane label="按套餐添加" name="first" style="display: none">
-									<div class="modal-tree" style="border-top: none;">
-										<div class="modal-top" style="text-indent: 8px;">
-											<el-input placeholder="请搜索" v-model="filterPackage" style="width: 150px;"></el-input>
-											<div class="right" style="margin-right: 8px">
-												<el-button @click="addBtn">添加</el-button>
-											</div>
-										</div>
-										<div class="modal-con">
-											<el-tree
-												empty-text="正在获取中，请稍后..."
-												:data="GetPackageFilter"
-												show-checkbox
-												node-key="id"
-												ref="first"
-												@node-click="dbClick"
-												:filter-node-method="filtertree"
-												>
-											</el-tree>
-										</div>
-										<div class="fixBottom">
-											<el-button type="text" @click="allTreeSelection('GetPackageFilter', 'first', GetPackageFilterNum)">全选</el-button>
-											<span class="subitem">合计： <span class="labelColor ftArial">{{GetPackageFilter.length}}</span></span>
-											<span class="subitem">选中： <span class="labelColor ftArial">{{selectedFirstTotal || 0}}</span></span>
-										</div>
-									</div>
-								</el-tab-pane> -->
-
 								<el-tab-pane label="按项目添加" name="third">
 									<div class="modal-tree" style="border-top: none;">
 										<div class="modal-top"  style="text-indent: 8px;">
@@ -523,6 +498,9 @@
 								prop="checkStatus"
 								label="项目状态"
 								>
+								<template slot-scope="scope">
+									{{scope.row.isGiveUp ? '弃检' : scope.row.checkStatus === 1 ? '已检' : scope.row.checkStatus === 2 ? '已获取结果' : '未检'}}
+									</template>
 								</el-table-column>
 						</el-table>
 					</div>
@@ -573,7 +551,7 @@
 						<el-button @click="printModal = false">关 闭</el-button>
 					</div>
 				</el-dialog>
-				<el-dialog title="打折" :visible.sync="discountModal" :close-on-click-modal="false" width="800px" class="discount">
+				<el-dialog title="打折" :visible.sync="discountModal" :close-on-click-modal="false" width="800px" class="discount" @close="isFree = false;">
 					<ul class="modal-con">
 						<li class="item">
 							<span>合计金额：</span>
@@ -598,6 +576,20 @@
 						<el-checkbox v-model="isFree">优惠自由</el-checkbox>
 						<el-button @click="discountModal = false">取 消</el-button>
 						<el-button type="primary" @click="confirmDiscount">确 定</el-button>
+					</div>
+				</el-dialog>
+				<!-- 报告类型 -->
+				<el-dialog title="报告类型" :visible.sync="setReportTypeModal" :close-on-click-modal="false" width="500px" class="setType" @open="openReportType">
+					<el-checkbox-group v-model="ReportType">
+						<el-checkbox v-for="item in reportTypes" :label="item" :key="item"></el-checkbox>
+					</el-checkbox-group>
+					<span style="line-height: 32px;">特殊报告：</span>
+					<el-radio-group v-model="SpecialReportType" class="radioType">
+							<el-radio v-for="item in orderSpecialReportType" :key="item.value" :label="item.value">{{item.name}}</el-radio>
+					</el-radio-group>
+					<div slot="footer" class="dialog-footer">
+						<el-button @click="setReportTypeModal = false">取 消</el-button>
+						<el-button type="primary" @click="setReportTypeBtn">确定</el-button>
 					</div>
 				</el-dialog>
 			</div>
@@ -653,6 +645,7 @@ export default {
 			addProjectModal: false,
 			printModal: false,
 			orderInfoModal: false,
+			setReportTypeModal: false,
 			currentOrderModal: false,
 			discountModal: false,
 			packageDatail: [],//查看套餐详情数据列表
@@ -684,10 +677,12 @@ export default {
 					UnitName: '',
 					DeptName: '',
 					TeamName: '',
-					PackageCode: '00000000-0000-0000-0000-000000000000',
+					//PackageCode: '00000000-0000-0000-0000-000000000000',
+					Packages: [],
 					OrderVipFlag: 0,//0非 1 是
 					OrderType: '',
-					ReportType: '',
+					ReportType: 0,// 报告类型
+					SpecialReportType: 0,//特殊报告类型
 					CreateOrderTime: moment().format('YYYY-MM-DD'),
 					Status: '',
 					IsLock: false,
@@ -700,6 +695,8 @@ export default {
 					ReportTakeWay: 0//报告领取方式
 				}
 			},
+			SpecialReportType: 0,
+			ReportType: [],
 			age: '0', // 年龄
 			rules: {
 					CardNum: [
@@ -728,7 +725,9 @@ export default {
 			},
 			options: [],//  打印类型
 			orderType: [], //订单类型
-			// reportType: [], // 报告类型
+			reportTypes: [], // 报告字典
+			reportType1: [], // 订单报告字典
+			orderSpecialReportType: [], // 特殊报告字典
 			reportTake: [ // 报告领取方式
 					{
 							value: 0,
@@ -796,11 +795,10 @@ export default {
 	},
 	created: function () {
 		this.GetOrderType();
-		this.submitParams.Order.IdcardNum = '111111111111111111'
+		//this.submitParams.Order.IdcardNum = '111111111111111111';//开发测试
 	},
 	methods: {
 		//添加项目-按项目添加-搜索fn
-		// 【暂时已改为watch】
 		filterTree(){
 			if(this.filterProject) {
 				this.GetItemListView = this.GetItemList.filter(x => {
@@ -809,6 +807,88 @@ export default {
 			} else {
 				this.GetItemListView = this.GetItemList;
 			}
+		},
+		//获取类型
+		GetOrderType() {
+			//订单类型
+			this.$getType('OrderType').then(res => {
+				if (res.status === 200 && res.data.status === 1) {
+					this.orderType = res.data.entity;
+				}
+			})
+			// 报告类型
+			this.$axios.get(this.$api.GetOrderReportType).then(res => {
+				if (res.data.status === 1) {
+					this.reportType1 = res.data.entity;
+					this.reportTypes = [];
+					this.reportTypes.push(this.reportType1[0].name);
+				}
+			})
+			//特殊报告类型
+			this.$axios.get(this.$api.GetOrderSpecialReportType).then(res => {
+				if (res.data.status === 1) {
+					this.orderSpecialReportType = res.data.entity;
+				}
+			})
+		},
+		getReportType(val) {
+			for(let value of this.reportType1) {
+				if(val === value.name && typeof val === 'string') {
+					return value.value;
+				}
+				if(val === value.value && typeof val === 'number') {
+					return value.name;
+				}
+			}
+		},
+		//获取订单列表
+		getOrderList(){
+			this.load= this.$loading({
+				lock: true,
+				text: '获取订单中，请稍后...',
+				spinner: 'el-icon-loading',
+				background: 'rgba(0, 0, 0, 0.7)'
+			});
+			this.$axios.get(this.$api.GetOrderList, {
+				params: {IdCardNum: this.submitParams.Order.IdcardNum}
+			}).then(res => {
+				if (res.status === 200 && res.data.status === 1) {
+					if (res.data.entity.resultData.length === 0) {
+						this.getCustomer();
+					} else {
+						if (this.isMoreOrder) {
+							this.orderInfoModal = true;
+							this.orderList = res.data.entity.resultData;
+						} else {
+							if (res.data.entity.resultData[0].orderType == 1) {
+								this.tableData = res.data.entity.resultData[0].packages;
+								this.tableData.forEach(x => {
+									x.children = x.items;
+									let fullPrice = 0;
+									x.children.forEach(y => {
+										fullPrice += y.fullPrice;
+									})
+									x.fullPrice = fullPrice;
+								})
+							} else {
+								this.tableData = res.data.entity.resultData[0].items.map(x => {
+									x.id = x.itemCode;
+									x.babel = x.itemName;
+									return x;
+								});
+							}
+
+							this.setCustomer(res.data.entity.resultData[0]);
+						}
+					}
+				} else {
+					this.$message.error(res.data.message);
+					this.load.close();
+				}
+			}).catch(err => {
+				this.$message.error(err.data.message);
+				this.load.close();
+			})
 		},
 		//查看套餐详情
 		openPackageDetail(data) {
@@ -841,6 +921,12 @@ export default {
 		},
 		//切换订单类型时出发
 		OrderTypeChange(val) {
+			if(val) {
+				this.ReportType = [this.reportType1[1].name];
+			} else {
+				this.ReportType = [this.reportType1[0].name];
+			}
+			this.SpecialReportType = 0;
 			if (this.tableData.length === 0) return;
 			this.$confirm('<span>您确定要放弃当前编辑的订单进行订单类型切换吗？</span><br /><i style="color:#8F9399;">订单类型切换会清空未提交的数据</i>', '提示', {
 				confirmButtonText: '确定',
@@ -848,16 +934,17 @@ export default {
 				dangerouslyUseHTMLString: true,
 				type: 'warning'
 			}).then(() => {
-				// this.submitParams.Order.ReportTakeWay = '';
-				// this.submitParams.Order.ReportType = '';
 				this.tableData = [];
+				this.submitParams.Order.SpecialReportType = 0;
 			}).catch(() => {
 				if (val) {
 					this.submitParams.Order.OrderType = 0;
 				} else {
 					this.submitParams.Order.OrderType = 1;
 				}
+				this.SpecialReportType = this.submitParams.Order.SpecialReportType;
 			})
+
 		},
 		submitOrder() {//提交订单
 		 this.$refs.submitInfo.validate((valid) => {
@@ -865,6 +952,16 @@ export default {
 				if (this.tableData.length === 0 && (this.submitParams.Order.UnitPayMoney + this.submitParams.Order.PaidMoney) == 0) {
 					this.$message.error('请添加项目后提交');
 					return;
+				}
+				if(!this.submitParams.Order.ReportType && !this.submitParams.Order.SpecialReportType) {
+					this.$message.error('请选择报告类型后提交');
+					return;
+				}
+				if (!this.submitParams.Order.ReportType) {
+					this.submitParams.Order.ReportType = 0;
+				}
+				if(!this.submitParams.Order.SpecialReportType) {
+					this.submitParams.Order.SpecialReportType = 0;
 				}
 				this.isSubmit = true;
 				let loading = this.$loading({
@@ -883,10 +980,14 @@ export default {
 					return x;
 				})
 				this.submitParams.Order.Items = [];
-				this.submitParams.Order.Packages = [];
+
 				if(this.submitParams.Order.OrderType === 0) {
 					this.tableData.forEach(x => {
 						this.submitParams.Order.Items.push(this.$handleUpperCase(x));
+						if(this.submitParams.Order.Packages.length) {
+							this.submitParams.Order.Packages[0].Items = [];
+							this.submitParams.Order.Packages[0].Items.push(this.$handleUpperCase(x))
+						}
 					});
 				} else {
 					this.tableData.forEach( (x, index) => {
@@ -898,10 +999,12 @@ export default {
 							SexType: x.sexType,
 							FilterType: x.filterType,
 							InspectPurpose: x.inspectPurpose,
-							Items: []
+							Items: x.children.map(x => this.$handleUpperCase(x))
 						})
 						x.children.forEach(y => {
-							this.submitParams.Order.Packages[index].Items.push(this.$handleUpperCase(y))
+							if(y.exePrice) {
+								this.submitParams.Order.Items.push(this.$handleUpperCase(y))
+							}
 						})
 					})
 				}
@@ -913,7 +1016,7 @@ export default {
 						this.clearCustomer();
 						this.submitParams.Order.IdcardNum = '';
 					} else {
-							this.$message.error(res.data.message);
+						this.$message.error(res.data.message);
 					}
 					this.isSubmit = false;
 					loading.close();
@@ -928,6 +1031,17 @@ export default {
 			 }
 		 })
 		},
+		//报告类型打开重置状态
+		openReportType() {
+			this.SpecialReportType = this.submitParams.Order.SpecialReportType;
+			this.ReportType = [this.getReportType(this.submitParams.Order.ReportType)];
+		},
+		//报告类型确定按钮
+		setReportTypeBtn() {
+			this.submitParams.Order.SpecialReportType = this.SpecialReportType;
+			this.submitParams.Order.ReportType = this.getReportType(this.ReportType[0]);
+			this.setReportTypeModal = false;
+		},
 		//打折按钮
 		discountBtn(){
 			if (this.multipleSelection.length === 0 ) {
@@ -940,11 +1054,28 @@ export default {
 			this.discountData.totalPrice = 0;
 			this.discountData.exePrice = 0;
 			this.discountData.lowestPriceAll = 0;
-			this.multipleSelection.forEach(x => {
-				this.discountData.totalPrice += x.fullPrice;
-				this.discountData.lowestPriceAll += x.lowestPrice;
-				this.discountData.exePrice += Number(x.exePrice);
-			})
+			if(this.submitParams.Order.OrderType === 0) {
+				this.multipleSelection.forEach(x => {
+					this.discountData.totalPrice += x.fullPrice;
+					this.discountData.lowestPriceAll += x.lowestPrice;
+					this.discountData.exePrice += Number(x.exePrice);
+				})
+			} else {
+				this.multipleSelection.forEach(x => {
+					this.discountData.exePrice += x.exePrice;
+					x.children.forEach(y => {
+						if(y.exePrice) {
+							this.discountData.totalPrice += y.fullPrice;
+							this.discountData.lowestPriceAll += y.lowestPrice;
+						}
+					})
+				})
+			}
+			if(this.discountData.exePrice === 0) {
+				this.$message.error('所选套餐执行价为零，不可进行打折操作');
+				return;
+			}
+
 			this.discountData.exePriceAll = this.discountData.exePrice;
 			this.discountData.discount = parseInt(this.discountData.exePrice / this.discountData.totalPrice * 100) / 100;
 			this.discountData.discount2 = this.discountData.exePrice / this.discountData.totalPrice;
@@ -954,32 +1085,78 @@ export default {
 		},
 		// 打折框-确定
 		confirmDiscount(){
-			let lowestDiscount = this.discountData.exePriceAll / this.discountData.totalPrice;
-			if(this.USERINFO.discount > lowestDiscount) {
-				this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
-				return;
+			this.USERINFO.discount = 0.5;//预设系统最低折扣
+			let lowestPriceAll = 0;
+			let exePriceAll = 0;
+			let fullPriceAll = 0;
+			if(this.submitParams.Order.OrderType === 1) {
+				this.multipleSelection.forEach(x => {
+					x.children.forEach(y => {
+						if(y.exePrice) {
+							lowestPriceAll += y.lowestPrice;
+							fullPriceAll += y.fullPrice;
+							exePriceAll += y.exePrice;
+						}
+					})
+				})
+			} else {
+				this.multipleSelection.forEach(x => {
+					lowestPriceAll += x.lowestPrice;
+					fullPriceAll += x.fullPrice;
+					exePriceAll += x.exePrice;
+				})
 			}
+			let lowestDiscount = exePriceAll/fullPriceAll;
 			if(this.isFree) {
+				if (this.USERINFO.discount > this.discountData.discount2) {
+					this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+					return;
+				}
+			} else {
+				lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+				if(lowestDiscount > this.discountData.discount2) {
+					this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
+					return;
+				}
 				if (lowestPriceAll > this.discountData.exePrice) {
-					this.$message.error(`您最低的折扣金额为${lowestPriceAll | numFilter}元`);
+					this.$message.error(`您最低的折扣金额为${lowestPriceAll.toFixed(2)}元`);
 					return;
 				}
 			}
-			//未考虑添加筛查套餐的情况
-			this.multipleSelection = this.multipleSelection.map(x => {
-					x.exePrice = this.discountData.exePrice / this.discountData.lowestPriceAll * x.lowestPrice;
-					return x;
+			let items = [];
+			if (this.submitParams.Order.OrderType === 0) {
+				this.multipleSelection.forEach(x => {
+					items.push(x);
 				})
-			// this.multipleSelection.forEach(x => {
-			// 	x.exePrice = x.fullPrice * this.discountData.discount2;
-			// 	if(this.submitParams.Order.OrderType === 1) {
-			// 		x.children.forEach(y => {
-			// 			y.exePrice = y.fullPrice * this.discountData.discount2;
-			// 		})
-			// 	}
-			// })
+			} else {
+				// 对筛查套餐的打折处理
+				this.multipleSelection.forEach(x => {
+					x.children.forEach(y => {
+						if(y.exePrice) {
+							items.push(y);
+						}
+					})
+				})
+			}
+			if(this.discountData.discount2 !== exePriceAll/fullPriceAll && exePriceAll !== this.discountData.exePrice2) {
+				if(this.isFree) {
+					items.forEach(x => {
+						x.exePrice = x.fullPrice * this.discountData.discount2;
+					})
+				} else {
+					this.distributePrice(items, this.discountData.exePrice2,this.discountData.discount2);
+				}
+			}
 
-			this.isFree = false;
+			if(this.submitParams.Order.OrderType === 1) {
+				this.multipleSelection.forEach(x => {
+					let exeprice = 0;
+					x.children.forEach(y => {
+						exeprice += y.exePrice;
+					})
+					x.exePrice = exeprice;
+				})
+			}
 			this.discountModal = false;
 		},
 		//树的筛选
@@ -994,14 +1171,12 @@ export default {
 			} else {
 				this.$refs.tree1.setCheckedKeys([]);
 			}
+			this.submitParams.Order.Packages = []
 			if(b.checkedNodes.length === 0) {
 				this.selectedLeft = [];
-				this.packageConfig.PackageCode = '00000000-0000-0000-0000-000000000000';
-				this.packageConfig.PackageName = '';
 			} else {
 				this.selectedLeft = a.children;
-				this.packageConfig.PackageCode = a.packageCode;
-				this.packageConfig.PackageName = a.packageName;
+				this.submitParams.Order.Packages.push(this.$handleUpperCase(a));
 			}
 			this.getDiscount('packageDiscount', this.selectedLeft);
 		},
@@ -1009,6 +1184,7 @@ export default {
 		distributePrice(data, exePriceAll, discount){//要处理的一维数组，执行价之和，折扣率
 			let difPrice = exePriceAll;
 			data = data.map((x, index) => {
+				//x.exePrice2 = x.exePrice;
 				x.exePrice = x.fullPrice * discount;
 				if(x.exePrice <= x.lowestPrice) {
 					difPrice = difPrice - x.lowestPrice;
@@ -1032,7 +1208,7 @@ export default {
 			this.tableData2.forEach(x => {
 				arr.push(x.id);
 			})
-			// 未做重复项目价格处理
+
 			if(a.children) {
 				let index = arr.indexOf(a.id);
 				if(b && index===-1) {
@@ -1056,32 +1232,30 @@ export default {
 				})
 				let items2 = _.uniq(items);
 				this.tableData2.forEach((x, index) => {
-					let fullPrice = 0,exePrice = 0;
+					let exePrice = 0;
 					x.children.forEach((y, ind) => {
 						let i = items2.indexOf(y.itemCode);
+						//y.exePrice2 = y.exePrice;
 						if(i > -1) {
-							if(!y.fullPrice) {
-								y.fullPrice = y.fullPrice2;
-							}
 							if(!y.exePrice) {
 								y.exePrice = y.exePrice2;
 							}
-							fullPrice += y.fullPrice || y.fullPrice2;
-							exePrice += y.exePrice || y.exePrice2;
+							exePrice += y.exePrice;
 							items2.splice(i, 1);
 						} else {
-							y.fullPrice2 = y.fullPrice;
-							y.exePrice2 = y.exePrice;
-							y.fullPrice = 0;
 							y.exePrice = 0;
 						}
 					})
-					x.fullPrice = fullPrice;
 					x.exePrice = exePrice;
 				})
+
 				this.tableData2.forEach(x => {
-					this.packageDiscount.totalPrice += x.fullPrice;
-					this.packageDiscount.exePrice += x.exePrice;
+					x.children.forEach(y => {
+						if(y.exePrice) {
+							this.packageDiscount.totalPrice += y.fullPrice;
+							this.packageDiscount.exePrice += y.exePrice;
+						}
+					})
 				})
  				if (this.packageDiscount.totalPrice) {
 					this.packageDiscount.discount = parseInt(this.packageDiscount.exePrice / this.packageDiscount.totalPrice * 100) / 100;
@@ -1125,44 +1299,35 @@ export default {
 					</span>
 				</span>);
 		},
-		//修改项目执行价
-		handleExePrice(data, exePrice, fullPrice){
-			if(data && data.length > 0 && fullPrice > 0) {
-				data = data.map(x =>{
-					x.exePrice = exePrice / fullPrice * x.lowestPrice;
-					return x;
-				})
-			}
-		},
 		// 添加套餐确定按钮
 		addPackageBtn() {
-			this.USERINFO.discount = 0.2;//预设系统最低折扣
+			this.USERINFO.discount = 0.5;//预设系统最低折扣
 			this.visible3 = false;
 			let lowestPriceAll = 0;//项目最低价之和
 			let exePriceAll = 0;//项目原执行价之和
 			let fullPriceAll = 0;//项目原价之和
+			let lowestDiscount = 0;
 			if(this.submitParams.Order.OrderType === 0) {
 				let treeSelection = [];
-				treeSelection = this.$refs.tree1.getCheckedNodes();
-				exePriceAll = treeSelection[0].exePrice;
+				treeSelection = this.$refs.tree1.getCheckedNodes()[0].children;
+				treeSelection.forEach(x => {
+					lowestPriceAll += x.lowestPrice;
+					exePriceAll += x.exePrice;
+					fullPriceAll += x.fullPrice;
+				})
 				if (treeSelection.length === 0) {
 					this.$message.error('请先选择套餐后点击确定！');
 					return;
 				}
-				this.selectedLeft = this.selectedLeft.filter(x => x.itemCode);
-				this.selectedLeft.forEach(x => {
-					lowestPriceAll += x.lowestPrice;
-					fullPriceAll += x.fullPrice;
-				});
+				//对价格权限的控制
 				if(this.isFree) {
-					let lowestDiscount = exePriceAll/fullPriceAll;
+					lowestDiscount = exePriceAll/fullPriceAll;
 					if(this.USERINFO.discount > this.packageDiscount.discount2) {
 						this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
 						return;
 					}
 				} else {
-					let lowestDiscount = exePriceAll/fullPriceAll;
-					console.log(lowestDiscount)
+					lowestDiscount = exePriceAll/fullPriceAll;
 					lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
 					if(lowestDiscount > this.packageDiscount.discount2) {
 						this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
@@ -1173,120 +1338,136 @@ export default {
 						return;
 					}
 				}
-				let discount = this.packageDiscount.exePrice / fullPriceAll;
-				this.distributePrice(this.selectedLeft, this.packageDiscount.exePrice,discount);
-				this.submitParams.Order.PackageCode = this.packageConfig.PackageCode;
-				this.submitParams.Order.PackageName = this.packageConfig.PackageName;
+				// this.submitParams.Order.PackageCode = this.packageConfig.PackageCode;
+				// this.submitParams.Order.PackageName = this.packageConfig.PackageName;
 				this.packageConfig.PackageCode = '00000000-0000-0000-0000-000000000000';
 				this.packageConfig.PackageName = '';
+				if(this.packageDiscount.discount2 !== exePriceAll/fullPriceAll && exePriceAll !== this.packageDiscount.exePrice) {
+					if(this.isFree) {
+						this.selectedLeft.forEach(x => {
+							x.exePrice = x.fullPrice * this.packageDiscount.discount2;
+						})
+					} else {
+						this.distributePrice(this.selectedLeft, this.packageDiscount.exePrice, this.packageDiscount.discount2);
+					}
+				}
 				this.tableData = this.selectedLeft;
 				this.selectedLeft = [];
 			} else {
-				this.tableData2.forEach(x => {
-					exePriceAll += x.exePrice;
-					fullPriceAll += x.fullPrice;
-					x.children.forEach(y => {
-						if(y.exePrice) {
-							lowestPriceAll += y.lowestPrice;
-						}
-					})
-				})
-
-				//对价格权限的控制（未校验）
-				if(this.isFree) {
-					let lowestDiscount = exePriceAll/fullPriceAll;
-					if(this.USERINFO.discount > this.packageDiscount.discount2) {
-						this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
-						return;
-					}
-				} else {
-					let lowestDiscount = exePriceAll/fullPriceAll;
-					lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
-					if(lowestDiscount > this.packageDiscount.discount2) {
-						this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
-						return;
-					}
-					if (lowestPriceAll > this.packageDiscount.exePrice) {
-						this.$message.error(`您最低的折扣金额为${lowestPriceAll.toFixed(2)}元`);
-						return;
-					}
-				}
-
-				// 对于选择重复套餐的去重
-				let packageId = [];
-				this.tableData.forEach(x => {
-					packageId.push(x.id);
-				})
-				this.tableData2 = this.tableData2.filter(x => {
-					return packageId.indexOf(x.id) === -1;
-				})
-
-				this.tableData = this.tableData.concat(this.tableData2);
-				this.tableData2 = [];
+				// 因为在获取筛查套餐数据后，若已选的套餐会被筛出，所以不存在重复选择套餐的情况；
+				// 对当前选择的套餐进行价格处理
 				let items= [];
-				this.tableData.forEach(x => {
+				this.tableData2.forEach(x => {
 					x.children.forEach(y => {
 						items.push(y);
 					})
 				})
 
 				let items2 = _.uniqBy(items, 'itemCode');
-				this.tableData.forEach(x => {
+				this.tableData2.forEach(x => {
 					x.children.forEach(y => {
 						let flag = items2.findIndex(z => z.itemCode === y.itemCode);
 						if(flag > -1) {
-							y.fullPrice = y.fullPrice || y.fullPrice2;
-							y.exePrice = y.exePrice || y.exePrice2;
+							if(!y.exePrice) {
+								y.exePrice = y.exePrice2;
+							}
 							items2 = items2.filter(z => {
 								return z.itemCode != y.itemCode;
 							});
 						} else {
-							if(y.fullPrice) {
-								y.fullPrice2 = y.fullPrice;
-								y.exePrice2 = y.exePrice;
-								y.fullPrice = 0;
-								y.exePrice = 0;
-							}
+							y.exePrice = 0;
 						}
 					})
 				})
 				items = items.filter(x => {
-					return x.fullPrice;
+					return x.exePrice;
 				})
-				this.distributePrice(items, this.packageDiscount.exePrice, this.packageDiscount.discount2);
-				this.tableData.forEach(x => {
-					let fullPrice = 0,exePrice = 0;
-					x.children.forEach((y, ind) => {
-						fullPrice += y.fullPrice;
-						exePrice += y.exePrice;
-					})
-					x.fullPrice = fullPrice;
-					x.exePrice = exePrice;
-				})
-
-				this.tableData.forEach(x => {
-					fullPriceAll += x.fullPrice;
+				lowestPriceAll = 0;
+				exePriceAll = 0;
+				fullPriceAll = 0;
+				items.forEach(x => {
+					lowestPriceAll += x.lowestPrice;
 					exePriceAll += x.exePrice;
+					fullPriceAll += x.fullPrice;
+				})
+				//对价格权限的控制
+				lowestDiscount = exePriceAll/fullPriceAll;
+				if(this.isFree) {
+					if(this.USERINFO.discount > this.packageDiscount.discount2) {
+						this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+						return;
+					}
+				} else {
+					lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+					if(lowestDiscount > this.packageDiscount.discount2) {
+						this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
+						return;
+					}
+					if (lowestPriceAll > this.packageDiscount.exePrice) {
+						this.$message.error(`您最低的折扣金额为${lowestPriceAll.toFixed(2)}元`);
+						return;
+					}
+				}
+				if(this.packageDiscount.discount2 !== exePriceAll/fullPriceAll && exePriceAll !== this.packageDiscount.exePrice) {
+					if(this.isFree) {
+						items.forEach(x => {
+							x.exePrice = x.fullPrice * this.packageDiscount.discount2;
+						})
+					} else {
+						this.distributePrice(items, this.packageDiscount.exePrice, this.packageDiscount.discount2);
+					}
+				}
+				//合并已选的套餐后，对价格的处理
+				if (this.tableData.length > 0) {
+					this.tableData = this.tableData.concat(_.cloneDeep(this.tableData2));
+					items = [];
+					this.tableData.forEach(x => {
+						x.children.forEach(y => {
+							items.push(y);
+						})
+					})
+					items2 = _.uniqBy(items, 'itemCode');
+					this.tableData.forEach((x, index) => {
+						x.children.forEach((y, ind) => {
+							let i = items2.findIndex( z => z.itemCode === y.itemCode);
+							if(i > -1) {
+								if(!y.exePrice) {
+									y.exePrice = y.exePrice2;
+								}
+								items2.splice(i, 1);
+							} else {
+								y.exePrice = 0;
+							}
+						})
+					})
+				} else {
+					this.tableData = _.cloneDeep(this.tableData2);
+				}
+				this.tableData2 = [];
+				this.tableData.forEach(x => {
+					let exeprice = 0;
+					let fullPrice = 0;
 					x.children.forEach(y => {
-						if(!x.exePrice) {
-							lowestPriceAll += x.lowestPrice;
+						if(y.exePrice) {
+							exeprice += y.exePrice;
+							fullPrice += y.fullPrice;
 						}
 					})
+					x.exePrice = exeprice;
+					x.fullPrice = fullPrice;
 				})
-
-				this.submitParams.Order.PackageCode ='00000000-0000-0000-0000-000000000000';
-				this.submitParams.Order.PackageName = '';
+				// this.submitParams.Order.PackageCode ='00000000-0000-0000-0000-000000000000';
+				// this.submitParams.Order.PackageName = '';
 			}
 			this.$refs.tree1.setCheckedKeys([]);
-			this.addPackageModal = false;
 			this.isFree = false;
+			this.addPackageModal = false;
 		},
 		// 添加项目-取消
 		cancelBtn(){
 			this.addProjectModal = false;
 			this.selectedRight = [];
 			this.selectedListAll = [];
-			// this.$refs.first.setCheckedKeys([]);
 			this.$refs.second.setCheckedKeys([]);
 			this.$refs.third.setCheckedKeys([]);
 		},
@@ -1326,10 +1507,10 @@ export default {
 			this[key].discount2 = (this[key].exePrice / this[key].totalPrice) || 0;
 			this.handleTwo(key);
 		},
+
 		// 添加项目切换tab时fn
 		tabsClick(tab){
 			this.selectedLeft = [];
-			// this.$refs.first.setCheckedKeys([]);
 			this.$refs.second.setCheckedKeys([]);
 			this.$refs.third.setCheckedKeys([]);
 			if (tab.name === 'second' && this.GetDeptList.length === 0) {
@@ -1339,60 +1520,7 @@ export default {
 				this.getDicItemList();
 			}
 		},
-		//获取订单类型
-		GetOrderType() {
-			this.$getType('OrderType').then(res => {
-				if (res.status === 200 && res.data.status === 1) {
-					this.orderType = res.data.entity;
-				}
-			})
-			// this.$getType('ReportType').then(res => {
-			// 	if (res.status === 200 && res.data.status === 1) {
-			// 		this.reportType = res.data.entity;
-			// 	}
-			// })
-		},
-		//获取订单列表
-		getOrderList(){
-			this.load= this.$loading({
-				lock: true,
-				text: '获取订单中，请稍后...',
-				spinner: 'el-icon-loading',
-				background: 'rgba(0, 0, 0, 0.7)'
-			});
-			this.$axios.get(this.$api.GetOrderList, {
-				params: {IdCardNum: this.submitParams.Order.IdcardNum}
-			}).then(res => {
-				if (res.status === 200 && res.data.status === 1) {
-					if (res.data.entity.resultData.length === 0) {
-						this.getCustomer();
-					} else {
-						if (this.isMoreOrder) {
-							this.orderInfoModal = true;
-							this.orderList = res.data.entity.resultData;
-						} else {
-							if (res.data.entity.resultData[0].orderType == 1) {
-								this.tableData = res.data.entity.resultData[0].packages;
-							} else {
-								this.tableData = res.data.entity.resultData[0].items.map(x => {
-									x.id = x.itemCode;
-									x.babel = x.itemName;
-									return x;
-								});
-							}
 
-							this.setCustomer(res.data.entity.resultData[0]);
-						}
-					}
-				} else {
-					this.$message.error(res.data.message);
-					this.load.close();
-				}
-			}).catch(err => {
-				this.$message.error(err.data.message);
-				this.load.close();
-			})
-		},
 		//查询客户信息
 		getCustomer(){
 			this.$axios.get(this.$api.GetCustomer, {
@@ -1417,6 +1545,25 @@ export default {
 			this.$axios.get(this.$api.GetPackageListDD, {params: {PackageType: this.submitParams.Order.OrderType}}).then(res => {
 				if (res.status === 200 && res.data.status === 1) {
 					this.GetPackageList =  res.data.entity[0].items;
+					if(this.submitParams.Order.OrderType === 1) {
+						this.GetPackageList.forEach(x => {
+							let fullPrice = 0;
+							x.items.forEach(y => {
+								fullPrice += y.fullPrice;
+								y.exePrice2 = y.exePrice;
+							})
+							x.fullPrice = fullPrice;
+						})
+					}
+					if(this.submitParams.Order.OrderType === 1 && this.tableData.length > 0) {
+						let packageId = [];
+						this.tableData.forEach(x => {
+							packageId.push(x.packageCode);
+						})
+						this.GetPackageList = this.GetPackageList.filter(x => {
+							return packageId.indexOf(x.packageCode) === -1;
+						})
+					}
 					this.addPackageType = res.data.entity[0].name;
 					this.handleTreeChildren(this.GetPackageList, 0);
 				} else {
@@ -1460,7 +1607,7 @@ export default {
 		},
 		// 添加项目-确定
 		confirmAddProjectBtn(){
-			this.USERINFO.discount = 0.2;
+			this.USERINFO.discount = 0.5;
 			let lowestPriceAll = 0;//项目最低价之和
 			let exePriceAll = 0;//项目原执行价之和
 			let fullPriceAll = 0;//项目原价之和
@@ -1469,26 +1616,33 @@ export default {
 				exePriceAll += x.exePrice || 0;
 				fullPriceAll += x.fullPrice || 0;
 			})
+			let lowestDiscount = exePriceAll/fullPriceAll;
 			if(this.isFree) {
-				let lowestDiscount = exePriceAll/fullPriceAll;
 				if(this.USERINFO.discount > this.projectDiscount.discount2) {
 					this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
 					return;
 				}
 			} else {
-				let lowestDiscount = exePriceAll/fullPriceAll;
 				lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
 				if(lowestDiscount > this.projectDiscount.discount2) {
 					this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
 					return;
 				}
-				if (lowestPriceAll > exePriceAll) {
+				if (lowestPriceAll > this.projectDiscount.exePrice) {
 					this.$message.error(`您最低的折扣金额为${lowestPriceAll.toFixed(2)}元`);
 					return;
 				}
 			}
+			if(this.packageDiscount.discount2 !== exePriceAll/fullPriceAll && exePriceAll !== this.packageDiscount.exePrice) {
+				if(this.isFree) {
+					this.selectedListAll.forEach(x => {
+						x.exePrice = x.fullPrice * this.packageDiscount.discount2;
+					})
+				} else {
+					this.distributePrice(this.selectedListAll, this.projectDiscount.exePrice, this.projectDiscount.discount2);
+				}
+			}
 			this.addProjectModal = false;
-			this.distributePrice(this.selectedListAll, this.projectDiscount.exePrice, this.projectDiscount.discount2);
 
 			let arr = this.tableData.concat(this.selectedListAll);
 			this.tableData = _.uniqBy(arr, 'id');
@@ -1502,6 +1656,7 @@ export default {
 			this[key].discount2 = 0;
 			this[key].exePrice = 0;
 			this[key].exePrice2 = 0;
+			this.isFree = false;
 		},
 		// 处理字典tree结构
 		handleTreeChildren(data, type){
@@ -1588,8 +1743,13 @@ export default {
 			this.submitParams.Order.DeptName = '';
 			this.submitParams.Order.TeamName = '';
 			this.submitParams.Order.OrderVipFlag = 0;
+
 			this.submitParams.Order.OrderType = 0;
-			this.submitParams.Order.ReportType = '';
+			this.submitParams.Order.ReportType = 0;
+			this.submitParams.Order.SpecialReportType = 0;
+			this.SpecialReportType = 0;
+			this.ReportType = [];
+
 			this.submitParams.Order.CreateOrderTime = moment().format('YYYY-MM-DD');
 			this.submitParams.Order.Status = '';
 			this.submitParams.Order.IsLock = false;
@@ -1613,7 +1773,24 @@ export default {
 			if (obj.nation) this.submitParams.Order.Nation = obj.nation;
 			if (obj.birthday) this.submitParams.Order.Birthday = new Date(obj.birthday);
 			if (obj.maritalStatus) this.submitParams.Order.MaritalStatus = obj.maritalStatus;
-			if (obj.orderType && obj.orderType  != 0) this.submitParams.Order.OrderType = obj.orderType;
+
+			if (obj.orderType) {
+				this.submitParams.Order.OrderType = obj.orderType;
+			} else {
+				this.submitParams.Order.OrderType = 0;
+			}
+			if(obj.reportType) {
+					this.ReportType = [this.reportType1[obj.reportType - 1].name];
+				} else {
+					this.ReportType = [];
+			}
+			this.submitParams.Order.ReportType = obj.reportType;
+			if (obj.specialReportType) {
+				this.SpecialReportType = this.submitParams.Order.SpecialReportType = obj.specialReportType;
+			} else {
+				this.SpecialReportType = this.submitParams.Order.SpecialReportType = 0;
+			}
+
 			if (obj.packageCode && obj.packageCode !== '00000000-0000-0000-0000-000000000000')  this.submitParams.Order.PackageCode = obj.packageCode;
 			if (obj.vipFlag) this.submitParams.Order.VipFlag = obj.vipFlag;
 			if (obj.occupation) this.submitParams.Order.Occupation = obj.occupation;
@@ -1679,6 +1856,10 @@ export default {
 					this.$message.error(`已选项目中包含${num}个已检项目，不可删除`);
 					return;
 				}
+				if(this.multipleSelection.some(x => x.IsUnitItem)) {
+					this.$message.error('已选项目不可删除');
+					return;
+				}
 				this.$confirm('<span>确定对当前所选项目进行删除操作吗？</span><br /><i style="color:#8F9399;">删除后不可恢复，请谨慎操作</i>', '提示', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
@@ -1695,10 +1876,12 @@ export default {
 				}).catch(() => {});
 			} else {
 				// 对筛查订单的删除操作
-				let num = 0;
+				let num = 0, flag = false;
 				this.multipleSelection.forEach(x => {
-					if (x.children.some(y => x.checkStatus && x.checkStatus === 1)) {
-						num++;
+					if(x.children) {
+						if (x.children.some(y => x.checkStatus && x.checkStatus === 1)) {
+							num++;
+						}
 					}
 				})
 				if(num) {
@@ -1711,47 +1894,35 @@ export default {
 					dangerouslyUseHTMLString: true,
 					type: 'warning'
 				}).then(() => {
-
+					this.tableData = this.tableData.filter(x => {
+						return this.multipleSelection.every(y => y.packageCode !== x.packageCode)
+					})
 					let items= [];
 					this.tableData.forEach(x => {
 						x.children.forEach(y => {
-							items.push(y);
+							items.push(y.itemCode);
 						})
 					})
-					let items2 = _.uniqBy(items, 'itemCode');
-					items.forEach(x => {
-						items2.forEach(y => {
-							if(x.itemCode == y.itemCode) {
-								x.exePrice2 = y.exePrice;
-							}
-						})
-					})
-					this.tableData = this.tableData.filter(x => {
-						return this.multipleSelection.every(y => y.id !== x.id)
-					})
+					let items2 = _.uniq(items);
+
 					this.tableData.forEach((x, index) => {
-						let fullPrice = 0,exePrice = 0;
+						let exePrice = 0;
+						let fullPrice = 0;
 						x.children.forEach((y, ind) => {
-							let i = items2.findIndex(z => z.itemCode == y.itemCode);
+							let i = items2.indexOf(y.itemCode);
 							if(i > -1) {
-								if(!y.fullPrice) {
-									y.fullPrice = y.fullPrice2;
-								}
 								if(!y.exePrice) {
 									y.exePrice = y.exePrice2;
 								}
-								fullPrice += y.fullPrice;
 								exePrice += y.exePrice;
+								fullPrice += y.fullPrice;
 								items2.splice(i, 1);
 							} else {
-								y.fullPrice2 = y.fullPrice || y.fullPrice2;
-								y.exePrice2 = y.exePrice || y.exePrice2;
-								y.fullPrice = 0;
 								y.exePrice = 0;
 							}
 						})
-						x.fullPrice = fullPrice;
 						x.exePrice = exePrice;
+						x.fullPrice = fullPrice;
 					})
 					this.$message({
 						type: 'success',
@@ -1777,6 +1948,7 @@ export default {
 			this[key].exePrice = (this[key].totalPrice * this[key].discount).toFixed(4);
 			this[key].exePrice = Number(this[key].exePrice.substring(0, this[key].exePrice.length - 1));
 			this[key].difPrice = this[key].totalPrice - this[key].exePrice;
+			this[key].difPrice2 = parseInt(this[key].difPrice * 100) / 100;
 			this[key].discount2 = this[key].discount;
 			this.handleTwo(key);
 		},
@@ -1803,6 +1975,7 @@ export default {
 			this[key].discount = parseInt(this[key].exePrice / this[key].totalPrice * 100) / 100;
 			this[key].discount2 =this[key].exePrice / this[key].totalPrice;
 			this[key].difPrice = this[key].totalPrice - this[key].exePrice;
+			this[key].difPrice2 = parseInt(this[key].difPrice * 100) / 100;
 			let num = this[key].difPrice.toFixed(3);
 			this[key].difPrice2 = Number(num.substring(0, (num + '').length - 1));
 		},
@@ -1852,9 +2025,19 @@ export default {
 		//项目列表变化时总价 数量 实收世事变化
 		totalPrice: function (){
 			let price = 0;
-			this.tableData.forEach(x => {
-				price += x.fullPrice || 0;
-			})
+			if(this.submitParams.Order.OrderType === 1) {
+				this.tableData.forEach(x => {
+					x.children.forEach(y => {
+						if(y.exePrice) {
+							price += y.fullPrice;
+						}
+					})
+				})
+			} else {
+				this.tableData.forEach(x => {
+					price += x.fullPrice || 0;
+				})
+			}
 			return price;
 		},
 		exePrice:  function(){
@@ -1895,11 +2078,6 @@ export default {
 				this.orderVipFlag = val === 1 ? true : false;
 			}
 		},
-		orderVipFlag: function(val, oldVal) {
-			if (val !== oldVal) {
-				this.submitParams.Order.OrderVipFlag = val ? 1 : 0;
-			}
-		},
 		'submitParams.Order.Birthday': function(val, oldVal) {
 			if (val !== oldVal) {
 				if (val) {
@@ -1907,6 +2085,21 @@ export default {
 				} else {
 					this.age = 0;
 				}
+			}
+		},
+		'submitParams.Order.OrderType': function(val, oldVal) {
+			if (val !== oldVal && this.reportType1.length) {
+				this.reportTypes = [];
+				if(val) {
+					this.reportTypes.push(this.reportType1[1].name);
+				} else {
+					this.reportTypes.push(this.reportType1[0].name);
+				}
+			}
+		},
+		orderVipFlag: function(val, oldVal) {
+			if (val !== oldVal) {
+				this.submitParams.Order.OrderVipFlag = val ? 1 : 0;
 			}
 		},
 		filterProject: function(val, oldVal) {
@@ -2017,5 +2210,11 @@ export default {
 }
 .packagesTabs.el-tabs--card>.el-tabs__header{
 	border-bottom: none;
+}
+.radioType {
+	margin-left: 8px;
+}
+.radioType .el-radio {
+	width: auto;
 }
 </style>

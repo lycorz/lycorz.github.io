@@ -79,7 +79,7 @@
           filterable
           @change="transferChange"
           :titles="['选择列表', '添加列表']"
-          style="text-align: left; display: inline-block;height:200px;margin-left:70px"
+          style="text-align: left; display: inline-block;height:300px;margin-left:70px"
           filter-placeholder="请输入"
           :props="{key: 'itemCode',label: 'itemName'}"
           :data="transferData"

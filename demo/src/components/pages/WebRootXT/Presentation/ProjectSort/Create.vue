@@ -47,7 +47,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="排序号" :label-width="formLabelWidth">
-              <el-input v-model="fromData.orderNum"></el-input>
+              <el-input v-model.number="fromData.orderNum"></el-input>
             </el-form-item>
             <el-form-item label="结论录入类型" :label-width="formLabelWidth">
               <el-select v-model="fromData.inputType" placeholder="请选择">
@@ -136,7 +136,7 @@ export default {
         typeCode: "",
         deptCode: "",
         inputType: 1,
-        orderNum: "",
+        orderNum: 0,
         isEnable: true // bool
       },
       boolItems: [
@@ -251,7 +251,7 @@ export default {
         typeCode: "",
         deptCode: "",
         inputType: 1,
-        orderNum: 1,
+        orderNum: 0,
         isEnable: true // bool
       };
       this.tableData = [];
@@ -403,7 +403,7 @@ export default {
     //加载穿梭框数据。
     editInit() {
       this.$axios
-        .get(this.$api.GetAllRptSubItemList,{params:{itemCode:this.Code}})
+        .get(this.$api.GetAllRptSubItemList,{params:{itemCode:this.Code,isRptItem:true}})
         .then(res => {
           if (res.data.status == 1) {
             this.transferData = res.data.entity;

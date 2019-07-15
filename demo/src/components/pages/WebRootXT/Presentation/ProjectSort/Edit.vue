@@ -3,7 +3,7 @@
     <el-dialog
       class="infoucs"
       width="660px"
-      title="报告项目"
+      title="报告项目分类"
       :visible.sync="isShow"
       :before-close="close"
       @open="Init"
@@ -48,7 +48,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="排序号" :label-width="formLabelWidth">
-              <el-input v-model="fromData.orderNum"></el-input>
+              <el-input v-model.number="fromData.orderNum"></el-input>
             </el-form-item>
             <el-form-item label="结论录入类型" :label-width="formLabelWidth">
               <el-select v-model="fromData.inputType" placeholder="请选择">
@@ -137,7 +137,7 @@ export default {
         typeCode: "",
         deptCode: "",
         inputType: 1,
-        orderNum: "",
+        orderNum: 0,
         isEnable: true // bool
       },
       boolItems: [
@@ -197,6 +197,7 @@ export default {
             that.fromData = res.data.entity;
             that.tableData = res.data.entity.dicRptSubItems;
             delete that.fromData.dicRptSubItems;
+            that.transferValue = that.tableData.map(z => z.subItemCode);
           } else {
             console.log(res.data.message);
           }
@@ -273,7 +274,7 @@ export default {
         typeCode: "",
         deptCode: "",
         inputType: 1,
-        orderNum: 1,
+        orderNum: 0,
         isEnable: true // bool
       };
       this.tableData = [];
@@ -426,7 +427,7 @@ export default {
     editInit() {
       this.$axios
         .get(this.$api.GetAllRptSubItemList, {
-          params: { itemCode: this.Code }
+          params: { itemCode: this.Code, isRptItem: true }
         })
         .then(res => {
           if (res.data.status == 1) {

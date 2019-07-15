@@ -98,12 +98,6 @@
 					</template>
 				</el-table-column>
 				<el-table-column prop="packageName" label="套餐名称"></el-table-column>
-				<el-table-column prop="orderType" label="订单类型">
-					<template slot-scope="scope">
-						{{scope.row.orderType === 0 ? '普通订单' : scope.row.orderType === 1 ? '筛查订单' : '' }}
-					</template>
-				</el-table-column>
-				<!-- <el-table-column prop="FeeType" label="报告类型"></el-table-column> -->
 				<el-table-column prop="remark" label="备注"></el-table-column>
 				<el-table-column prop="orderMoney" label="金额">
 					<template slot-scope="scope">
@@ -143,85 +137,60 @@
 				<el-button type="primary" @click="saveOrder">保存</el-button>
 			</div>
 		</el-dialog>
-		<el-dialog title="添加项目" :visible.sync="addProjectModal" :close-on-click-modal="false" width="800px" @open="getPackageAll">
+		<el-dialog title="添加项目" :visible.sync="addProjectModal" :close-on-click-modal="false" width="800px" @open="getDicItemList" @close="closeModal('projectDiscount')">
 			<div class="addProject">
 				<div class="project-left">
-					<el-tabs v-model="activeTabName" type="card" @tab-click="tabsClick" class="addTabs">
-						<el-tab-pane label="按套餐添加" name="first">
+					<el-tabs v-model="activeTabName" type="card" @tab-click="tabsClick" class="addTabs" style="user-select: none;">
+						<el-tab-pane label="按项目添加" name="third">
 							<div class="modal-tree" style="border-top: none;">
-								<div class="modal-top">
-									<span>名称</span>
-									<el-input placeholder="请搜索" v-model="filterPackage" style="width: 150px;"></el-input>
+								<div class="modal-top"  style="text-indent: 8px;">
+									<el-input placeholder="请搜索" v-model="filterProject" style="width: 150px;" @keyup.enter.native="filterTree"></el-input>
 									<div class="right" style="margin-right: 8px">
-										<el-button @click="addBtn">添加</el-button>
+										<el-button @click="addBtn" v-no-more-click>添加</el-button>
 									</div>
 								</div>
 								<div class="modal-con">
 									<el-tree
-										:data="GetPackageFilter"
+										:data="GetItemListView"
+										empty-text="正在获取中，请稍后..."
 										show-checkbox
 										node-key="id"
-										ref="first"
-										:filter-node-method="filtertree"
-										>
+										ref="third"
+										@node-click="dbClick"
+										:filter-node-method="filtertree">
 									</el-tree>
 								</div>
 								<div class="fixBottom">
-									<el-button type="text" @click="allTreeSelection('GetPackageFilter', 'first', GetPackageFilterNum)">全选</el-button>
-									<span class="subitem">合计： <span class="labelColor ftArial">0</span></span>
-									<span class="subitem">选中： <span class="labelColor ftArial">0</span></span>
+									<el-button type="text" @click="allTreeSelection('GetItemListView', 'third', GetItemListNum)">全选</el-button>
+									<span class="subitem">合计： <span class="labelColor ftArial">{{GetItemListView.length}}</span></span>
+									<span class="subitem">选中： <span class="labelColor ftArial">{{selectedThirdTotal || 0}}</span></span>
 								</div>
 							</div>
 						</el-tab-pane>
 						<el-tab-pane label="按科室添加" name="second">
 							<div class="modal-tree" style="border-top: none;">
-								<div class="modal-top">
-									<span>名称</span>
-									<el-input placeholder="请搜索" v-model="filterDept" style="width: 150px;"></el-input>
+								<div class="modal-top"  style="text-indent: 8px;">
+									<!-- <el-input placeholder="请搜索" v-model="filterDept" style="width: 150px;"></el-input> -->
 									<div class="right" style="margin-right: 8px">
-										<el-button @click="addBtn">添加</el-button>
+										<el-button @click="addBtn" v-no-more-click>添加</el-button>
 									</div>
 								</div>
 								<div class="modal-con">
 									<el-tree
 										:data="GetDeptList"
+										empty-text="正在获取中，请稍后..."
 										show-checkbox
 										ref="second"
 										node-key="id"
+										@node-click="dbClick"
 										:filter-node-method="filtertree"
 										>
 									</el-tree>
 								</div>
 								<div class="fixBottom">
 									<el-button type="text" @click="allTreeSelection('GetDeptList', 'second', GetDeptListNum)">全选</el-button>
-									<span class="subitem">合计： <span class="labelColor ftArial">0</span></span>
-									<span class="subitem">选中： <span class="labelColor ftArial">0</span></span>
-								</div>
-							</div>
-						</el-tab-pane>
-						<el-tab-pane label="按项目添加" name="third">
-							<div class="modal-tree" style="border-top: none;">
-								<div class="modal-top">
-									<span>名称</span>
-									<el-input placeholder="请搜索" v-model="filterProject" style="width: 150px;"></el-input>
-									<div class="right" style="margin-right: 8px">
-										<el-button @click="addBtn">添加</el-button>
-									</div>
-								</div>
-								<div class="modal-con">
-									<el-tree
-										:data="GetItemList"
-										show-checkbox
-										node-key="id"
-										ref="third"
-										:filter-node-method="filtertree"
-										>
-									</el-tree>
-								</div>
-								<div class="fixBottom">
-									<el-button type="text" @click="allTreeSelection('GetItemList', 'third', GetItemListNum)">全选</el-button>
-									<span class="subitem">合计： <span class="labelColor ftArial">0</span></span>
-									<span class="subitem">选中： <span class="labelColor ftArial">0</span></span>
+									<span class="subitem">合计： <span class="labelColor ftArial">{{GetDeptList.length}}</span></span>
+									<span class="subitem">选中： <span class="labelColor ftArial">{{selectedSecondTotal || 0}}</span></span>
 								</div>
 							</div>
 						</el-tab-pane>
@@ -230,34 +199,32 @@
 				<div class="project-right">
 					<div class="modal-tree" style="margin-top: 40px;">
 						<div class="modal-top">
-							<span>名称</span>
-							<div class="right" style="margin-right: 8px">
-								<el-button @click="removeBtn">移除</el-button>
-							</div>
+							<span>已选项目</span>
 						</div>
 						<div class="modal-con">
 							<el-tree
 								:data="selectedListAll"
-								show-checkbox
 								node-key="id"
 								ref="treeRight"
+								:render-content="renderContent"
 								>
 							</el-tree>
 						</div>
 						<div class="fixBottom">
-							<el-button type="text" @click="toogleTreeSelection('selectedListAll', 'treeRight')">反选</el-button>
-							<span class="subitem">合计： <span class="labelColor ftArial">{{selectedListAll.length}}</span></span>
-							<span class="subitem">选中： <span class="labelColor ftArial">0</span></span>
+							<span class="subitem" style="margin-left: 8px;">合计： <span class="labelColor ftArial">{{selectedListAll.length}}</span></span>
 						</div>
 					</div>
 				</div>
 			</div>
+			<div class="packageDis">
+				<span class="item">原价：￥ <span>{{projectDiscount.totalPrice2 | numFilter}}</span></span>
+				<el-checkbox v-model="isFree">优惠自由</el-checkbox>
+				折扣：<div class="item-list iptNum" style="display: inline-block">
+								<el-input-number v-model="projectDiscount.discount" @blur="discountHandle('projectDiscount')" @change="discountHandle('projectDiscount')" :min="0" :max="1" :step="0.1"></el-input-number>
+							</div>&nbsp;&nbsp;&nbsp;&nbsp;
+				实收：<el-input v-model.number="projectDiscount.exePrice2" type="number" style="width: 100px;" @blur="realPriceHandle('projectDiscount')"></el-input>&nbsp;元
+			</div>
 			<div slot="footer" class="dialog-footer">
-				<div class="packageDis" style="display: inline-block;">
-					<span class="item">原价：￥ <span>{{projectDiscount.totalPrice || 0}}</span></span>
-					<span class="item">折扣：<el-input type="number" v-model.number="projectDiscount.discount" @keydown.13.native="projectDiscountHandle"></el-input></span>
-					<span class="item">实收：<el-input type="number" v-model.number="projectDiscount.exePrice" @keydown.13.native="projectExePriceHandle"></el-input>元</span>
-				</div>
 				<el-button @click="cancelBtn">取 消</el-button>
 				<el-button type="primary" @click="confirmAddProjectBtn">确 定</el-button>
 			</div>
@@ -273,13 +240,14 @@
 						show-checkbox
 						node-key="id"
 						ref="treeDel"
+						@check="delTreeChange"
 						>
 					</el-tree>
 				</div>
 				<div class="fixBottom">
 					<el-button type="text" @click="toogleTreeSelection('delCustomerPackage', 'treeDel')">反选</el-button>
 					<span class="subitem">合计： <span class="labelColor ftArial">{{delCustomerPackage.length}}</span></span>
-					<span class="subitem">选中： <span class="labelColor ftArial">0</span></span>
+					<span class="subitem">选中： <span class="labelColor ftArial">{{delSelectNum || 0}}</span></span>
 				</div>
 			</div>
 			<div slot="footer" class="dialog-footer">
@@ -288,7 +256,7 @@
 			</div>
 		</el-dialog>
 		<el-dialog title="当前客户订单" :visible.sync="currentOrderModal" width="1000px" :close-on-click-modal="false" @close="cancelType">
-			<div class="peopleData">
+			<div class="peopleData" v-if="isCanEdit">
 				<div class="searchParams">
 					<!-- <span>订单类型：</span> -->
 					<!-- <el-select v-model="currentType.orderType" clearable placeholder="订单类型" style="width: 130px;display: none">
@@ -316,7 +284,7 @@
 					</el-select> -->
 				</div>
 			</div>
-			<el-table ref="table" :data="orderDetails.items" tooltip-effect="dark" style="width: 100%" @row-click="clickRow($event, 'table')"
+			<el-table ref="table" :data="orderDetails.items" tooltip-effect="dark" max-height="400" style="width: 100%" @row-click="clickRow($event, 'table')"
 				@selection-change="handleSelectionCur">
 				<el-table-column prop="itemName" label="项目名称" :show-overflow-tooltip="true">
 				</el-table-column>
@@ -327,17 +295,17 @@
 				</el-table-column>
 				<el-table-column prop="fullPrice" label="原价" sortable width="150px" align="center">
 					<template slot-scope="scope">
-						￥{{scope.row.fullPrice}}
+						￥{{scope.row.fullPrice | numFilter}}
 					</template>
 				</el-table-column>
 				<el-table-column prop="exePrice" label="执行价格" sortable width="150px" align="center">
 					<template slot-scope="scope">
-						￥{{scope.row.exePrice}}
+						￥{{scope.row.exePrice | numFilter}}
 					</template>
 				</el-table-column>
 				<el-table-column prop="checkStatus" label="项目状态" width="200px">
 					<template slot-scope="scope">
-						{{scope.row.checkStatus === 1 ? '已检' : '未检'}}
+						{{scope.row.isGiveUp ? '弃检' : scope.row.checkStatus === 1 ? '已检' : scope.row.checkStatus === 2 ? '已获取结果' : '未检'}}
 					</template>
 				</el-table-column>
 			</el-table>
@@ -352,10 +320,14 @@
 import _ from 'lodash'
 import moment from 'moment'
 import PinyinMatch from 'pinyin-match'
+import {mapState} from 'vuex'
 export default {
 	name: 'OrderDetails',
 	data () {
 		return {
+			isFree: false,
+			dbClickFlag: 0,
+			isCanEdit: true,//订单详情操作框中是否允许操作
 			loading: false,
 			orderDetailsModal: false,
 			addProjectModal: false,//添加项目
@@ -369,7 +341,7 @@ export default {
 			deptNames: [],
 			batchs: [],//批次，需请求接口获取
 
-			activeTabName: 'first',//默认
+			activeTabName: 'third',//默认
 			params: {//筛选条件
 				filter: '',
 				sex: '',
@@ -388,62 +360,25 @@ export default {
 			multipleSelectionCur: [],//订单项目选中的数据
 			subOrderParams: { // 提交的数据对象
 				GroupOrderCode: "",
+				UnitCode: '',
 				Operator: "001",
-				Orders: [
-					// {
-					// 	OrderCode: "00000000-0000-0000-0000-000000000000",
-					// 	CustomerCode: "00000000-0000-0000-0000-000000000000",
-					// 	CustomerName: "",
-					// 	Sex: '',
-					// 	MaritalStatus: 1,
-					// 	Nation: "",
-					// 	Birthday: "",
-					// 	IdcardNum: "",
-					// 	Photo: '',
-					// 	VipFlag: 0,
-					// 	CardNum: "",
-					// 	Tele: "",
-					// 	Addr: "",
-					// 	Occupation: "",
-					// 	UnitName: "",
-					// 	DeptName: "",
-					// 	TeamName: "",
-					// 	PackageCode: "00000000-0000-0000-0000-000000000000",
-					// 	OrderVipFlag: 0,
-					// 	OrderType: 0,
-					// 	CreateOrderTime: moment().format(),
-					// 	Status: "",
-					// 	IsReped: false,
-					// 	IsUnitOrder: true,
-					// 	IsLock: false,
-					// 	Remark: "",
-					// 	OrderMoney: 0,//所有项目总金额
-					// 	PaidMoney: 0,
-					// 	PaidStatus: true,
-					// 	UnitPayMoney: 0,// 无限  传0   有限：输入金额；固定 OrderMoney
-					// 	DiyFlag: 0,
-					// 	Items: [],
-					// 	ReportTakeWay: 0
-					// }
-				]
+				Orders: []
 			},
 
 			GetItemList: [], // 检查项目字典源-添加项目
 			GetItemListNum: 0, // 检查项目字典项目数-添加项目
 			GetDeptList: [], // 检查科室字典源-添加项目
 			GetDeptListNum: 0, // 检查科室字典项目数-添加项目
-			GetPackageFilter: [], // 检查套餐字典源-添加项目
-			GetPackageFilterNum: 0, // 检查套餐字典项目数-添加项目
+			GetItemListView: [], // 检查项目字典源-添加项目-弹窗中显示的数据
 
 			selectedRight: [],// 右侧所选择的
 			selectedListAll: [],// 右侧展示的树
 
 			// tree - 筛选字段
-			filterPackage: '',
-			filterDept: '',
 			filterProject: '',
 
 			selectedRightTotal: 0,
+			delSelectNum: 0,
 
 			currentType: {
 				orderType: 0,
@@ -459,7 +394,8 @@ export default {
 			},
 		}
 	},
-	created: function(){},
+	created: function(){
+	},
 	methods: {
 		//保存
 		saveOrder(){
@@ -472,6 +408,7 @@ export default {
 				if (res.data.status === 1) {
 					this.$message.success('订单修改成功！');
 					this.orderDetailsModal = false;
+					this.$parent.$parent.getData();
 				} else {
 					this.$message.error(res.data.message);
 				}
@@ -572,6 +509,18 @@ export default {
 			this.params.batch = '';
 			this.OrderDataShow = this.OrderData;
 		},
+		// 添加项目切换tab时fn
+		tabsClick(tab){
+			this.selectedLeft = [];
+			this.$refs.second.setCheckedKeys([]);
+			this.$refs.third.setCheckedKeys([]);
+			if (tab.name === 'second' && this.GetDeptList.length === 0) {
+				this.getDeptList();
+			}
+			if (tab.name === 'third' && this.GetItemList.length === 0) {
+				this.getDicItemList();
+			}
+		},
 		// 获取订单详情
 		getDetailData(){
 			this.loading = true;
@@ -581,6 +530,7 @@ export default {
 					this.teamNames = [];
 					this.batchs = [];
 					this.OrderData = this.OrderDataShow = res.data.entity.orders;
+					this.subOrderParams.UnitCode = res.data.entity.unitCode;
 					res.data.entity.importBatches.forEach(x => {
 						this.batchs.push({
 							value: x.batchCode,
@@ -588,14 +538,18 @@ export default {
 						})
 					})
 					this.OrderData.forEach((x, index) => {
-						this.deptNames.push({
-							value: index,
-							label: x.deptName
-						});
-						this.teamNames.push({
-							value: index,
-							label: x.teamName
-						});
+						if(x.deptName) {
+							this.deptNames.push({
+								value: index,
+								label: x.deptName
+							});
+						}
+						if(x.teamName) {
+							this.teamNames.push({
+								value: index,
+								label: x.teamName
+							});
+						}
 					})
 					this.deptNames = _.uniqBy(this.deptNames, 'label');
 					this.teamNames = _.uniqBy(this.teamNames, 'label');
@@ -614,6 +568,16 @@ export default {
 				this.$message.error('请先选择后点击删除！');
 				return;
 			}
+			let flag = '';
+			this.multipleSelection.forEach(x => {
+				if (x.unitPaidStatus !== 0) {
+					flag += x.customerName + '，';
+				}
+			})
+			if(flag.length) {
+				this.$message.error(`${flag}不可删除`);
+				return;
+			}
 			if (this.multipleSelection.every(x => x.isCheckBegin)) {
 				this.$message.error('已到检查的不能删除');
 				return;
@@ -624,6 +588,9 @@ export default {
           type: 'warning'
         }).then(() => {
 					this.OrderDataShow = this.OrderDataShow.filter(x => {
+						return this.multipleSelection.every(y => y.idcardNum != x.idcardNum)
+					})
+					this.OrderData = this.OrderData.filter(x => {
 						return this.multipleSelection.every(y => y.idcardNum != x.idcardNum)
 					})
 					this.$message.success('删除成功');
@@ -656,21 +623,90 @@ export default {
 		},
 		// 添加项目-确定
 		confirmAddProjectBtn(){
-			this.addProjectModal = false;
-			console.log(this.OrderData)
+			this.USERINFO.discount = 0;
+			let lowestPriceAll = 0;//项目最低价之和
+			let exePriceAll = 0;//项目原执行价之和
+			let fullPriceAll = 0;//项目原价之和
+			this.selectedListAll.forEach(x => {
+				lowestPriceAll += x.lowestPrice || 0;
+				exePriceAll += x.exePrice || 0;
+				fullPriceAll += x.fullPrice || 0;
+			})
+			let lowestDiscount = exePriceAll/fullPriceAll;
+			if(this.isFree) {
+				if(this.USERINFO.discount > this.projectDiscount.discount2) {
+					this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+					return;
+				}
+			} else {
+				lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+				if(lowestDiscount > this.projectDiscount.discount2) {
+					this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
+					return;
+				}
+				if (lowestPriceAll > this.projectDiscount.exePrice) {
+					this.$message.error(`您最低的折扣金额为${lowestPriceAll.toFixed(2)}元`);
+					return;
+				}
+			}
+			if(this.projectDiscount.discount2 !== exePriceAll/fullPriceAll && exePriceAll !== this.projectDiscount.exePrice) {
+				if(this.isFree) {
+					this.selectedListAll.forEach(x => {
+						x.exePrice = x.fullPrice * this.projectDiscount.discount2;
+					})
+				} else {
+					this.distributePrice(this.selectedListAll, this.projectDiscount.exePrice, this.projectDiscount.discount2);
+				}
+			}
 			this.multipleSelection = this.multipleSelection.map(x => {
-				let arr = x.items.concat(this.selectedListAll)
+				let arr = x.items.concat(_.cloneDeep(this.selectedListAll));
 				x.items = _.uniqBy(arr, 'itemCode');
+				x.orderMoney = 0;
+				x.items.forEach(y => {
+					x.orderMoney += y.exePrice;
+				})
 				return x;
 			})
 			this.cancelBtn();
-			console.log(this.OrderDataShow)
-			console.log(this.OrderData)
+			this.addProjectModal = false;
+		},
+		// 对项目执行价的处理
+		distributePrice(data, exePriceAll, discount){//要处理的一维数组，执行价之和，折扣率
+			let difPrice = exePriceAll;
+			data = data.map((x, index) => {
+				//x.exePrice2 = x.exePrice;
+				x.exePrice = x.fullPrice * discount;
+				if(x.exePrice <= x.lowestPrice) {
+					difPrice = difPrice - x.lowestPrice;
+					x.exePrice = x.lowestPrice;
+				}
+				return x;
+			})
+			if (difPrice !== exePriceAll ) {
+				data = data.filter(x => {
+					return x.exePrice > x.lowestPrice;
+				})
+				let lastFullPrice = 0;
+				data.forEach(x => {
+					lastFullPrice += x.fullPrice;
+				})
+				this.distributePrice(data, difPrice, difPrice / lastFullPrice);
+			}
 		},
 		//添加项目添加按钮
 		addBtn() {
 			if (this.$refs[this.activeTabName].getCheckedNodes().length === 0) {
 				this.$message.error('请先选择后点击添加！');
+				return;
+			}
+			let flag = '';
+			this.multipleSelection.forEach(x => {
+				if (x.unitPaidStatus !== 0) {
+					flag += x.customerName + '，';
+				}
+			})
+			if(flag.length) {
+				this.$message.error(`${flag}不可添加项目`);
 				return;
 			}
 			let arr = this.$refs[this.activeTabName].getCheckedNodes().filter(x => {
@@ -680,6 +716,39 @@ export default {
 			this.selectedListAll = _.uniqBy(arr, 'id');
 			this.getDiscount('projectDiscount', this.selectedListAll);
 			this.$refs[this.activeTabName].setCheckedKeys([]);
+		},
+		// 计算添加项目中打折折扣
+		getDiscount(key, data){//key - 修改字符   data - 数据源
+			this[key].totalPrice = 0;
+			this[key].exePrice = 0;
+			if(data.length === 0) {
+				this[key].exePrice2 = 0;
+				this[key].totalPrice2 = 0;
+				this[key].discount2 = 0;
+				this[key].discount = 0;
+				return;
+			}
+			data = data.filter(x => {
+				return x.itemCode;
+			});
+			data.forEach(x => {
+				this[key].exePrice += x.exePrice || 0;
+				this[key].totalPrice += x.fullPrice || 0;
+			})
+			this[key].discount = (parseInt(this[key].exePrice / this[key].totalPrice *100) / 100) || 0;
+			this[key].discount2 = (this[key].exePrice / this[key].totalPrice) || 0;
+			this.handleTwo(key);
+		},
+		//关于打折保留2位小数的处理
+		handleTwo(key) {
+			let num1 = this[key].totalPrice.toFixed(3);
+			let num2 = this[key].exePrice.toFixed(3);
+			this[key].totalPrice2 = Number(num1.substring(0, (num1 + '').length - 1));
+			this[key].exePrice2 = Number(num2.substring(0, (num2 + '').length - 1));
+			if(this[key].difPrice || this[key].difPrice == 0) {
+				let num3 = this[key].difPrice.toFixed(3);
+				this[key].difPrice2 = Number(num3.substring(0, (num3 + '').length - 1));
+			}
 		},
 		//添加项目删除按钮
 		removeBtn() {
@@ -699,7 +768,6 @@ export default {
 			this.addProjectModal = false;
 			this.selectedRight = [];
 			this.selectedListAll = [];
-			this.$refs.first.setCheckedKeys([]);
 			this.$refs.second.setCheckedKeys([]);
 			this.$refs.third.setCheckedKeys([]);
 		},
@@ -709,6 +777,17 @@ export default {
 				this.$message.error('请先选择要删除项目的人员');
 				return;
 			}
+			let flag = '';
+			this.multipleSelection.forEach(x => {
+				if (x.unitPaidStatus !== 0) {
+					flag += x.customerName + '，';
+				}
+			})
+			if(flag.length) {
+				this.$message.error(`${flag}不可删除项目`);
+				return;
+			}
+
 			this.delCustomerPackage = [];
 			this.multipleSelection.forEach( x => {
 				this.delCustomerPackage = this.delCustomerPackage.concat(x.items);
@@ -744,7 +823,11 @@ export default {
 				let items = x.items.filter(y => {
 					return y;
 				})
-				this.multipleSelection[index].items = items;
+				this.multipleSelection[index].items = _.cloneDeep(items);
+				this.multipleSelection[index].orderMoney = 0;
+				this.multipleSelection[index].items.forEach(y => {
+					this.multipleSelection[index].orderMoney += y.exePrice;
+				})
 			})
 			this.delCustomerPackage = [];
 			this.delProjectModal = false;
@@ -752,6 +835,7 @@ export default {
 		// 获取单人项目详情(当前客户订单open)
 		getCustomerDetail(data){
 			//this.currentType.orderType = data.orderType;
+			this.isCanEdit = data.unitPaidStatus === 0;
 			this.currentType.diyFlag = data.diyFlag;
 			this.orderDetails = data;
 			this.currentOrderModal = true;
@@ -777,25 +861,22 @@ export default {
 			this.orderDetails.diyFlag = this.currentType.diyFlag;
 			this.currentOrderModal = false;
 		},
-		//获取套餐字典-添加项目
-		getPackageAll(){
-			this.$axios.get(this.$api.GetPackageFilter).then(res => {
-				if (res.status === 200 && res.data.status === 1) {
-					this.GetPackageFilter =  res.data.entity;
-					this.handleTreeChildren(this.GetPackageFilter, 1);
-				} else {
-					this.$message.error(res.data.message);
-				}
-			}).catch(err => {
-				this.$message.error(err.data.message);
-			})
+		//关闭添加项目框后操作
+		closeModal(key){
+			this[key].totalPrice = 0;
+			this[key].totalPrice2 = 0;
+			this[key].discount = 0;
+			this[key].discount2 = 0;
+			this[key].exePrice = 0;
+			this[key].exePrice2 = 0;
+			this.isFree = false;
 		},
 		//获取检查项目字典
 		getDicItemList(){
 			this.$axios.get(this.$api.GetItemList).then(res => {
 				if (res.status === 200 && res.data.status === 1) {
-					this.GetItemList =  res.data.entity;
-					this.handleTreeChildren(this.GetItemList, 3);
+					this.GetItemList = this.GetItemListView =  res.data.entity;
+					this.handleTreeChildren(this.GetItemListView, 3);
 				} else {
 					this.$message({
 						type: 'error',
@@ -824,7 +905,6 @@ export default {
 		},
 		// 添加项目切换tab时fn
 		tabsClick(tab){
-			this.$refs.first.setCheckedKeys([]);
 			this.$refs.second.setCheckedKeys([]);
 			this.$refs.third.setCheckedKeys([]);
 			if (tab.name === 'second' && this.GetDeptList.length === 0) {
@@ -839,17 +919,7 @@ export default {
 			if (!value) return true;
 			return data.label.indexOf(value) !== -1;
 		},
-		// 计算添加项目中打折折扣
-		getDiscount(key, data){//key - 修改字符   data - 数据源
-			this[key].totalPrice = 0;
-			this[key].exePrice = 0;
-			data.forEach(x => {
-				this[key].exePrice += x.exePrice;
-				this[key].totalPrice += x.fullPrice;
-			})
-			this[key].discount = parseInt(this[key].exePrice / this[key].totalPrice *100) / 100;
-			this[key].discount2 = this[key].exePrice / this[key].totalPrice;
-		},
+
 		// 处理字典tree结构
 		handleTreeChildren(data, type){
 			if (!data ) return;
@@ -869,6 +939,25 @@ export default {
 					this.handleTreeChildren(i.children, type);
 				}
 			})
+		},
+		//添加项目右侧删除按钮
+		remove(node, data) {
+			const parent = node.parent;
+			const children = parent.data.children || parent.data;
+			const index = children.findIndex(d => d.id === data.id);
+			children.splice(index, 1);
+			this.getDiscount('projectDiscount', children);
+		},
+		renderContent(h, { node, data, store }) {
+			return (
+				<span style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 14px; padding-right: 8px;">
+					<span>
+						<span>{node.label}</span>
+					</span>
+					<span>
+						<el-button style="font-size: 12px;" type="text" on-click={ () => this.remove(node, data) }>移除项目</el-button>
+					</span>
+				</span>);
 		},
 		// tree - 全选
 		allTreeSelection(source, target, num){
@@ -900,9 +989,82 @@ export default {
 			})
 			this.$refs[target].setCheckedKeys([]);
 			this.$refs[target].setCheckedNodes(toogle);
+			if(this.$refs.treeDel) {
+				this.delSelectNum = this.$refs.treeDel.getCheckedNodes().length;
+			}
 		},
+		//判断是否为项目
+		arrPush(data){
+			if (data.items && data.items.length > 0) {
+				data.children.forEach(x => {
+					this.arrPush(x);
+				})
+			} else if (!data.items) {
+				this.selectedListAll.push(data);
+			}
+		},
+		//双击事件
+		dbClick(data){
+			this.dbClickFlag++;
+			if (this.dbClickFlag >= 2) {
+				this.arrPush(data);
+				this.selectedListAll = _.uniqBy(this.selectedListAll, 'id');
+				this.getDiscount('projectDiscount', this.selectedListAll);
+			}
+			setTimeout(() =>{
+				this.dbClickFlag = 0
+			}, 500)
+		},
+		//按回车后对折扣的进行处理
+		discountHandle(key) {
+			if (this[key].discount >= 0 || this[key].discount <= 1) {
+				this.isDisCount = true;
+			} else {
+				this.$message.error('请输入正确的折扣');
+				return;
+			}
+			this[key].exePrice = (this[key].totalPrice * this[key].discount).toFixed(4);
+			this[key].exePrice = Number(this[key].exePrice.substring(0, this[key].exePrice.length - 1));
+			this[key].difPrice = this[key].totalPrice - this[key].exePrice;
+			this[key].difPrice2 = parseInt(this[key].difPrice * 100) / 100;
+			this[key].discount2 = this[key].discount;
+			this.handleTwo(key);
+		},
+		//按回车后对折扣金额的进行处理
+		difPriceHandle(key) {
+			if(this[key].difPrice2 < 0 || this[key].difPrice2 > this[key].totalPrice) {
+				this.$message.error('请输入正确的折扣金额');
+				return;
+			}
+			this[key].difPrice = this[key].difPrice2;
+			this[key].exePrice = this[key].totalPrice - this[key].difPrice;
+			this[key].discount = parseInt(this[key].exePrice / this[key].totalPrice * 100) / 100;
+			this[key].discount2 = this[key].exePrice / this[key].totalPrice;
+			let num = this[key].exePrice.toFixed(3);
+			this[key].exePrice2 = Number(num.substring(0, (num + '').length - 1));
+		},
+		//按回车后对实收金额的进行处理
+		realPriceHandle(key) {
+			if(this[key].exePrice2 > this[key].totalPrice || this[key].exePrice2 < 0) {
+				this.$message.error('请输入正确的折扣金额');
+				return;
+			}
+			this[key].exePrice = this[key].exePrice2;
+			this[key].discount = parseInt(this[key].exePrice / this[key].totalPrice * 100) / 100;
+			this[key].discount2 =this[key].exePrice / this[key].totalPrice;
+			this[key].difPrice = this[key].totalPrice - this[key].exePrice;
+			this[key].difPrice2 = parseInt(this[key].difPrice * 100) / 100;
+			let num = this[key].difPrice.toFixed(3);
+			this[key].difPrice2 = Number(num.substring(0, (num + '').length - 1));
+		},
+		delTreeChange(a,b) {
+			this.delSelectNum = b.checkedKeys.length;
+		}
 	},
 	computed: {
+		...mapState([
+			'USERINFO'
+		]),
 		selectedThirdTotal: function() {
 			if (this.$refs.third) {
 				return this.$refs.third.getCheckedNodes().length;
@@ -916,26 +1078,20 @@ export default {
 			} else {
 				return 0;
 			}
-		},
-		selectedFirstTotal: function() {
-			if (this.$refs.first) {
-				return this.$refs.first.getCheckedNodes().length;
-			} else {
-				return 0;
-			}
-		},
-
+		}
 	},
 	watch: {
-		filterPackage(val) {
-			this.$refs.first.filter(val);
-		},
-		filterDept(val) {
-			this.$refs.second.filter(val);
-		},
-		filterProject(val) {
-			this.$refs.third.filter(val);
-		},
+		filterProject: function(val, oldVal) {
+			if(val != oldVal) {
+				if(val) {
+					this.GetItemListView = this.GetItemList.filter(x => {
+						return PinyinMatch.match(x.itemName, val);
+					})
+				} else {
+					this.GetItemListView = this.GetItemList;
+				}
+			}
+		}
 	}
 }
 </script>
@@ -958,4 +1114,3 @@ export default {
 	height: 21px;
 }
 </style>
-

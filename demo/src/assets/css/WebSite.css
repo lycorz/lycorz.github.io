@@ -485,23 +485,22 @@ label {
 ::-webkit-scrollbar
 {
     width: 6px;
-    height: 6px;
+    height: 10px;
 }
 ::-webkit-scrollbar-track-piece
 {
     background-color: #fff;
     -webkit-border-radius: 6px;
 }
-::-webkit-scrollbar-thumb:vertical
+::-webkit-scrollbar-thumb:horizontal
 {
     height: 5px;
     background-color: #999999;
     -webkit-border-radius: 6px;
 }
-::-webkit-scrollbar-thumb:horizontal
+::-webkit-scrollbar-thumb:vertical
 {
     width: 5px;
     background-color: #B2B2B2;
-    -webkit-border-radius: 6px;
+		-webkit-border-radius: 6px;
 }
-

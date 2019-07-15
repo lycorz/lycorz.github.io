@@ -1,403 +1,387 @@
 <template>
   <div class="content">
     <div class="topTitle">
-        <span>团检订单</span>
+			<span>团检订单</span>
     </div>
     <el-row>
-        <div style="flex:1;overflow: hidden;display: flex;flex-direction: column;">
-            <div class="peopleData">
-                <div class="propleSearch">
-									<el-input
-										placeholder="请输入关键字"
-										v-model="params.Filter"
-										class="arcRadius"
-										@keyup.enter.native="getData(true)"
-										style="width: 150px;"
-									>
+			<div style="flex:1;overflow: hidden;display: flex;flex-direction: column;">
+				<div class="peopleData">
+						<div class="propleSearch">
+							<el-input
+								placeholder="请输入关键字"
+								v-model="params.Filter"
+								class="arcRadius"
+								@keyup.enter.native="getData(true)"
+								style="width: 150px;"
+							>
 
-									</el-input>
-									<div style="display: inline-block;margin: 0 16px;">
-										<el-date-picker
-											v-model="timeRange"
-											type="daterange"
-											align="center"
-											unlink-panels
-											range-separator="至"
-											start-placeholder="开始日期"
-											end-placeholder="结束日期"
-											:picker-options="pickerOptions">
-										></el-date-picker>
-										<el-button type="primary" @click="getData(true)">查询</el-button>
-									</div>
-									<div class="right">
-										<el-button type="primary" @click="openUnitModal">新建单位</el-button>
-									</div>
-                </div>
-            </div>
-            <el-table :data="tableData" tooltip-effect="dark"  v-loading="loading">
-							<el-table-column type="selection" width="55"></el-table-column>
-								<el-table-column type="expand">
-									<template slot-scope="scope">
-										<el-table :data="scope.row.orders" class="inTable">
-											<el-table-column prop="createTime" label="创建时间">
-												<template slot-scope="scope">
-													{{scope.row.createTime | formatDate('YYYY-MM-DD')}}
-												</template>
-											</el-table-column>
-											<el-table-column prop="creator" label="创建人"></el-table-column>
-											<el-table-column prop="closeTime" label="是否关闭">
-												<template slot-scope="scope">
-													{{scope.row.closeTime ? '是' : '否'}}
-												</template>
-											</el-table-column>
-											<el-table-column prop="creator" label="备单人数">
-												<template  slot-scope="scope">
-													{{scope.row.orders.length || 0}}
-												</template>
-											</el-table-column>
-											<el-table-column label="操作" fixed="right">
-												<template slot-scope="scope">
-													<el-button type="text" @click="createOrderBtn(scope.row)">导入人员</el-button>
-													<el-button type="text" @click="openOrderDetail(scope.row)">订单详情</el-button>
-												</template>
-											</el-table-column>
-										</el-table>
-									</template>
-								</el-table-column>
-                <el-table-column prop="unitName" label="单位名称" :show-overflow-tooltip="true">
-                </el-table-column>
-                <el-table-column prop="contactor" label="联系人">
-                </el-table-column>
-                <el-table-column prop="tele" label="联系电话">
-                </el-table-column>
-                <el-table-column prop="createTime" label="创建时间">
-									<template  slot-scope="scope">
-										{{scope.row.createTime | formatDate('YYYY-MM-DD')}}
-									</template>
-                </el-table-column>
-                <el-table-column prop="addr" label="地址">
-                </el-table-column>
-                <el-table-column prop="remark" label="操作" fixed="right" width="160">
-									<template slot-scope="scope">
-										<el-button type="text" @click="delUnit(scope.row)">删除</el-button>
-										<el-button type="text" @click="openUnitModal(scope.row)">编辑</el-button>
-										<el-button type="text" @click="createOrderBtn(scope.row)">创建订单</el-button>
-									</template>
-                </el-table-column>
-            </el-table>
-            <!-- 底部信息栏 -->
-            <div class="fixBottom">
+							</el-input>
+							<div style="display: inline-block;margin: 0 16px;">
+								<el-date-picker
+									v-model="timeRange"
+									type="daterange"
+									align="center"
+									unlink-panels
+									range-separator="至"
+									start-placeholder="开始日期"
+									end-placeholder="结束日期"
+									:picker-options="pickerOptions">
+								></el-date-picker>
+								<el-button type="primary" @click="getData(true)">查询</el-button>
+							</div>
 							<div class="right">
-                  <el-pagination
-										@current-change="handleCurrentChange"
-										@size-change="handleSizeChange"
-										:current-page="searchParams.PageIndex"
-										:page-sizes="[10,20,50,100]"
-										:total="total"
-										layout="total,sizes, prev, pager, next, jumper"
-									></el-pagination>
-                </div>
-            </div>
-            <!-- 弹窗块 -->
-						<!-- 保存单位 -->
-            <el-dialog :title="title" :visible.sync="dialogFormVisible" width="400px" class="unitbox"  :close-on-click-modal="false" @close="unitCancel">
-                <el-form :model="form.Unit" :rules="rules" ref="unitbox">
-                    <el-form-item label="单位名称" :label-width="formLabelWidth" prop="UnitName">
-                        <el-input v-model="form.Unit.UnitName"></el-input>
-                    </el-form-item>
-										<el-form-item label="联系人" :label-width="formLabelWidth" prop="Contactor" style="width: 50%">
-                        <el-input v-model="form.Unit.Contactor"></el-input>
-                    </el-form-item>
-										<el-form-item label="联系电话" :label-width="formLabelWidth" prop="Tele" style="width: 50%">
-                        <el-input v-model="form.Unit.Tele"></el-input>
-                    </el-form-item>
-										<el-form-item label="地址" :label-width="formLabelWidth" prop="Addr">
-                        <el-input  type="textarea" :rows="2" v-model="form.Unit.Addr"></el-input>
-                    </el-form-item>
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialogFormVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="submitUnit">确 定</el-button>
-                </div>
-            </el-dialog>
-						<!-- 导入人员 -->
-						<el-dialog title="导入人员" :visible.sync="importCustomerModal" class="importCustom" width="1000px" :close-on-click-modal="false" @close="importClear">
-							<div class="peopleData">
-								<div class="searchParams">
-									<el-input
-										placeholder="请搜索"
-										v-model="importParams.Filter"
-										@keyup.enter.native="filterData"
-										class="arcRadius"
-										style="width: 150px;"
-									>
-
-									</el-input>
-									<el-select v-model="importParams.Sex" clearable placeholder="性别" style="margin: 0 8px;width: 75px;">
-										<el-option label="男"	:value="1"></el-option>
-										<el-option label="女"	:value="2"></el-option>
-									</el-select>
-									<el-select v-model="importParams.MaritalStatus" clearable placeholder="婚姻状况" style="width: 100px;">
-										<el-option label="未婚"	:value="1"></el-option>
-										<el-option label="已婚"	:value="2"></el-option>
-									</el-select>
-									<el-select v-if="deptNames.length"  v-model="importParams.DeptName" clearable placeholder="部门" style="margin: 0 8px;width: 100px;">
-										<el-option
-											v-for="item in deptNames"
-											:key="item.value"
-											:label="item.label"
-											:value="item.value"
-										></el-option>
-									</el-select>
-									<el-select v-if="teamNames.length" v-model="importParams.TeamName" clearable placeholder="组别" style="width: 100px;">
-										<el-option
-											v-for="item in teamNames"
-											:key="item.value"
-											:label="item.label"
-											:value="item.value"
-										></el-option>
-									</el-select>
-									<div class="importAge">
-										<el-input
-											v-model="importParams.Age1"
-											placeholder="岁"
-											class="importIpt"
-											>
-										</el-input>
-										<span style="padding: 0 8px;">至</span>
-										<el-input
-											v-model="importParams.Age2"
-											placeholder="岁"
-											class="importIpt"
-											>
-										</el-input>
-									</div>
-									<div class="right">
-										<el-button @click="filterData" type="primary">查询</el-button>
-										<el-button @click="reset">重置</el-button>
-									</div>
-								</div>
-								<div class="searchParams">
-									<el-button-group>
-										<el-upload
-											class="upload-demo"
-											:action="url"
-											:on-success="uploadSuc"
-											:on-error="uploadErr"
-											:before-upload="beforeUpload"
-											:show-file-list="false"
-											accept=".xls,.xlsx">
-											<el-button icon="el-icon-upload" style="margin-right: -1px;">导入</el-button>
-										</el-upload>
-										<el-button icon="el-icon-plus" @click="peopleInfoModal = true;clearPropleInfo();peopleInfo.Customer.IdcardNum = ''">添加</el-button>
-										<el-button icon="el-icon-delete" @click="delBtn">删除</el-button>
-										<el-button icon="el-icon-edit" @click="openAddPackage">套餐配置</el-button>
-										<el-button icon="el-icon-edit" @click="openSetType">定制类型</el-button>
-										<el-button icon="el-icon-edit" @click="openSetReportType">报告类型</el-button>
-										<!-- <el-button icon="el-icon-edit" >报告类别</el-button> -->
-									</el-button-group>
-								</div>
+								<el-button type="primary" @click="openUnitModal">新建单位</el-button>
 							</div>
-							<el-table
-								ref="table"
-								:data="importData"
-								height="250"
-								style="width: 100%"
-								@row-click="clickRow2"
-								@selection-change="handleSelectionChange">
-								<el-table-column type="selection" fixed="left" width="55"></el-table-column>
-								<el-table-column prop="CustomerName" fixed="left" label="姓名"></el-table-column>
-								<el-table-column prop="Sex" label="性别">
-									<template slot-scope="scope">
-										{{scope.row.Sex === 1 ? '男' : '女'}}
-									</template>
-								</el-table-column>
-								<el-table-column prop="Tele" label="联系电话"></el-table-column>
-								<el-table-column prop="CardNum" label="卡号"></el-table-column>
-								<el-table-column prop="IdcardNum" label="身份证号"></el-table-column>
-								<el-table-column prop="MaritalStatus" label="婚姻">
-									<template slot-scope="scope">
-										{{scope.row.MaritalStatus === 1 ? '未婚' : '已婚' }}
-									</template>
-								</el-table-column>
-								<el-table-column prop="DeptName" label="部门"></el-table-column>
-								<el-table-column prop="TeamName" label="组别"></el-table-column>
-								<el-table-column prop="DiyFlag" label="定制类型">
-									<template slot-scope="scope">
-										{{scope.row.DiyFlag === 1 ? '个性化（有限）': scope.row.DiyFlag === 2 ? '个性化（无限）': scope.row.DiyFlag === 0 ? '固定套餐' : ''}}
-									</template>
-								</el-table-column>
-								<el-table-column prop="PackageName" label="套餐名称"></el-table-column>
-								<el-table-column prop="OrderType" label="订单类型">
-									<template slot-scope="scope">
-										{{scope.row.OrderType === 0 ? '普通订单' : scope.row.OrderType === 1 ? '筛查订单' : '' }}
-									</template>
-								</el-table-column>
-								<!-- <el-table-column prop="FeeType" label="报告类型"></el-table-column> -->
-								<el-table-column prop="Remark" label="备注"></el-table-column>
-								<el-table-column prop="OrderMoney" label="金额">
-									<template slot-scope="scope">
-										￥{{scope.row.DiyFlag === 0 ? scope.row.OrderMoney : 0}}
-									</template>
-								</el-table-column>
-								<el-table-column prop="FeeType" fixed="right" label="操作">
-									<template slot-scope="scope">
-										<el-button type="text" @click="editCustomer(scope.row)">编辑人员</el-button>
-									</template>
-								</el-table-column>
-							</el-table>
-							<div slot="footer" class="dialog-footer">
-								<el-button @click="cancelSubmitBtn">取消</el-button>
-								<el-button type="primary" @click="submitImportBtn">确定</el-button>
-							</div>
-						</el-dialog>
-						<!-- 选择套餐 -->
-						<el-dialog title="选择套餐" :visible.sync="addPackageModal" :close-on-click-modal="false" width="800px" @open="getPackageList">
-							<div class="modal-tree addPackage">
-								<div class="modal-top">名称</div>
-								<div class="modal-con addPackage">
-									<el-tree
-										:data="GetPackageList"
-										show-checkbox
-										node-key="id"
-										ref="tree"
-										@check="treeClick"
-										>
-									</el-tree>
-								</div>
-								<div class="packageDis">
-									<span class="item">原价：￥ <span>{{packageDiscount.totalPrice2 | numFilter}}</span></span>
-									<div class="right">
-										<el-checkbox v-model="isFree">优惠自由</el-checkbox>
-										折扣：<div class="item-list iptNum">
-												<el-input-number v-model="packageDiscount.discount" @blur="discountHandle('packageDiscount')" @change="discountHandle('packageDiscount')" :min="0" :max="1" :step="0.1"></el-input-number>
-											</div>&nbsp;&nbsp;&nbsp;&nbsp;
-										实收：<el-input v-model.number="packageDiscount.exePrice2" type="number" style="width: 100px;" @blur="realPriceHandle('packageDiscount')"></el-input>&nbsp;元
-									</div>
-								</div>
-							</div>
-							<div slot="footer" class="dialog-footer">
-									<el-button @click="cancelPackageBtn" style="margin-right: 8px;">取 消</el-button>
-									<el-button type="primary" @click="addPackageBtn">确定</el-button>
-							</div>
-            </el-dialog>
-						<!-- 定制类型 -->
-						<el-dialog title="定制类型" :visible.sync="setTypeModal" :close-on-click-modal="false" width="500px" class="setType">
-							<el-radio-group v-model="diy" style="width: 133px">
-								<el-radio :label="0">固定套餐</el-radio>
-								<el-radio :label="1">个性化（有限）</el-radio>
-								<el-radio :label="2">个性化（无限）</el-radio>
-							</el-radio-group>
-								<el-input :span="12"
-									type="number"
-									v-show="diy === 1"
-									min="0"
-									style="width: 150px;"
-									placeholder="请输入限定价格"
-									v-model.number="diyPrice"
-									clearable>
+						</div>
+				</div>
+				<el-table :data="tableData" tooltip-effect="dark"  v-loading="loading">
+					<!-- <el-table-column type="selection" width="55"></el-table-column> -->
+						<el-table-column type="expand">
+							<template slot-scope="scope">
+								<el-table :data="scope.row.orders" class="inTable">
+									<el-table-column prop="createTime" label="创建时间">
+										<template slot-scope="scope">
+											{{scope.row.createTime | formatDate('YYYY-MM-DD')}}
+										</template>
+									</el-table-column>
+									<el-table-column prop="creator" label="创建人"></el-table-column>
+									<el-table-column prop="closeTime" label="是否关闭">
+										<template slot-scope="scope">
+											{{scope.row.closeTime ? '是' : '否'}}
+										</template>
+									</el-table-column>
+									<el-table-column prop="creator" label="备单人数">
+										<template  slot-scope="scope">
+											{{scope.row.orders.length || 0}}
+										</template>
+									</el-table-column>
+									<el-table-column label="操作" fixed="right">
+										<template slot-scope="scope">
+											<el-button type="text" @click="createOrderBtn(scope.row)">导入人员</el-button>
+											<el-button type="text" @click="openOrderDetail(scope.row)">订单详情</el-button>
+										</template>
+									</el-table-column>
+								</el-table>
+							</template>
+						</el-table-column>
+						<el-table-column prop="unitName" label="单位名称" :show-overflow-tooltip="true">
+						</el-table-column>
+						<el-table-column prop="contactor" label="联系人">
+						</el-table-column>
+						<el-table-column prop="tele" label="联系电话">
+						</el-table-column>
+						<el-table-column prop="createTime" label="创建时间">
+							<template  slot-scope="scope">
+								{{scope.row.createTime | formatDate('YYYY-MM-DD')}}
+							</template>
+						</el-table-column>
+						<el-table-column prop="addr" label="地址">
+						</el-table-column>
+						<el-table-column prop="remark" label="操作" fixed="right" width="160">
+							<template slot-scope="scope">
+								<el-button type="text" @click="delUnit(scope.row)">删除</el-button>
+								<el-button type="text" @click="openUnitModal(scope.row)">编辑</el-button>
+								<el-button type="text" @click="createOrderBtn(scope.row)">创建订单</el-button>
+							</template>
+						</el-table-column>
+				</el-table>
+				<!-- 底部信息栏 -->
+				<div class="fixBottom">
+					<div class="right">
+							<el-pagination
+								@current-change="handleCurrentChange"
+								@size-change="handleSizeChange"
+								:current-page="searchParams.PageIndex"
+								:page-sizes="[10,20,50,100]"
+								:total="total"
+								layout="total,sizes, prev, pager, next, jumper"
+							></el-pagination>
+						</div>
+				</div>
+				<!-- 保存单位 -->
+				<el-dialog :title="title" :visible.sync="dialogFormVisible" width="400px" class="unitbox"  :close-on-click-modal="false" @close="unitCancel">
+					<el-form :model="form.Unit" :rules="rules" ref="unitbox">
+						<el-form-item label="单位名称" :label-width="formLabelWidth" prop="UnitName">
+							<el-input v-model="form.Unit.UnitName"></el-input>
+						</el-form-item>
+						<el-form-item label="联系人" :label-width="formLabelWidth" prop="Contactor" style="width: 50%">
+							<el-input v-model="form.Unit.Contactor"></el-input>
+						</el-form-item>
+						<el-form-item label="联系电话" :label-width="formLabelWidth" prop="Tele" style="width: 50%">
+							<el-input v-model="form.Unit.Tele"></el-input>
+						</el-form-item>
+						<el-form-item label="地址" :label-width="formLabelWidth" prop="Addr">
+							<el-input  type="textarea" :rows="2" v-model="form.Unit.Addr"></el-input>
+						</el-form-item>
+					</el-form>
+					<div slot="footer" class="dialog-footer">
+						<el-button @click="dialogFormVisible = false">取 消</el-button>
+						<el-button type="primary" @click="submitUnit">确 定</el-button>
+					</div>
+				</el-dialog>
+				<!-- 导入人员 -->
+				<el-dialog title="导入人员" :visible.sync="importCustomerModal" class="importCustom" width="1000px" :close-on-click-modal="false" @close="importClear">
+					<div class="peopleData">
+						<div class="searchParams">
+							<el-input
+								placeholder="请搜索"
+								v-model="importParams.Filter"
+								@keyup.enter.native="filterData"
+								class="arcRadius"
+								style="width: 150px;">
+							</el-input>
+							<el-select v-model="importParams.Sex" clearable placeholder="性别" style="margin: 0 8px;width: 75px;">
+								<el-option label="男"	:value="1"></el-option>
+								<el-option label="女"	:value="2"></el-option>
+							</el-select>
+							<el-select v-model="importParams.MaritalStatus" clearable placeholder="婚姻状况" style="width: 100px;">
+								<el-option label="未婚"	:value="1"></el-option>
+								<el-option label="已婚"	:value="2"></el-option>
+							</el-select>
+							<el-select v-if="deptNames.length"  v-model="importParams.DeptName" clearable placeholder="部门" style="margin: 0 8px;width: 100px;">
+								<el-option
+									v-for="item in deptNames"
+									:key="item.value"
+									:label="item.label"
+									:value="item.value"
+								></el-option>
+							</el-select>
+							<el-select v-if="teamNames.length" v-model="importParams.TeamName" clearable placeholder="组别" style="width: 100px;">
+								<el-option
+									v-for="item in teamNames"
+									:key="item.value"
+									:label="item.label"
+									:value="item.value"></el-option>
+							</el-select>
+							<div class="importAge">
+								<el-input
+									v-model="importParams.Age1"
+									placeholder="岁"
+									class="importIpt">
 								</el-input>
-							<div slot="footer" class="dialog-footer">
-								<el-button @click="setTypeModal = false;">取消</el-button>
-								<el-button type="primary" @click="addDIYBtn" >确定</el-button>
+								<span style="padding: 0 8px;">至</span>
+								<el-input
+									v-model="importParams.Age2"
+									placeholder="岁"
+									class="importIpt"
+									>
+								</el-input>
 							</div>
-						</el-dialog>
-						<!-- 订单类型 -->
-						<!-- <el-dialog title="报告类型" :visible.sync="setReportTypeModal" :close-on-click-modal="false" width="500px" class="setType">
-							<el-radio-group v-model="ReportType">
-									<el-radio v-for="item in reportTypes" :key="item.value" :label="item.value">{{item.name}}</el-radio>
+							<div class="right">
+								<el-button @click="filterData" type="primary">查询</el-button>
+								<el-button @click="reset">重置</el-button>
+							</div>
+						</div>
+						<div class="searchParams">
+							<el-button-group>
+								<el-upload
+									class="upload-demo"
+									:action="url"
+									:on-success="uploadSuc"
+									:on-error="uploadErr"
+									:before-upload="beforeUpload"
+									:show-file-list="false"
+									accept=".xls,.xlsx">
+									<el-button icon="el-icon-upload" style="margin-right: -1px;">导入</el-button>
+								</el-upload>
+								<el-button icon="el-icon-plus" @click="peopleInfoModal = true;clearPropleInfo();peopleInfo.Customer.IdcardNum = ''">添加</el-button>
+								<el-button icon="el-icon-delete" @click="delBtn">删除</el-button>
+								<el-button icon="el-icon-edit" @click="openAddPackage">套餐配置</el-button>
+								<el-button icon="el-icon-edit" @click="openSetType">定制类型</el-button>
+							</el-button-group>
+						</div>
+					</div>
+					<el-table
+						ref="table"
+						:data="importData"
+						height="250"
+						style="width: 100%"
+						@row-click="clickRow2"
+						@selection-change="handleSelectionChange">
+						<el-table-column type="selection" fixed="left" width="55"></el-table-column>
+						<el-table-column prop="CustomerName" fixed="left" label="姓名"></el-table-column>
+						<el-table-column prop="Sex" label="性别">
+							<template slot-scope="scope">
+								{{scope.row.Sex === 1 ? '男' : '女'}}
+							</template>
+						</el-table-column>
+						<el-table-column prop="Tele" label="联系电话"></el-table-column>
+						<el-table-column prop="CardNum" label="卡号"></el-table-column>
+						<el-table-column prop="IdcardNum" label="身份证号"></el-table-column>
+						<el-table-column prop="MaritalStatus" label="婚姻">
+							<template slot-scope="scope">
+								{{scope.row.MaritalStatus === 1 ? '未婚' : '已婚' }}
+							</template>
+						</el-table-column>
+						<el-table-column prop="DeptName" label="部门"></el-table-column>
+						<el-table-column prop="TeamName" label="组别"></el-table-column>
+						<el-table-column prop="DiyFlag" label="定制类型">
+							<template slot-scope="scope">
+								{{scope.row.DiyFlag === 1 ? '个性化（有限）': scope.row.DiyFlag === 2 ? '个性化（无限）': scope.row.DiyFlag === 0 ? '固定套餐' : ''}}
+							</template>
+						</el-table-column>
+						<el-table-column label="套餐名称">
+							<template slot-scope="scope">
+								{{scope.row.Packages[0].PackageName}}
+							</template>
+						</el-table-column>
+						<el-table-column prop="Remark" label="备注"></el-table-column>
+						<el-table-column prop="OrderMoney" label="金额">
+							<template slot-scope="scope">
+								{{scope.row.DiyFlag === 0 ? '￥' + (scope.row.OrderMoney.toFixed(2)) : ''}}
+							</template>
+						</el-table-column>
+						<el-table-column prop="FeeType" fixed="right" label="操作">
+							<template slot-scope="scope">
+								<el-button type="text" @click="editCustomer(scope.row)">编辑人员</el-button>
+							</template>
+						</el-table-column>
+					</el-table>
+					<div slot="footer" class="dialog-footer">
+						<el-button @click="cancelSubmitBtn">取消</el-button>
+						<el-button type="primary" @click="submitImportBtn">确定</el-button>
+					</div>
+				</el-dialog>
+				<!-- 选择套餐 -->
+				<el-dialog title="选择套餐" :visible.sync="addPackageModal" :close-on-click-modal="false" width="800px" @open="getPackageList">
+					<div class="modal-tree addPackage">
+						<div class="modal-top">名称</div>
+						<div class="modal-con addPackage">
+							<el-tree
+								:data="GetPackageList"
+								show-checkbox
+								node-key="id"
+								ref="tree"
+								@check="treeClick"
+								>
+							</el-tree>
+						</div>
+						<div class="packageDis">
+							<span class="item">原价：￥ <span>{{packageDiscount.totalPrice2 | numFilter}}</span></span>
+							<div class="right">
+								<el-checkbox v-model="isFree">优惠自由</el-checkbox>
+								折扣：<div class="item-list iptNum">
+										<el-input-number v-model="packageDiscount.discount" @blur="discountHandle('packageDiscount')" @change="discountHandle('packageDiscount')" :min="0" :max="1" :step="0.1"></el-input-number>
+									</div>&nbsp;&nbsp;&nbsp;&nbsp;
+								实收：<el-input v-model.number="packageDiscount.exePrice2" type="number" style="width: 100px;" @blur="realPriceHandle('packageDiscount')"></el-input>&nbsp;元
+							</div>
+						</div>
+					</div>
+					<div slot="footer" class="dialog-footer">
+							<el-button @click="cancelPackageBtn" style="margin-right: 8px;">取 消</el-button>
+							<el-button type="primary" @click="addPackageBtn">确定</el-button>
+					</div>
+				</el-dialog>
+				<!-- 定制类型 -->
+				<el-dialog title="定制类型" :visible.sync="setTypeModal" :close-on-click-modal="false" width="500px" class="setType">
+					<el-radio-group v-model="diy" style="width: 133px">
+						<el-radio :label="0">固定套餐</el-radio>
+						<el-radio :label="1">个性化（有限）</el-radio>
+						<el-radio :label="2">个性化（无限）</el-radio>
+					</el-radio-group>
+						<el-input :span="12"
+							type="number"
+							v-show="diy === 1"
+							min="0"
+							style="width: 150px;"
+							placeholder="请输入限定价格"
+							v-model.number="diyPrice"
+							clearable>
+						</el-input>
+					<div slot="footer" class="dialog-footer">
+						<el-button @click="setTypeModal = false;">取消</el-button>
+						<el-button type="primary" @click="addDIYBtn" >确定</el-button>
+					</div>
+				</el-dialog>
+				<!-- 人员信息 -->
+				<el-dialog title="人员信息" :visible.sync="peopleInfoModal" width="1000px" :close-on-click-modal="false" class="peopleInfoForm" @close="$refs.peopleForm.resetFields()">
+					<el-form :model="peopleInfo.Customer" :rules="rulesPeople" ref="peopleForm" :inline="true" label-width="50px" >
+						<el-form-item label="身份证号" prop="IdcardNum" :label-width="formLabelWidth">
+							<el-input
+								v-model="peopleInfo.Customer.IdcardNum"
+								maxlength="18"
+								style="width: 130px;margin-right: 8px;"
+							></el-input>
+							<el-button type="primary" plain style @click="getIdentity">刷身份证</el-button>
+						</el-form-item>
+						<el-form-item label="体检卡号" prop="CardNum" :label-width="formLabelWidth">
+							<el-input v-model="peopleInfo.Customer.CardNum" maxlength="20" autocomplete="off"></el-input>
+						</el-form-item>
+						<el-form-item label="姓名" prop="CustomerName" :label-width="formLabelWidth">
+							<el-input v-model="peopleInfo.Customer.CustomerName" autocomplete="off"></el-input>
+						</el-form-item>
+						<el-form-item label="性别" prop="Sex" :label-width="formLabelWidth">
+							<el-select v-model="peopleInfo.Customer.Sex" style="width: 100%;">
+								<el-option label="男" :value="1"></el-option>
+								<el-option label="女" :value="2"></el-option>
+							</el-select>
+						</el-form-item>
+						<el-form-item label="民族" prop="Nation" :label-width="formLabelWidth">
+							<el-input v-model="peopleInfo.Customer.Nation"></el-input>
+						</el-form-item>
+						<el-form-item label="出生日期" prop="Birthday" :label-width="formLabelWidth">
+							<el-date-picker
+								v-model="peopleInfo.Customer.Birthday"
+								type="date"
+								style="width: 143px;margin-right: 8px;"
+							></el-date-picker>
+							<el-button-group>
+								<el-button style="padding: 7px 6px;width: 50%;">{{age}}</el-button>
+								<el-button style="padding: 7px 6px;width: 50%;">岁</el-button>
+							</el-button-group>
+						</el-form-item>
+						<el-form-item label="职业" prop="Occupation" :label-width="formLabelWidth">
+							<el-input v-model="peopleInfo.Customer.Occupation"></el-input>
+						</el-form-item>
+						<el-form-item label="婚姻状况" prop="MaritalStatus" :label-width="formLabelWidth">
+							<el-select v-model="peopleInfo.Customer.MaritalStatus">
+								<el-option label="未婚" :value="1"></el-option>
+								<el-option label="已婚" :value="2"></el-option>
+							</el-select>
+						</el-form-item>
+						<el-form-item label="手机号" prop="Tele" :label-width="formLabelWidth">
+							<el-input v-model="peopleInfo.Customer.Tele" autocomplete="off" maxlength="11"></el-input>
+						</el-form-item>
+						<el-form-item label="部门" prop="DeptName" :label-width="formLabelWidth">
+							<el-input v-model="peopleInfo.Customer.DeptName" autocomplete="off"></el-input>
+						</el-form-item>
+						<el-form-item label="班组" prop="TeamName" :label-width="formLabelWidth">
+							<el-input v-model="peopleInfo.Customer.TeamName"></el-input>
+						</el-form-item>
+						<el-form-item label="VIP属性" prop="VipFlag" :label-width="formLabelWidth">
+							<el-radio-group v-model="peopleInfo.Customer.VipFlag">
+								<el-radio :label="1">是</el-radio>
+								<el-radio :label="0">否</el-radio>
 							</el-radio-group>
-							<div slot="footer" class="dialog-footer">
-								<el-button @click="setReportTypeModal = false;">取消</el-button>
-								<el-button type="primary" @click="addReportTypeBtn" >确定</el-button>
-							</div>
-						</el-dialog> -->
-						<!-- 人员信息 -->
-						<el-dialog title="人员信息" :visible.sync="peopleInfoModal" width="1000px" :close-on-click-modal="false" class="peopleInfoForm" @close="$refs.peopleForm.resetFields()">
-							<el-form :model="peopleInfo.Customer" :rules="rulesPeople" ref="peopleForm" :inline="true" label-width="50px" >
-								<el-form-item label="身份证号" prop="IdcardNum" :label-width="formLabelWidth">
-									<el-input
-										v-model="peopleInfo.Customer.IdcardNum"
-										maxlength="18"
-										style="width: 130px;margin-right: 8px;"
-									></el-input>
-									<el-button type="primary" plain style @click="getIdentity">刷身份证</el-button>
-								</el-form-item>
-								<el-form-item label="体检卡号" prop="CardNum" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.CardNum" maxlength="20" autocomplete="off"></el-input>
-								</el-form-item>
-								<el-form-item label="姓名" prop="CustomerName" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.CustomerName" autocomplete="off"></el-input>
-								</el-form-item>
-								<el-form-item label="性别" prop="Sex" :label-width="formLabelWidth">
-									<el-select v-model="peopleInfo.Customer.Sex" style="width: 100%;">
-										<el-option label="男" :value="1"></el-option>
-										<el-option label="女" :value="2"></el-option>
-									</el-select>
-								</el-form-item>
-								<el-form-item label="民族" prop="Nation" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.Nation"></el-input>
-								</el-form-item>
-								<el-form-item label="出生日期" prop="Birthday" :label-width="formLabelWidth">
-									<el-date-picker
-										v-model="peopleInfo.Customer.Birthday"
-										type="date"
-										style="width: 143px;margin-right: 8px;"
-									></el-date-picker>
-									<el-button-group>
-										<el-button style="padding: 7px 6px;width: 50%;">{{age}}</el-button>
-										<el-button style="padding: 7px 6px;width: 50%;">岁</el-button>
-									</el-button-group>
-								</el-form-item>
-								<el-form-item label="职业" prop="Occupation" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.Occupation"></el-input>
-								</el-form-item>
-								<el-form-item label="婚姻状况" prop="MaritalStatus" :label-width="formLabelWidth">
-									<el-select v-model="peopleInfo.Customer.MaritalStatus">
-										<el-option label="未婚" :value="1"></el-option>
-										<el-option label="已婚" :value="2"></el-option>
-									</el-select>
-								</el-form-item>
-								<el-form-item label="手机号" prop="Tele" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.Tele" autocomplete="off" maxlength="11"></el-input>
-								</el-form-item>
-								<el-form-item label="部门" prop="DeptName" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.DeptName" autocomplete="off"></el-input>
-								</el-form-item>
-								<el-form-item label="班组" prop="TeamName" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.TeamName"></el-input>
-								</el-form-item>
-								<el-form-item label="VIP属性" prop="VipFlag" :label-width="formLabelWidth">
-									<el-radio-group v-model="peopleInfo.Customer.VipFlag">
-										<el-radio :label="1">是</el-radio>
-										<el-radio :label="0">否</el-radio>
-									</el-radio-group>
-								</el-form-item>
-								<el-form-item label="单位" prop="UnitName" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.UnitName"></el-input>
-								</el-form-item>
-								<el-form-item label="地址" prop="Addr" class="w65" :label-width="formLabelWidth">
-									<el-input v-model="peopleInfo.Customer.Addr"></el-input>
-								</el-form-item>
-								<el-form-item label="备注信息" prop="Remark" class="w100" :label-width="formLabelWidth">
-									<el-input type="textarea" v-model="peopleInfo.Customer.Remark"></el-input>
-								</el-form-item>
-							</el-form>
-							<div slot="footer" class="dialog-footer">
-								<el-button @click="peopleInfoModal = false;">取消</el-button>
-								<el-button type="primary" @click="addPeopleBtn(peopleInfo.Customer.IdcardNum)" >确定</el-button>
-							</div>
-						</el-dialog>
-						<orderDetails ref="orderDetail"></orderDetails>
-        </div>
+						</el-form-item>
+						<el-form-item label="单位" prop="UnitName" :label-width="formLabelWidth">
+							<el-input v-model="peopleInfo.Customer.UnitName"></el-input>
+						</el-form-item>
+						<el-form-item label="地址" prop="Addr" class="w65" :label-width="formLabelWidth">
+							<el-input v-model="peopleInfo.Customer.Addr"></el-input>
+						</el-form-item>
+						<el-form-item label="备注信息" prop="Remark" class="w100" :label-width="formLabelWidth">
+							<el-input type="textarea" v-model="peopleInfo.Customer.Remark"></el-input>
+						</el-form-item>
+					</el-form>
+					<div slot="footer" class="dialog-footer">
+						<el-button @click="peopleInfoModal = false;">取消</el-button>
+						<el-button type="primary" @click="addPeopleBtn(peopleInfo.Customer.IdcardNum)" >确定</el-button>
+					</div>
+				</el-dialog>
+				<orderDetails ref="orderDetail"></orderDetails>
+			</div>
     </el-row>
   </div>
 </template>
 
 <script>
 import moment from 'moment'
+import _ from 'lodash'
+import consts from "../../../utils/const"
 import PinyinMatch from 'pinyin-match'
 import orderDetails from './orderDetails.vue'
+import {mapState} from 'vuex'
    export default {
 		name: 'DDGrpOrder',
 		components: {orderDetails},
@@ -423,10 +407,11 @@ import orderDetails from './orderDetails.vue'
 				}
 			};
       return{
+				isAddPeople: true,//区别是否是添加人员还是修改人员
 				isFree: false,//优惠自由权限
 				isPeopleSave: true,
 				isMoreOrder: false,//是否允许单位同时存在多个订单
-				url: 'http://192.168.0.254:8889' + this.$api.ImportCustomer, // 上传路径需修改
+				url: consts.SF_REPORT_PATH + this.$api.ImportCustomer, // 上传路径需修改
 				timeRange: [
 					moment()
 						.subtract(1, 'year')
@@ -478,7 +463,7 @@ import orderDetails from './orderDetails.vue'
 				addPackageModal: false,
 				setTypeModal: false,
 				peopleInfoModal: false,
-				setReportTypeModal: false,
+
 				GetPackageList: [],//套餐项目集合
 				selectedLeft: [],// 选择套餐选中得集合
 				visible: false,
@@ -524,61 +509,52 @@ import orderDetails from './orderDetails.vue'
 				importParams: {},//筛选条件
 				package: {
 					PackageCode: '',
-					PackageName: '',
-					packageType:''
+					PackageName: ''
 				},
 				diy: 0,
 				diyPrice: '',
 				subOrderParams: {
 					GroupOrderCode: "",
+					UnitCode: '',
 					Operator: "001",
 					Orders: [
-						{
-							OrderCode: "00000000-0000-0000-0000-000000000000",
-							CustomerCode: "00000000-0000-0000-0000-000000000000",
-							CustomerName: "",
-							Sex: '',
-							MaritalStatus: 1,
-							Nation: "",
-							Birthday: "",
-							IdcardNum: "",
+						{//orderCode\orderType
+							OrderCode: '00000000-0000-0000-0000-000000000000',
+							CustomerCode: '00000000-0000-0000-0000-000000000000',
+							CustomerName: '',
+							Sex: '',//1 男 2 女
+							MaritalStatus: 1,//1 未婚  =2 已婚
+							Nation: '',
+							Birthday: '',
+							IdcardNum: '',
 							Photo: '',
-							VipFlag: 0,
-							CardNum: "",
-							Tele: "",
-							Addr: "",
-							Occupation: "",
-							UnitName: "",
-							DeptName: "",
-							TeamName: "",
-							PackageCode: "00000000-0000-0000-0000-000000000000",
-							OrderVipFlag: 0,
-							OrderType: 0,
-							ReportType: '',//缺少一个报告类型ReportType
-							CreateOrderTime: moment().format(),
-							Status: "",
-							IsReped: false,
-							IsUnitOrder: true,
+							VipFlag: 0,//0非 1 是
+							CardNum: '',
+							Tele: '',
+							Addr: '',
+							Occupation: '',
+							UnitName: '',
+							DeptName: '',
+							TeamName: '',
+							Packages: [{
+								PackageCode: '',
+								PackageName: ''
+							}],
+							OrderVipFlag: 0,//0非 1 是
+							OrderType: '',
+							ReportType: 0,
+							CreateOrderTime: moment().format('YYYY-MM-DD'),
+							Status: '',
 							IsLock: false,
-							Remark: "",
-							OrderMoney: 0,//所有项目总金额
-							PaidMoney: 0,
-							PaidStatus: true,
-							UnitPayMoney: 0,// 无限  传0   有限：输入金额；固定 OrderMoney
-							DiyFlag: 0,
-							Items: [
-								// {
-								// 	ItemCode: "",
-								// 	ItemName: "",
-								// 	FullPrice: 0,
-								// 	ExePrice: 0,
-								// 	IsUnitItem: true,
-								// 	IsGiveUp: true,
-								// 	FeeType: "",
-								// 	CheckStatus: 0
-								// }
-							],
-							ReportTakeWay: 0
+							Remark: '',
+							OrderMoney: 0,
+							PaidStatus: 0,
+							PaidMoney: 0,//已支付金额，查询的
+							UnitPayMoney: 0,//单位付费金额。查询的
+							Items: [],
+							ReportTakeWay: 0,//报告领取方式
+							ReportType: 1,// 报告类型
+							SpecialReportType: 0//特殊报告类型
 						}
 					]
 				},
@@ -637,9 +613,6 @@ import orderDetails from './orderDetails.vue'
 					]
 				},
 				load: '',
-				OrderType: 0,
-				ReportType: 0,//报告类型
-				orderTypes: []
       }
     },
     created: function () {
@@ -685,19 +658,6 @@ import orderDetails from './orderDetails.vue'
 					this.loading = false;
 				})
 			},
-			getTypes(){
-				if (this.orderTypes.length > 0) return;
-				this.$getType('OrderType').then(res => {
-					if (res.status === 200 && res.data.status === 1) {
-						this.orderTypes = res.data.entity;
-					}
-				})
-				// this.$getType('ReportType').then(res => {
-				// 	if (res.status === 200 && res.data.status === 1) {
-				// 		this.reportTypes = res.data.entity;
-				// 	}
-				// })
-			},
 			//获取单位团检订单号
 			subOrders(UnitCode){
 				this.$axios.post(this.$api.CreateGroupOrder, {
@@ -707,7 +667,6 @@ import orderDetails from './orderDetails.vue'
 					if (res.data.status === 1) {
 						this.subOrderParams.GroupOrderCode = res.data.entity;
 						this.importData = [];
-						this.getTypes();
 						this.importCustomerModal = true;
 					} else {
 						this.$message.error(res.data.message)
@@ -729,16 +688,8 @@ import orderDetails from './orderDetails.vue'
 					return;
 				}
 				for(let key of this.importAllData) {
-					if ((!key.Items && key.Items.length === 0) || ((key.Items && key.Items.length == 0) || key.ReportType)) {
+					if (key.Items && key.Items.length == 0) {
 						this.$message.error('请对所有人员配置套餐');
-						return;
-					}
-					if (!key.DiyFlag && key.DiyFlag != 0) {
-						this.$message.error('请对所有人员选择定制类型');
-						return;
-					}
-					if (!key.ReportType && key.ReportType != 0) {
-						this.$message.error('请对所有人员选择报告类型');
 						return;
 					}
 				}
@@ -748,7 +699,7 @@ import orderDetails from './orderDetails.vue'
           text: '提交订单中...',
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
-        });
+				});
 				this.$axios.post(this.$api.SubmitGroupOrder, this.subOrderParams).then(res => {
 					if (res.data.status === 1) {
 						this.$message.success('订单创建成功！');
@@ -788,10 +739,10 @@ import orderDetails from './orderDetails.vue'
 			},
 			//创建订单按钮
 			createOrderBtn(data){
+				this.subOrderParams.UnitCode = data.unitCode;
 				if (data.orderCode) {
 					this.subOrderParams.GroupOrderCode = data.orderCode;
 					this.importData = [];
-					this.getTypes();
 					this.importCustomerModal = true;
 				} else {
 					if (data.orders.length > 0) {
@@ -812,7 +763,6 @@ import orderDetails from './orderDetails.vue'
 						this.subOrders(data.unitCode);
 					}
 				}
-
 			},
 			//导入人员搜索
 			filterData(){
@@ -903,6 +853,10 @@ import orderDetails from './orderDetails.vue'
 										key2 = key.substr(0,1).toUpperCase() + key.substr(1);
 									}
 									people[key2] = x[key];
+									people.Packages = [{
+										PackageCode: '',
+										PackageName: ''
+									}];
 								}
 							}
 							this.importData.push(people)
@@ -914,14 +868,18 @@ import orderDetails from './orderDetails.vue'
 						}
 						this.importData = this.importAllData = _.uniqBy(this.importData, 'IdcardNum');
 						this.importAllData.forEach((x,index) => {
-							this.deptNames.push({
-								value: index,
-								label: x.DeptName
-							});
-							this.teamNames.push({
-								value: index,
-								label: x.TeamName
-							});
+							if(x.DeptName) {
+								this.deptNames.push({
+									value: index,
+									label: x.DeptName
+								});
+							}
+							if(x.TeamName) {
+								this.teamNames.push({
+									value: index,
+									label: x.TeamName
+								});
+							}
 						})
 						this.deptNames = _.uniqBy(this.deptNames, 'label');
 						this.teamNames = _.uniqBy(this.teamNames, 'label');
@@ -940,7 +898,7 @@ import orderDetails from './orderDetails.vue'
 			},
 			uploadErr(err, file, fileList){
 				this.$message.error(err.message);
-				this.importData = [];
+				// this.importData = [];
 				this.load.close();
 			},
 			//删除单位
@@ -966,11 +924,13 @@ import orderDetails from './orderDetails.vue'
 			// 导入人员 - 删除按钮
 			delBtn(){
 				if (this.multipleSelection.length === 0) {
-					this.$message.error('请先选择后删除！')
+					this.$message.error('请先选择后删除！');
+					return;
 				}
-				this.importData = this.importData.filter(x => {
-					return this.multipleSelection.some(y => y.CustomerCode !== x.CustomerCode);
+				this.importAllData = this.importAllData.filter(x => {
+					return !this.multipleSelection.some(y => y.IdcardNum == x.IdcardNum);
 				})
+				this.filterData();
 			},
 			// 获取身份信息
 			getIdentity() {
@@ -978,6 +938,7 @@ import orderDetails from './orderDetails.vue'
 			},
 			//查询客户信息
 			getCustomer(key){
+				if(!this.peopleInfo.Customer.CustomerName && !this.peopleInfo.Customer.Sex) return;
 				this.$axios.get(this.$api.GetCustomer, {
 					params: {
 						IdcardNum: this.peopleInfo.Customer.IdcardNum
@@ -985,7 +946,10 @@ import orderDetails from './orderDetails.vue'
 				}).then(res => {
 					if (res.data.entity && res.data.status === 1){
 							let obj = res.data.entity;
-							this.setCustomer(obj);
+							if(obj) {
+								this.clearPropleInfo();
+								this.setCustomer(obj);
+							}
 					}
 				})
 			},
@@ -1023,41 +987,33 @@ import orderDetails from './orderDetails.vue'
 			editCustomer(data) {
 				this.peopleInfoModal = true;
 				this.setCustomer(data);
+				this.isAddPeople = false;
 			},
 			//保存人员信息-确定
 			addPeopleBtn(id){
 				this.$refs.peopleForm.validate((valid) => {
 					if(valid) {
 						this.peopleInfoModal = false;
-						let index = this.importData.findIndex(x => x.IdcardNum === id);
-						if (index !== -1) {
-							for(let key in this.peopleInfo.Customer) {
-								if (this.peopleInfo.Customer.hasOwnProperty(key)) {
-									let key2 = '';
-									if (key.length > 0) {
-										key2 = key.substr(0,1).toUpperCase() + key.substr(1);
-									}
-									if (this.peopleInfo.Customer[key] && this.peopleInfo.Customer[key]!== '00000000-0000-0000-0000-000000000000') this.importData[index][key] = this.peopleInfo.Customer[key];
-								}
-							}
+						let index = this.importAllData.findIndex(x => x.IdcardNum === id);
+						if (index !== -1 && this.isAddPeople) {
+							this.$message.error('该人员已导入，请重新检查人员信息');
+							return;
 						} else {
 							let ind = this.importData.length;
-							this.importData.push({});
+							let obj = {};
 							for(let key in this.peopleInfo.Customer) {
 								if (this.peopleInfo.Customer.hasOwnProperty(key)) {
 									let key2 = '';
 									if (key.length > 0) {
 										key2 = key.substr(0,1).toUpperCase() + key.substr(1);
 									}
-									this.importData[ind][key] = this.peopleInfo.Customer[key];
+									obj[key] = this.peopleInfo.Customer[key];
 								}
 							}
-							this.importAllData.push(this.importData[this.importData.length-1])
+							this.importAllData.push(obj)
+							console.log(this.importAllData)
 						}
-						this.importData = this.importData;
-
-					} else {
-						return;
+						this.isAddPeople = true;
 					}
 				})
 			},
@@ -1129,7 +1085,7 @@ import orderDetails from './orderDetails.vue'
 					this.package.PackageName = '';
 					this.package.packageType = '';
 				} else {
-					this.selectedLeft = a.children;
+					this.selectedLeft = _.cloneDeep(a.children);
 					this.package.PackageCode = a.packageCode;
 					this.package.PackageName = a.packageName;
 				}
@@ -1153,14 +1109,7 @@ import orderDetails from './orderDetails.vue'
 				}
 				this.setTypeModal = true;
 			},
-			// 报告类型按钮
-			openSetReportType(){
-				if (this.multipleSelection.length === 0) {
-					this.$message.error('请先选择后选择报告类型！');
-					return;
-				}
-				this.setReportTypeModal = true;
-			},
+
 			// 添加套餐取消按钮
 			cancelPackageBtn() {
 				this.selectedLeft = [];
@@ -1172,35 +1121,59 @@ import orderDetails from './orderDetails.vue'
 			},
 			// 添加套餐确定按钮
 			addPackageBtn() {
+				this.USERINFO.discount = 0;//预设系统最低折扣
 				this.visible = false;
+
 				if (this.$refs.tree.getCheckedNodes().length === 0) {
 					this.$message.error('请先选择套餐后点击确定！');
 					return;
 				}
-				if (this.isDisCount2) {
-					this.$message.error('请输入正确的折扣');
-					return;
-				};
+				let lowestPriceAll = 0;//项目最低价之和
+				let exePriceAll = 0;//项目原执行价之和
+				let fullPriceAll = 0;//项目原价之和
+				this.selectedLeft.forEach(x => {
+					lowestPriceAll += x.lowestPrice;
+					exePriceAll += x.exePrice;
+					fullPriceAll += x.fullPrice;
+				})
+
+				this.selectedLeft = this.selectedLeft.filter(x => x.itemCode);
+				let lowestDiscount = exePriceAll/fullPriceAll;
+				if(this.isFree) {
+					if(this.USERINFO.discount > this.packageDiscount.discount2) {
+						this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+						return;
+					}
+				} else {
+					lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+					if(lowestDiscount > this.packageDiscount.discount2) {
+						this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
+						return;
+					}
+					if (lowestPriceAll > this.packageDiscount.exePrice) {
+						this.$message.error(`您最低的折扣金额为${lowestPriceAll.toFixed(2)}元`);
+						return;
+					}
+				}
+
+				let discount = this.packageDiscount.exePrice / fullPriceAll;
+				this.distributePrice(this.selectedLeft, this.packageDiscount.exePrice,discount);
+
 				this.multipleSelection.forEach(x => {
 					this.importData.forEach((y, index) => {
 						if (x.IdcardNum === y.IdcardNum) {
 							this.importData[index].Items = this.selectedLeft.map(z => {
-								z.exePrice = Number((z.fullPrice * this.packageDiscount.discount2).toFixed(2));
-								if (!z.IsUnitItem) z.IsUnitItem = true;
-								if (!z.IsGiveUp) z.IsGiveUp = false;
-								if (!z.FeeType) z.FeeType = '';
-								if (!z.CheckStatus) z.CheckStatus = 0;
 								return this.$handleUpperCase(z);
 							});
-							this.importData[index].PackageCode = this.package.PackageCode;
-							this.importData[index].PackageName = this.package.PackageName;
+
+							this.importData[index].Packages[0].PackageCode = this.package.PackageCode;
+							this.importData[index].Packages[0].PackageName = this.package.PackageName;
 							this.importData[index].OrderMoney = 0;
 							if(!this.diy && !this.importData[index].DiyFlag) {
 								this.importData[index].DiyFlag = 0;
 							}
-							this.selectedLeft.forEach(y => {
-								this.importData[index].OrderMoney += y.exePrice;
-							})
+							this.importData[index].OrderMoney = this.packageDiscount.exePrice;
+
 							if(this.importData[index].DiyFlag === 0) {
 								this.importData[index].UnitPayMoney = this.importData[index].OrderMoney;
 							} else if (this.importData[index].DiyFlag === 1) {
@@ -1208,12 +1181,34 @@ import orderDetails from './orderDetails.vue'
 							} else if (this.importData[index].DiyFlag === 2) {
 								this.importData[index].UnitPayMoney = 0;
 							}
-							this.$set(this.importData, index , y);
+							this.$set(this.importData, index, y);
 						}
 					});
 				});
 				this.$refs.tree.setCheckedKeys([]);
 				this.addPackageModal = false;
+			},
+			// 对项目执行价的处理
+			distributePrice(data, exePriceAll, discount){//要处理的一维数组，执行价之和，折扣率
+				let difPrice = exePriceAll;
+				data = data.map((x, index) => {
+					x.exePrice = x.fullPrice * discount;
+					if(x.exePrice <= x.lowestPrice) {
+						difPrice = difPrice - x.lowestPrice;
+						x.exePrice = x.lowestPrice;
+					}
+					return x;
+				})
+				if (difPrice !== exePriceAll ) {
+					data = data.filter(x => {
+						return x.exePrice > x.lowestPrice;
+					})
+					let lastFullPrice = 0;
+					data.forEach(x => {
+						lastFullPrice += x.fullPrice;
+					})
+					this.distributePrice(data, difPrice, difPrice / lastFullPrice);
+				}
 			},
 			// 定制类型-确定
 			addDIYBtn(){
@@ -1243,18 +1238,6 @@ import orderDetails from './orderDetails.vue'
 
 					this.setTypeModal = false;
 				}
-			},
-			//订单类型-确定
-			addReportTypeBtn(){
-				this.multipleSelection.forEach(x => {
-						this.importData.forEach((y, index) => {
-							if (x.IdcardNum === y.IdcardNum) {
-								this.importData[index].ReportType = this.ReportType;
-								this.$set(this.importData, index, y);
-							}
-						})
-					})
-				this.setReportTypeModal = false;
 			},
 			//获取套餐列表-选择套餐
 			getPackageList(){
@@ -1400,10 +1383,14 @@ import orderDetails from './orderDetails.vue'
 				this.peopleInfo.Customer.Sex = id.substr(16, 1) % 2 ? 1: 2;
 			}
 		},
+		computed: {
+			...mapState([
+				'USERINFO'
+			])
+		},
 		watch: {
 			'peopleInfo.Customer.IdcardNum': function(val, oldVal) {
 				if (val !== oldVal && val.length === 18) {
-					this.clearPropleInfo();
 					this.getAgeBrith(val)
 					this.getCustomer();
 				} else {
@@ -1479,4 +1466,3 @@ import orderDetails from './orderDetails.vue'
     margin-right: 16px;
 }
 </style>
-

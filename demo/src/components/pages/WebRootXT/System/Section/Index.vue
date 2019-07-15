@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>科室</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
@@ -44,6 +43,7 @@
         @selection-change="handleSelectionChange"
         v-loading="loading"
         style="width: 100%"
+        height="9999"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column property="deptCode" label="科室编号" align="left"></el-table-column>
@@ -71,7 +71,6 @@
           ></el-pagination>
         </div>
       </div>
-    </div>
     <SectionCreate ref="SectionCreate"></SectionCreate>
   </div>
 </template>

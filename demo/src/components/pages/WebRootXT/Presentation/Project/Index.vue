@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>报告项目</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
@@ -54,7 +53,7 @@
           </div>
         </div>
       </div>
-      <el-table ref="singleTable" :data="tableData" v-loading="loading" style="width: 100%">
+      <el-table ref="singleTable" :data="tableData" v-loading="loading" height="9999" style="width: 100%">
         <el-table-column type="index" width="55" label="序号"></el-table-column>
         <el-table-column property="subItemCode" label="报告项目编号" align="center"></el-table-column>
         <el-table-column property="subItemName" label="报告项目名称" align="center"></el-table-column>
@@ -85,7 +84,6 @@
           ></el-pagination>
         </div>
       </div>
-    </div>
     <ProjectCreate ref="ProjectCreate"></ProjectCreate>
     <ProjectEdit ref="ProjectEdit"></ProjectEdit>
     <ProjectBackCode ref="ProjectBackCode"></ProjectBackCode>

@@ -115,7 +115,50 @@
       @close="closeImg"
       width="600px"
     >
-      <img :src="imgBase64">
+      <img :src="imgBase64" />
+    </el-dialog>
+    <el-dialog
+      title="筛查建议"
+      :visible.sync="dialogshaichaIsShow"
+      :close-on-click-modal="false"
+      @open="getshaichaData"
+      width="600px"
+    >
+      <el-form :model="shaichaData">
+        <el-form-item label>
+          <el-select
+            v-model="selval"
+            @change="setCondition"
+            clearable
+            filterable
+            remote
+            @clear="selclear"
+            placeholder="请输入关键字"
+            :remote-method="getshaichaSelData"
+            :loading="dialogSelLoading"
+          >
+            <el-option
+              v-for="item in shaichaSelData"
+              :key="item.advCode"
+              :label="item.advName"
+              :value="item.advCode"
+              filter-placement="bottom-end"
+            >{{item.advName}}</el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label>
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 6, maxRows: 10}"
+            v-model="shaichaData.content"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeShaicha">取 消</el-button>
+        <el-button type="primary" @click="saveShaichaData">确 定</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -130,6 +173,7 @@ export default {
       dialoglabinsIsShow: false,
       dialogchrinsIsShow: false,
       dialogimgIsShow: false,
+      dialogshaichaIsShow: false,
       imgPath: "",
       imgBase64: "",
       genItemName: "",
@@ -138,10 +182,24 @@ export default {
       genSearch: {},
       labSearch: {},
       chrSearch: {},
+      shaichaSearch: {},
+      isInsert: true,
+      selval: "",
+      operatorCode: "",
+      dialogSelLoading: false,
       chrOptions: [],
       genData: {},
       labData: {},
       chrData: {},
+      shaichaData: {
+        orderCode: "",
+        innerCode: null,
+        content: "",
+        advName: "",
+        isStar: false,
+        orderNum: 0
+      },
+      shaichaSelData: [],
       title: "一般检查编辑",
       suojianType: "",
       suojianRows: "",
@@ -232,10 +290,10 @@ export default {
     getImg() {
       this.$axios
         .post(this.$api.GetBase64StringByImagePath, {
-          Condition: "E:\\project\\vue\\src\\assets\\img\\xiongbu.jpg"
+          // Condition: "E:\\project\\vue\\src\\assets\\img\\xiongbu.jpg"
+          Condition: this.imgPath
         })
         .then(res => {
-          // Condition : "E:\\project\\vue\\src\\assets\\img\\xiongbu.jpg"Condition:this.imgPath
           if (res.data.status == 1) {
             let path = "data:image/jpg;base64," + res.data.entity;
             this.imgBase64 = path;
@@ -245,6 +303,83 @@ export default {
         })
         .catch(err => {
           console.error(err.message);
+        });
+    },
+    getshaichaData() {
+      this.getshaichaSelData();
+      this.$axios
+        .post(this, api.GetLstPgMasterRstDetailByOrderCode, {
+          orderCode: this.shaichaSearch.orderCode,
+          operatorCode: this.operatorCode
+        })
+        .then(res => {
+          if (res.data.status == 1) {
+            if (res.data.entity.length > 0) {
+              this.shaichaData.content = res.data.entity[0].content;
+              this.isInsert = false;
+            } else {
+              this.isInsert = true;
+            }
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
+    saveShaichaData() {
+      this.shaichaData.orderCode = this.shaichaSearch.orderCode;
+      this.$axios
+        .post(
+          this.isInsert
+            ? this.api.InsertPGMasterRstDetail
+            : this.api.UpdatePGMasterRstDetail,
+          {
+            request: this.shaichaData
+          }
+        )
+        .then(res => {
+          if (res.data.status == 1) {
+            this.$message.success("保存成功");
+          } else {
+            this.$message.success("保存失败");
+            console.log(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    // InsertPGMasterRstDetail
+    // UpdatePGMasterRstDetail
+    selclear() {
+      this.getshaichaSelData();
+    },
+    setCondition(val) {
+      if (val) {
+        this.shaichaData.content += ";" + val;
+      }
+    },
+    getshaichaSelData(queryName) {
+      if (queryName) {
+        queryName = queryName.replace(/\s+/g, ""); //去空格
+      }
+      this.dialogSelLoading = true;
+      this.$axios
+        .post(this.$api.GetMedicalAdviceByCondition, {
+          Condition: queryName,
+          orderCode: this.shaichaSearch.orderCode
+        })
+        .then(res => {
+          this.dialogSelLoading = false;
+          if (res.data.status == 1) {
+            this.shaichaSelData = res.data.entity;
+          } else {
+            console.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          this.dialogSelLoading = false;
+          console.error(err);
         });
     },
     //更新分检非LIS数据
@@ -333,6 +468,10 @@ export default {
       this.imgPath = "";
       this.imgBase64 = "";
       this.dialogimgIsShow = false;
+    },
+    closeShaicha() {
+      this.selval = "";
+      this.dialogshaichaIsShow = false;
     }
   }
 };

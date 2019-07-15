@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>套餐模板</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
@@ -61,6 +60,7 @@
         :data="tableData"
         v-loading="loading"
         style="width: 100%"
+        height="9999"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column property="packageName" label="套餐名称" align="center"></el-table-column>
@@ -97,7 +97,6 @@
           ></el-pagination>
         </div>
       </div>
-    </div>
     <SetmealCreat ref="SetmealCreat"></SetmealCreat>
    <SetmealEdit ref="SetmealEdit"></SetmealEdit>
   </div>

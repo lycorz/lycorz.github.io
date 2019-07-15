@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>用户管理</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
@@ -28,6 +27,7 @@
         :data="tableData"
         @selection-change="handleSelectionChange"
         v-loading="loading"
+        height="9999"
         style="width: 100%"
       >
         <el-table-column type="selection" width="35px"></el-table-column>
@@ -132,7 +132,7 @@
           ></el-pagination>
         </div>
       </div>
-      <el-dialog :visible.sync="imgdialogVisible" width="700px" class="infoucs">
+      <el-dialog :visible.sync="imgdialogVisible"  :close-on-click-modal="false" width="700px" class="infoucs">
         <el-carousel arrow="always" height="600px">
           <el-carousel-item v-for="item in imgItems" :key="item">
             <div style="background: #475669; height:600px;width:700px">
@@ -141,7 +141,6 @@
           </el-carousel-item>
         </el-carousel>
       </el-dialog>
-    </div>
     <UserCreate ref="UserCreate"></UserCreate>
     <CertCreate ref="CertCreate"></CertCreate>
   </div>

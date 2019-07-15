@@ -27,10 +27,11 @@
     <!-- 内容面板，不同类型显示不同 -->
     <div class="contentContainer">
       <!-- 一般检查 if ybjc.type is 1 render ybjc -->
-      <div v-if="choosedDept == '02'">
+      <div v-if="choosedDept === '01' || choosedDept === '02'">
         <div class="ybjc" :key="index" v-for="(item,index) in ybjc">
           <div class="subTitle">
-            <span>一般检查（{{item.rptItemName}}）</span>
+            <span v-if="choosedDept === '01'">一般检查（{{item.rptItemName}}）</span>
+            <span v-else>{{item.rptItemName}}</span>
           </div>
           <div class="ybjcTable">
             <el-table :data="item.commonSubItemResults" style="width: 100%">
@@ -154,6 +155,10 @@ export default {
       deptTypes: [
         {
           label: "一般检查",
+          value: "01"
+        },
+        {
+          label: "物理检查",
           value: "02"
         },
         {
@@ -170,7 +175,7 @@ export default {
   methods: {
     //初始化
     getInit() {
-      this.choosedDept = "02";
+      this.choosedDept = "01";
       //初始化获取结果
       this.getResult(this.orderCode, this.choosedDept);
     },
@@ -183,7 +188,7 @@ export default {
       let that = this;
       that.loading1 = true;
       //获取一般检查结果
-      if (chooseCode == "02") {
+      if (chooseCode == "01" || chooseCode == "02") {
         this.$axios
           .get(this.$api.GetCommonResult, {
             params: {
@@ -198,13 +203,15 @@ export default {
               if (response.data.entity.length != 0) {
                 that.ybjc = response.data.entity;
               } else {
-                that.$message.error(`无一般检查项目`);
+                that.ybjc = null;
+                that.$message.error(`无检查项目`);
               }
             } else {
               that.$message.error(`GetCommonResult${response.data.message}`);
             }
           })
           .catch(function(error) {
+            that.ybjc = null;
             that.loading = false;
             that.$message.error(`GetCommonResult${error}`);
           });
@@ -225,9 +232,11 @@ export default {
               if (response.data.entity.length != 0) {
                 that.sysjc = response.data.entity;
               } else {
+                that.sysjc = null;
                 that.$message.error(`无实验室检查项目`);
               }
             } else {
+              that.sysjc = null;
               that.$message.error(`GetLisResult${response.data.message}`);
             }
           })
@@ -252,9 +261,11 @@ export default {
               if (response.data.entity.length != 0) {
                 that.fzjc = response.data.entity;
               } else {
+                that.fzjc = null;
                 that.$message.error(`无辅助检查项目`);
               }
             } else {
+              that.fzjc = null;
               that.$message.error(`ResAuxiliaryResult${response.data.message}`);
             }
           })

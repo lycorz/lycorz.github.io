@@ -3,113 +3,115 @@
     <div class="topTitle">
       <span>总检审核</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction: column;">
-      <div class="peopleData">
-        <div class="propleSearch">
-          <el-input
-            placeholder="姓名/卡号/单位名"
-            v-model="request.Condition"
-            class="arcRadius"
-            @keyup.enter.native="getData()"
-            style="width: 150px;"
-          >
-
-          </el-input>
-          <div class="searchItem" style="display: inline-block;margin: 0 16px;">
-            <el-select @change="selChange" v-model="request.Status">
-              <el-option
-                v-for="item in statusEnum"
-                :key="item.value"
-                :label="item.name"
-                :value="item.value"
-                filter-placement="bottom-end"
-              >{{item.name}}</el-option>
-            </el-select>
-          </div>
-          <div style="display: inline-block;margin: 0 16px;">
-            <el-date-picker
-              v-model="request.DateRange"
-              type="datetimerange"
-              :picker-options="pickerOptions"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              align="right"
-            ></el-date-picker>
-          </div>
-          <el-button type="primary" @click="getData()">查询</el-button>
+    <div class="peopleData">
+      <div class="propleSearch">
+        <el-input
+          placeholder="姓名/卡号/单位名"
+          v-model="request.Condition"
+          class="arcRadius"
+          @keyup.enter.native="getData()"
+          style="width: 150px;"
+        ></el-input>
+        <div class="searchItem" style="display: inline-block;margin: 0 16px;">
+          <el-select @change="selChange" v-model="request.Status">
+            <el-option
+              v-for="item in statusEnum"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+              filter-placement="bottom-end"
+            >{{item.name}}</el-option>
+          </el-select>
         </div>
+        <div style="display: inline-block;margin: 0 16px;">
+          <el-date-picker
+            v-model="request.DateRange"
+            type="datetimerange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right"
+          ></el-date-picker>
+        </div>
+        <el-button type="primary" @click="getData()">查询</el-button>
       </div>
-      <el-table ref="singleTable" :data="tableData" v-loading="loading" style="width: 100%">
-        <el-table-column type="index" label="序号" align="center"></el-table-column>
-        <el-table-column label="客户姓名" width="100" align="center">
-          <template slot-scope="scope">
-            <el-popover
-              :trigger=" scope.row.isCrisis==1?'hover':'manual'"
-              @show="getAbnormal(scope.row.orderCode)"
-              placement="right"
-            >
-              <p>危机值</p>
-              <p v-for="(item,index) of abnormalData" :key="index">{{ item.keys }}</p>
-              <div slot="reference" class="name-wrapper" style=" position: relative;">
-                <i
-                  style="color:#F56C6C;position: absolute;left: -10px"
-                  class="iconfont"
-                  v-if="scope.row.isCrisis==1"
-                >&#xe624;</i>
-                <span>{{ scope.row.customerName }}</span>
-                <!-- <span style="color:red">{{ scope.row.customerName }}</span>
-                <span v-else></span>-->
-              </div>
-            </el-popover>
-          </template>
-        </el-table-column>
-        <el-table-column property="customerGender" label="性别" width align="center" :sortable="true"></el-table-column>
-        <el-table-column property="age" label="年龄" align="age" :sortable="true"></el-table-column>
-        <el-table-column property="cardNum" label="卡号" width="200" align="center" :sortable="true"></el-table-column>
-        <el-table-column
-          property="idCardNum"
-          label="身份证号"
-          width="120"
-          align="center"
-          :sortable="true"
-        ></el-table-column>
-        <el-table-column property="unitName" label="单位名称" align="center"></el-table-column>
-        <el-table-column property="deptName" label="部门" align="center"></el-table-column>
-        <el-table-column property="teamName" label="组别" align="center"></el-table-column>
-        <el-table-column property="checkBeginTime" label="体检开始时间" width="150" align="center">
-          <template slot-scope="scope">{{ scope.row.checkBeginTime| formatDate('YYYY-MM-DD') }}</template>
-        </el-table-column>
-        <el-table-column property="summaryFinishTime" label="报告回传时间" width="150" align="center">
-          <template slot-scope="scope">{{scope.row.summaryFinishTime | formatDate('YYYY-MM-DD') }}</template>
-        </el-table-column>
-        <!-- <el-table-column label="驳回" align="center">
-          <i style="color:#F56C6C" class="iconfont" v-if="tableData.isReject==0">&#xe623;</i>
-        </el-table-column>-->
-        <el-table-column label="操作" fixed="right" :width="caozuowidth" align="center">
-          <template slot-scope="scope">
-            <el-button type="text" v-if="strobj==0" @click="lock(scope.$index,scope.row)">锁定</el-button>
-            <div v-else-if="strobj==2">
-              <el-button type="text" @click="unlock(scope.$index,scope.row)">解锁</el-button>
-              <el-button type="text" @click="auditing(scope.$index,scope.row)">审核</el-button>
+    </div>
+    <el-table
+      ref="singleTable"
+      :data="tableData"
+      height="9999"
+      v-loading="loading"
+      style="width: 100%"
+    >
+      <el-table-column type="index" label="序号" align="center"></el-table-column>
+      <el-table-column label="客户姓名" width="100" align="center">
+        <template slot-scope="scope">
+          <el-popover
+            :trigger=" scope.row.isCrisis==1?'hover':'manual'"
+            @show="getAbnormal(scope.row.orderCode)"
+            placement="right"
+          >
+            <p>危机值</p>
+            <p v-for="(item,index) of abnormalData" :key="index">{{ item.keys }}</p>
+            <div slot="reference" class="name-wrapper" style=" position: relative;">
+              <i
+                style="color:#F56C6C;position: absolute;left: -10px"
+                class="iconfont"
+                v-if="scope.row.isCrisis==1"
+              >&#xe624;</i>
+              <span>{{ scope.row.customerName }}</span>
+              <!-- <span style="color:red">{{ scope.row.customerName }}</span>
+              <span v-else></span>-->
             </div>
-            <el-button type="text" v-else @click="see(scope.row,true)">查看</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- 底部信息栏 -->
-      <div class="fixBottom">
-        <div class="right">
-          <el-pagination
-            style="display:inline-block;text-align:right;"
-            :current-page="request.PageIndex"
-            @current-change="handleCurrentChange"
-            @size-change="sizeChange"
-            :page-sizes="[10, 15, 20, 30,50,100]"
-            layout="sizes, prev, pager, next, jumper"
-            :page-count="pageNum"
-          ></el-pagination>
-        </div>
+          </el-popover>
+        </template>
+      </el-table-column>
+      <el-table-column property="customerGender" label="性别" width align="center" :sortable="true"></el-table-column>
+      <el-table-column property="age" label="年龄" align="age" :sortable="true"></el-table-column>
+      <el-table-column property="cardNum" label="卡号" width="200" align="center" :sortable="true"></el-table-column>
+      <el-table-column
+        property="idCardNum"
+        label="身份证号"
+        width="120"
+        align="center"
+        :sortable="true"
+      ></el-table-column>
+      <el-table-column property="unitName" label="单位名称" align="center"></el-table-column>
+      <el-table-column property="deptName" label="部门" align="center"></el-table-column>
+      <el-table-column property="teamName" label="组别" align="center"></el-table-column>
+      <el-table-column property="checkBeginTime" label="体检开始时间" width="150" align="center">
+        <template slot-scope="scope">{{ scope.row.checkBeginTime| formatDate('YYYY-MM-DD') }}</template>
+      </el-table-column>
+      <el-table-column property="summaryFinishTime" label="报告回传时间" width="150" align="center">
+        <template slot-scope="scope">{{scope.row.summaryFinishTime | formatDate('YYYY-MM-DD') }}</template>
+      </el-table-column>
+      <!-- <el-table-column label="驳回" align="center">
+          <i style="color:#F56C6C" class="iconfont" v-if="tableData.isReject==0">&#xe623;</i>
+      </el-table-column>-->
+      <el-table-column label="操作" fixed="right" :width="caozuowidth" align="center">
+        <template slot-scope="scope">
+          <el-button type="text" v-if="strobj==0" @click="lock(scope.$index,scope.row)">锁定</el-button>
+          <div v-else-if="strobj==2">
+            <el-button type="text" @click="unlock(scope.$index,scope.row)">解锁</el-button>
+            <el-button type="text" @click="auditing(scope.$index,scope.row)">审核</el-button>
+          </div>
+          <el-button type="text" v-else @click="see(scope.row,true)">查看</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 底部信息栏 -->
+    <div class="fixBottom">
+      <div class="right">
+        <el-pagination
+          style="display:inline-block;text-align:right;"
+          :current-page="request.PageIndex"
+          @current-change="handleCurrentChange"
+          @size-change="sizeChange"
+          :page-sizes="[10, 15, 20, 30,50,100]"
+          layout="sizes, prev, pager, next, jumper"
+          :page-count="pageNum"
+        ></el-pagination>
       </div>
     </div>
   </div>

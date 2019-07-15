@@ -3,7 +3,6 @@
     <div class="topTitle">
       <span>分检结论模板</span>
     </div>
-    <div style="flex:1;overflow: hidden;display: flex;flex-direction:column;">
       <div class="peopleData">
         <div class="propleSearch">
           <el-input
@@ -50,6 +49,7 @@
         @selection-change="handleSelectionChange"
         v-loading="loading"
         style="width: 100%"
+        height="9999"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column property="tmplCode" label="模版编号" align="left"></el-table-column>
@@ -82,7 +82,6 @@
           ></el-pagination>
         </div>
       </div>
-    </div>
     <PhysicsCreate ref="PhysicsCreate"></PhysicsCreate>
     <PhysicsEdit ref="PhysicsEdit"></PhysicsEdit>
   </div>
