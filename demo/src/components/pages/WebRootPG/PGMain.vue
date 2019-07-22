@@ -456,37 +456,6 @@ export default {
     //评估
     auditing(index, row) {
       this.see(row, false);
-      // let that = this;
-      // const loading = this.$loading({
-      //   lock: true,
-      //   text: "评估中，请稍后"
-      // });
-      // this.$axios
-      //   .post(this.$api.AdoptionAssessorPGUser, {
-      //     OrderCode: row.orderCode,
-      //     OperatorCode: this.operatorCode
-      //   })
-      //   .then(res => {
-      //     let data = res.data;
-      //     if (data.status == 1) {
-      //       if (data.entity) {
-      //         loading.close();
-      //         that.$message.success("评估通过");
-      //         this.searchParams.status = 1;
-      //         this.getData();
-      //       } else {
-      //         loading.close();
-      //         this.openNotify("评估失败", data.message);
-      //       }
-      //     } else {
-      //       loading.close();
-      //       that.$message.error(res.data.message);
-      //     }
-      //   })
-      //   .catch(err => {
-      //     loading.close();
-      //     console.error(err.message);
-      //   });
     },
     //撤回
     withdraw(index, row) {

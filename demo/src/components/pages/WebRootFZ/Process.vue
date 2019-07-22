@@ -57,15 +57,15 @@
           v-loading="loading"
           :default-sort="{prop: 'date', order: 'descending'}"
         >
-          <el-table-column type="index" label="序号" width="50" sortable></el-table-column>
-          <el-table-column prop="customerName" label="用户名" width="80"></el-table-column>
-          <el-table-column prop="gender" label="性别" width="50"></el-table-column>
-          <el-table-column prop="cardNum" label="体检卡号" width="100"></el-table-column>
-          <el-table-column prop="idNumber" label="身份证号" sortable width="150"></el-table-column>
-          <el-table-column prop="mobilePhone" label="电话" sortable width="80"></el-table-column>
-          <el-table-column prop="unitName" label="单位" sortable width="80"></el-table-column>
-          <el-table-column prop="checkBeginTime" label="体检开始时间" width="100">
-            <template slot-scope="scope">{{scope.row.checkBeginTimecheckBeginTime | formatDate}}</template>
+          <el-table-column title="" type="index" label="序号" width="50" sortable></el-table-column>
+          <el-table-column title="customerName" prop="customerName" label="用户名" width="80"></el-table-column>
+          <el-table-column title="gender" prop="gender" label="性别" width="50"></el-table-column>
+          <el-table-column title="cardNum" prop="cardNum" label="体检卡号" width="100"></el-table-column>
+          <el-table-column title="idNumber" prop="idNumber" label="身份证号" sortable width="150"></el-table-column>
+          <el-table-column title="mobilePhone" prop="mobilePhone" label="电话" sortable width="80"></el-table-column>
+          <el-table-column title="unitName" prop="unitName" label="单位" sortable width="80"></el-table-column>
+          <el-table-column title="checkBeginTime" prop="checkBeginTime" label="体检开始时间" width="100">
+            <template slot-scope="scope">{{scope.row.checkBeginTime | formatDate}}</template>
           </el-table-column>
           <el-table-column label="订单状态" sortable width="80">
             <template slot-scope="scope">
@@ -216,6 +216,7 @@ export default {
     async getInit() {
       this.keyword = "";
       this.cardNum = "";
+      this.orderStatus = null;
       this.tfDate = [new Date(new Date()), new Date()];
       // 设置初始化加载“开单登记”
       let a = await this.getEnum();
@@ -281,12 +282,13 @@ export default {
 
       entity.dateRange = that.tfDate;
       entity.cardNum = that.cardNum;
-      console.log(entity, 77896654);
+      
       // 发送ajax
       let pro = new Promise((resolve, reject) => {
         this.$axios
           .post(this.$api.GetProgressQueryInfo, entity)
           .then(function(response) {
+            console.log(response.data.entity, 77896654);
             //取消加载遮罩
             that.loading = false;
             if (response.data.status == 1) {

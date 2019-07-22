@@ -1,569 +1,1141 @@
 [
-  {
-    "name": "前台管理",
-    "part": "1",
-    "path": "/dd",
-    "childrenNodes": [
-      {
-        "name": "个检订单管理",
-        "part": "11",
-        "gotoUrl": "dd1",
-        "icon": "el-icon-edit-outline",
-        "childrenNodes": [
-          {
-            "name": "个检订单",
-            "gotoUrl": "/dd/ddorder",
-            "part": "1101"
-          },
-          {
-            "name": "订单管理",
-            "gotoUrl": "/dd/ddordermanage",
-            "part": "1102"
-          },
-          {
-            "name": "客户管理",
-            "gotoUrl": "/dd/ddinfo",
-            "part": "1103"
-          }
-        ]
-			},
-			{
-				"name": "团检订单管理",
-				"part": "12",
-				"gotoUrl": "dd2",
-				"icon": "el-icon-edit-outline",
-				"childrenNodes": [
-					{
-						"name": "团检订单",
-						"gotoUrl": "/dd/ddgrporder",
-						"part": "1201"
-					},
-					{
-						"name": "订单管理",
-						"gotoUrl": "/dd/ddgrpmanage",
-						"part": "1202"
-					}
-				]
-			},
-			{
-				"name": "会员卡管理",
-				"part": "13",
-				"gotoUrl": "dd4",
-				"icon": "el-icon-edit-outline",
-				"childrenNodes": [
-					{
-						"name": "库存",
-						"gotoUrl": "/dd/ddcardstock",
-						"part": "1301"
-					},
-					{
-						"name": "销售",
-						"gotoUrl": "/dd/ddcardsales",
-						"part": "1302"
-					}
-				]
-			}
-    ]
-  },
-  {
-    "name": "分检管理",
-    "part": "7",
-    "path": "/fj",
-    "childrenNodes": [
-      {
-        "name": "分检管理",
-        "part": "71",
-        "gotoUrl": "",
-        "icon": "el-icon-edit-outline",
-        "childrenNodes": [
-          {
-            "name": "分检结论录入",
-            "gotoUrl": "/fj/fjmain",
-            "part": "7101"
-          },
-          {
-            "name": "实验室检查结果",
-            "gotoUrl": "/fj/fjlis",
-            "part": "7102"
-          },
-          {
-            "name": "危急值管理",
-            "gotoUrl": "/fj/fjdanger",
-            "part": "7103"
-          },
-          {
-            "name": "采血质控",
-            "gotoUrl": "/fj/fjbloodmeasure",
-            "part": "7104"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "name": "财务收费",
-    "part": "2",
-    "path": "/sf",
-    "childrenNodes": [
-      {
-        "name": "交易管理",
-        "part": "21",
-        "icon": "el-icon-edit-outline",
-        "gotoUrl": "/sf/sfjymanage"
-      },
-      {
-        "name": "发票管理",
-        "part": "22",
-        "icon": "el-icon-edit-outline",
-        "gotoUrl": "/sf/sffpmanage"
-      },
-      {
-        "name": "历史查询",
-        "part": "23",
-        "icon": "el-icon-edit-outline",
-        "gotoUrl": "/sf/sfhistory"
-      }
-    ]
-  },
-  {
-    "name": "主检评估",
-    "part": "5",
-    "path": "/pg",
-    "childrenNodes": [
-      {
-        "name": "主检评估",
-        "part": "51",
-        "icon": "el-icon-edit-outline",
-        "gotoUrl": "/pg/pgmain"
-      }
-    ]
-  },
-  {
-    "name": "总检审核",
-    "part": "3",
-    "path": "/sh",
-    "childrenNodes": [
-      {
-        "name": "总检审核",
-        "part": "31",
-        "icon": "el-icon-edit-outline",
-        "gotoUrl": "/sh/shmanage"
-      }
-    ]
-	},
 	{
-		"name": "报告管理",
-		"part": "6",
-		"path": "/bg",
 		"childrenNodes": [
 			{
-				"name": "报告管理",
-				"part": "61",
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "1101",
+						"parentCode": "011",
+						"level": 2,
+						"funcName": "个检订单",
+						"url": "/dd/ddorder",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 16
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "1102",
+						"parentCode": "011",
+						"level": 2,
+						"funcName": "订单管理",
+						"url": "/dd/ddordermanage",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 17
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "1103",
+						"parentCode": "011",
+						"level": 2,
+						"funcName": "客户管理",
+						"url": "/dd/ddinfo",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 18
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "011",
+				"parentCode": "001",
+				"level": 1,
+				"funcName": "个检订单管理",
+				"url": "dd1",
 				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/bg/bgmanage"
+				"orderNum": 15
 			},
 			{
-				"name": "短信管理",
-				"part": "62",
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "1201",
+						"parentCode": "012",
+						"level": 2,
+						"funcName": "团检订单",
+						"url": "/dd/ddgrporder",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 20
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "1202",
+						"parentCode": "012",
+						"level": 2,
+						"funcName": "订单管理",
+						"url": "/dd/ddgrpmanage",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 21
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "012",
+				"parentCode": "001",
+				"level": 1,
+				"funcName": "团检订单管理",
+				"url": "dd2",
 				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/bg/smsmanage"
+				"orderNum": 19
 			},
 			{
-				"name": "团检报告生成",
-				"part": "63",
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "1301",
+						"parentCode": "013",
+						"level": 2,
+						"funcName": "库存",
+						"url": "/dd/ddcardstock",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 24
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "1302",
+						"parentCode": "013",
+						"level": 2,
+						"funcName": "销售",
+						"url": "/dd/ddcardsales",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 25
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "013",
+				"parentCode": "001",
+				"level": 1,
+				"funcName": "会员卡管理",
+				"url": "dd3",
 				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/bg/bgmake"
+				"orderNum": 22
 			}
-		]
+		],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "001",
+		"parentCode": null,
+		"level": 0,
+		"funcName": "前台管理",
+		"url": "/dd",
+		"icon": "el-icon-edit-outline",
+		"orderNum": 1
 	},
 	{
-		"name": "统计分析",
-		"part": "8",
-		"path": "/tj",
 		"childrenNodes": [
 			{
-				"name": "财务统计分析",
-				"part": "81",
-				"gotoUrl": "tj1",
-				"icon": "el-icon-edit-outline",
 				"childrenNodes": [
 					{
-						"name": "收入概况",
-						"part": "811",
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "2101",
+						"parentCode": "021",
+						"level": 2,
+						"funcName": "分检结论录入",
+						"url": "/fj/fjmain",
 						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/income"
+						"orderNum": 27
 					},
 					{
-						"name": "应收款统计",
-						"part": "812",
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "2102",
+						"parentCode": "021",
+						"level": 2,
+						"funcName": "实验室检查结果",
+						"url": "/fj/fjlis",
 						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/accountstatistics"
+						"orderNum": 28
 					},
 					{
-						"name": "成本及利润统计",
-						"part": "813",
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "2103",
+						"parentCode": "021",
+						"level": 2,
+						"funcName": "危急值管理",
+						"url": "/fj/fjdanger",
 						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/constprofit"
+						"orderNum": 29
 					},
 					{
-						"name": "折扣统计",
-						"part": "814",
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "2104",
+						"parentCode": "021",
+						"level": 2,
+						"funcName": "采血质控",
+						"url": "/fj/fjbloodmeasure",
 						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/discount"
-					},
-					{
-						"name": "科间分成统计",
-						"part": "815",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/branchdivision"
-					},
-					{
-						"name": "项目分成统计",
-						"part": "816",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/projectdivision"
+						"orderNum": 30
 					}
-				]
-			},
-			{
-				"name": "工作量统计分析",
-				"part": "82",
-				"gotoUrl": "tj2",
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "021",
+				"parentCode": "002",
+				"level": 1,
+				"funcName": "分检管理",
+				"url": "fj1",
 				"icon": "el-icon-edit-outline",
-				"childrenNodes": [
-					{
-						"name": "医生工作量",
-						"part": "821",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/doctorsworkload"
-					},
-					{
-						"name": "健康管理师工作量",
-						"part": "822",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/managerworkload"
-					}
-				]
-			},
-			{
-				"name": "云平台",
-				"part": "83",
-				"gotoUrl": "tj3",
-				"icon": "el-icon-edit-outline",
-				"childrenNodes": [
-					{
-						"name": "基础信息统计",
-						"part": "831",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/baseinfo"
-					},
-					{
-						"name": "人群类型统计",
-						"part": "832",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/peopletype"
-					},
-					{
-						"name": "网络咨询统计",
-						"part": "833",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/netconsultation"
-					},
-					{
-						"name": "短信发送统计",
-						"part": "834",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/tj/smssend"
-					}
-				]
-      },
-      {
-				"name": "VIP统计",
-				"part": "84",
-				"gotoUrl": "/tj/vip",
-				"icon": "el-icon-edit-outline"
-      },
-      {
-				"name": "综合报表",
-				"part": "85",
-				"gotoUrl": "tj5",
-        "icon": "el-icon-edit-outline",
-        "childrenNodes":[
-          {
-            "name": "业务综合报表",
-            "part": "851",
-            "gotoUrl": "/tj/businessStatement",
-            "icon": "el-icon-edit-outline"
-          },
-          {
-            "name": "财务综合报表",
-            "part": "852",
-            "gotoUrl": "/tj/financialStatement",
-            "icon": "el-icon-edit-outline"
-          }
-        ]
-      }
-		]
-	},
-  {
-    "name": "系统配置",
-    "part": "4",
-    "path": "/xt",
-    "childrenNodes": [
-      {
-        "name": "开单项目字典管理",
-        "part": "41",
-        "gotoUrl":"xt1",
-        "icon": "el-icon-edit-outline",
-        "childrenNodes":[
-          {
-            "name": "开单组合项目",
-            "part": "411",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/openorder"
-          },
-          {
-            "name": "套餐模板",
-            "part": "412",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/setmeal"
-          },
-          {
-            "name": "导检单项目分类型展示",
-            "part": "413",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/guiIinspection"
-          }
-        ]
-      },
-      {
-        "name": "报告项目字典",
-        "part": "42",
-        "gotoUrl":"xt2",
-        "icon": "el-icon-edit-outline",
-        "childrenNodes":[
-          {
-            "name": "报告项目",
-            "part": "421",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/project"
-          },
-          {
-            "name": "报告项目分类",
-            "part": "422",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/projectSort"
-          },
-          {
-            "name": "物理检查三级所见及小结模版",
-            "part": "423",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/physics"
-          },
-          {
-            "name": "异常字典",
-            "part": "424",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/exception"
-          },
-          {
-            "name": "主检医学建议",
-            "part": "425",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/medicalAdvice"
-          },
-          {
-            "name": "驳回原因",
-            "part": "426",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/rejectReason"
-          },
-          {
-            "name": "报告项目显示方式",
-            "part": "427",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/reportItemDisplay"
-          }
-        ]
-      },
-      {
-        "name": "短信字典",
-        "part": "43",
-        "gotoUrl":"xt3",
-        "icon": "el-icon-edit-outline",
-        "childrenNodes":[
-          {
-            "name": "短信类型",
-            "part": "431",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/smstype"
-          },
-          {
-            "name": "危急值短信模版",
-            "part": "432",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/smsCriticalTemplate"
-          }
-        ]
-      },
-      {
-        "name": "管理字典",
-        "part": "44",
-        "gotoUrl":"xt4",
-        "icon": "el-icon-edit-outline",
-        "childrenNodes":[
-          {
-            "name": "加班字典",
-            "part": "441",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/overTime"
-          },
-          {
-            "name": "成本字典",
-            "part": "442",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/cost"
-          },
-          {
-            "name": "分成字典",
-            "part": "443",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/distributionType"
-          },
-          {
-            "name": "设备字典",
-            "part": "444",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/equipment"
-          },
-          {
-            "name": "设备维护",
-            "part": "445",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/equipmentCheck"
-          }
-        ]
-      },
-      {
-        "name": "系统字典",
-        "part": "45",
-        "gotoUrl":"xt5",
-        "icon": "el-icon-edit-outline",
-        "childrenNodes":[
-          {
-            "name": "功能项目字典",
-            "part": "451",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/funcitems"
-          },
-          {
-            "name": "科室字典",
-            "part": "452",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/section"
-          },
-          {
-            "name": "角色字典",
-            "part": "453",
-            "icon": "el-icon-edit-outline",
-            "gotoUrl": "/xt/role"
-          }
-        ]
-      },
-      {
-        "name": "用户管理",
-				"part": "46",
-				"gotoUrl": "xt6",
-        "gotoUrl":"/xt/user",
-        "icon": "el-icon-edit-outline"
-			},
-			{
-				"name": "排班管理",
-				"part": "47",
-				"gotoUrl": "xt7",
-				"icon": "el-icon-edit-outline",
-				"childrenNodes": [
-					{
-						"name": "主检排班",
-						"part": "471",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/xt/schedulingPG"
-					},
-					{
-						"name": "总检排班",
-						"part": "472",
-						"icon": "el-icon-edit-outline",
-						"gotoUrl": "/xt/schedulingSH"
-					}
-				]
+				"orderNum": 26
 			}
-    ]
+		],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "002",
+		"parentCode": null,
+		"level": 0,
+		"funcName": "分检管理",
+		"url": "/fj",
+		"icon": "el-icon-edit-outline",
+		"orderNum": 2
 	},
 	{
-		"name": "体检质控",
-		"part": "9",
-		"path": "/zk",
 		"childrenNodes": [
 			{
-				"name": "危急值管理",
-				"part": "91",
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "3101",
+				"parentCode": "003",
+				"level": 1,
+				"funcName": "交易管理",
+				"url": "/sf/sfjymanage",
 				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/criticalvalue"
+				"orderNum": 31
 			},
 			{
-				"name": "检出率",
-				"part": "92",
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "3102",
+				"parentCode": "003",
+				"level": 1,
+				"funcName": "发票管理",
+				"url": "/sf/sffpmanage",
 				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/detectionrate"
+				"orderNum": 32
 			},
 			{
-				"name": "导检质控",
-				"part": "93",
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "3103",
+				"parentCode": "003",
+				"level": 1,
+				"funcName": "历史查询",
+				"url": "/sf/sfhistory",
 				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/guidequality"
-			},
-			{
-				"name": "弃检质控",
-				"part": "94",
-				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/discardquality"
-			},
-			{
-				"name": "主检质控",
-				"part": "95",
-				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/mainquality"
-			},
-			{
-				"name": "报告周期质控",
-				"part": "96",
-				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/reportcyclequality"
-			},
-			{
-				"name": "报告发放质控",
-				"part": "97",
-				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/reportissuingquality"
-			},
-			{
-				"name": "医生资质审核",
-				"part": "98",
-				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/doctorqualification"
-			},
-			{
-				"name": "设备质检",
-				"part": "99",
-				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/equipmentquality"
-			},
-			{
-				"name": "检验标本质控",
-				"part": "910",
-				"icon": "el-icon-edit-outline",
-				"gotoUrl": "/zk/inspectionstandard"
+				"orderNum": 33
 			}
-		]
+		],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "003",
+		"parentCode": null,
+		"level": 0,
+		"funcName": "财务收费",
+		"url": "/sf",
+		"icon": "el-icon-edit-outline",
+		"orderNum": 3
+	},
+	{
+		"childrenNodes": [
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "4101",
+				"parentCode": "004",
+				"level": 1,
+				"funcName": "主检评估",
+				"url": "/pg/pgmain",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 34
+			}
+		],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "004",
+		"parentCode": null,
+		"level": 0,
+		"funcName": "主检评估",
+		"url": "/pg",
+		"icon": "el-icon-edit-outline",
+		"orderNum": 4
+	},
+	{
+		"childrenNodes": [
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "5101",
+				"parentCode": "005",
+				"level": 1,
+				"funcName": "总检审核",
+				"url": "/sh/shmanage",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 35
+			}
+		],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "005",
+		"parentCode": null,
+		"level": 0,
+		"funcName": "总检审核",
+		"url": "/sh",
+		"icon": "el-icon-edit-outline",
+		"orderNum": 5
+	},
+	{
+		"childrenNodes": [
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "6101",
+				"parentCode": "006",
+				"level": 1,
+				"funcName": "报告管理",
+				"url": "/bg/bgmanage",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 36
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "6102",
+				"parentCode": "006",
+				"level": 1,
+				"funcName": "短信管理",
+				"url": "/bg/smsmanage",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 37
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "6103",
+				"parentCode": "006",
+				"level": 1,
+				"funcName": "团检报告生成",
+				"url": "/bg/bgmake",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 38
+			}
+		],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "006",
+		"parentCode": null,
+		"level": 0,
+		"funcName": "报告管理",
+		"url": "/bg",
+		"icon": "el-icon-edit-outline",
+		"orderNum": 6
+	},
+	{
+		"childrenNodes": [
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7101",
+						"parentCode": "071",
+						"level": 2,
+						"funcName": "收入概况",
+						"url": "/tj/income",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 40
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7102",
+						"parentCode": "071",
+						"level": 2,
+						"funcName": "应收款统计",
+						"url": "/tj/accountstatistics",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 41
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7103",
+						"parentCode": "071",
+						"level": 2,
+						"funcName": "成本及利润统计",
+						"url": "/tj/constprofit",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 42
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7104",
+						"parentCode": "071",
+						"level": 2,
+						"funcName": "折扣统计",
+						"url": "/tj/discount",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 43
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7105",
+						"parentCode": "071",
+						"level": 2,
+						"funcName": "科间分成统计",
+						"url": "/tj/branchdivision",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 44
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7106",
+						"parentCode": "071",
+						"level": 2,
+						"funcName": "项目分成统计",
+						"url": "/tj/projectdivision",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 45
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "071",
+				"parentCode": "007",
+				"level": 1,
+				"funcName": "财务统计分析",
+				"url": "tj1",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 39
+			},
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7201",
+						"parentCode": "072",
+						"level": 2,
+						"funcName": "医生工作量",
+						"url": "/tj/doctorsworkload",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 47
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7202",
+						"parentCode": "072",
+						"level": 2,
+						"funcName": "健康管理师工作量",
+						"url": "/tj/managerworkload",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 48
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "072",
+				"parentCode": "007",
+				"level": 1,
+				"funcName": "工作量统计分析",
+				"url": "tj2",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 46
+			},
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7301",
+						"parentCode": "073",
+						"level": 2,
+						"funcName": "基础信息统计",
+						"url": "/tj/baseinfo",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 50
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7302",
+						"parentCode": "073",
+						"level": 2,
+						"funcName": "人群类型统计",
+						"url": "/tj/peopletype",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 51
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7303",
+						"parentCode": "073",
+						"level": 2,
+						"funcName": "网络咨询统计",
+						"url": "/tj/netconsultation",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 52
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7304",
+						"parentCode": "073",
+						"level": 2,
+						"funcName": "短信发送统计",
+						"url": "/tj/smssend",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 53
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "073",
+				"parentCode": "007",
+				"level": 1,
+				"funcName": "云平台",
+				"url": "tj3",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 49
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "074",
+				"parentCode": "007",
+				"level": 1,
+				"funcName": "VIP统计",
+				"url": "/tj/vip",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 54
+			},
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7501",
+						"parentCode": "075",
+						"level": 2,
+						"funcName": "业务综合报表",
+						"url": "/tj/businessStatement",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 56
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "7502",
+						"parentCode": "075",
+						"level": 2,
+						"funcName": "财务综合报表",
+						"url": "/tj/financialStatement",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 57
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "075",
+				"parentCode": "007",
+				"level": 1,
+				"funcName": "综合报表",
+				"url": "tj5",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 55
+			}
+		],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "007",
+		"parentCode": null,
+		"level": 0,
+		"funcName": "统计分析",
+		"url": "/tj",
+		"icon": "el-icon-edit-outline",
+		"orderNum": 7
+	},
+	{
+		"childrenNodes": [
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8101",
+						"parentCode": "081",
+						"level": 2,
+						"funcName": "开单组合项目",
+						"url": "/xt/openorder",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 59
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8102",
+						"parentCode": "081",
+						"level": 2,
+						"funcName": "套餐模板",
+						"url": "/xt/setmeal",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 60
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8103",
+						"parentCode": "081",
+						"level": 2,
+						"funcName": "导检单项目分类型",
+						"url": "/xt/guiIinspection",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 61
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "081",
+				"parentCode": "008",
+				"level": 1,
+				"funcName": "开单项目字典管理",
+				"url": "xt1",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 58
+			},
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8201",
+						"parentCode": "082",
+						"level": 2,
+						"funcName": "报告项目",
+						"url": "/xt/project",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 63
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8202",
+						"parentCode": "082",
+						"level": 2,
+						"funcName": "报告项目分类",
+						"url": "/xt/projectSort",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 64
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8203",
+						"parentCode": "082",
+						"level": 2,
+						"funcName": "物理检查三级所见及小结模版",
+						"url": "/xt/physics",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 65
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8204",
+						"parentCode": "082",
+						"level": 2,
+						"funcName": "异常字典",
+						"url": "/xt/exception",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 66
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8205",
+						"parentCode": "082",
+						"level": 2,
+						"funcName": "主检医学建议",
+						"url": "/xt/medicalAdvice",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 67
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8206",
+						"parentCode": "082",
+						"level": 2,
+						"funcName": "驳回原因",
+						"url": "/xt/rejectReason",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 68
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8207",
+						"parentCode": "082",
+						"level": 2,
+						"funcName": "报告项目显示方式",
+						"url": "/xt/reportItemDisplay",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 69
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "082",
+				"parentCode": "008",
+				"level": 1,
+				"funcName": "报告项目字典",
+				"url": "xt2",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 62
+			},
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8301",
+						"parentCode": "083",
+						"level": 2,
+						"funcName": "短信类型",
+						"url": "/xt/smstype",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 71
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8302",
+						"parentCode": "083",
+						"level": 2,
+						"funcName": "危急值短信模版",
+						"url": "/xt/smsCriticalTemplate",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 72
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "083",
+				"parentCode": "008",
+				"level": 1,
+				"funcName": "短信字典",
+				"url": "xt3",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 70
+			},
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8401",
+						"parentCode": "084",
+						"level": 2,
+						"funcName": "加班字典",
+						"url": "/xt/overTime",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 74
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8402",
+						"parentCode": "084",
+						"level": 2,
+						"funcName": "成本字典",
+						"url": "/xt/cost",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 75
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8403",
+						"parentCode": "084",
+						"level": 2,
+						"funcName": "分成字典",
+						"url": "/xt/distributionType",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 76
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8404",
+						"parentCode": "084",
+						"level": 2,
+						"funcName": "设备字典",
+						"url": "/xt/equipment",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 77
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8405",
+						"parentCode": "084",
+						"level": 2,
+						"funcName": "设备维护",
+						"url": "/xt/equipmentCheck",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 78
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "084",
+				"parentCode": "008",
+				"level": 1,
+				"funcName": "管理字典",
+				"url": "xt4",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 73
+			},
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8501",
+						"parentCode": "085",
+						"level": 2,
+						"funcName": "功能项目字典",
+						"url": "/xt/funcitems",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 80
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8502",
+						"parentCode": "085",
+						"level": 2,
+						"funcName": "科室字典",
+						"url": "/xt/section",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 81
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8503",
+						"parentCode": "085",
+						"level": 2,
+						"funcName": "角色字典",
+						"url": "/xt/role",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 82
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "085",
+				"parentCode": "008",
+				"level": 1,
+				"funcName": "系统字典",
+				"url": "xt5",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 79
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "086",
+				"parentCode": "008",
+				"level": 1,
+				"funcName": "用户管理",
+				"url": "/xt/user",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 83
+			},
+			{
+				"childrenNodes": [
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8701",
+						"parentCode": "087",
+						"level": 2,
+						"funcName": "主检排班",
+						"url": "/xt/schedulingPG",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 85
+					},
+					{
+						"childrenNodes": [],
+						"levelName": null,
+						"parentName": null,
+						"funcCode": "8702",
+						"parentCode": "087",
+						"level": 2,
+						"funcName": "总检排班",
+						"url": "/xt/schedulingSH",
+						"icon": "el-icon-edit-outline",
+						"orderNum": 86
+					}
+				],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "087",
+				"parentCode": "008",
+				"level": 1,
+				"funcName": "排班管理",
+				"url": "xt7",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 84
+			}
+		],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "008",
+		"parentCode": null,
+		"level": 0,
+		"funcName": "系统配置",
+		"url": "/xt",
+		"icon": "el-icon-edit-outline",
+		"orderNum": 8
+	},
+	{
+		"childrenNodes": [
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "091",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "危急值管理",
+				"url": "/zk/criticalvalue",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 87
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "092",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "检出率",
+				"url": "/zk/detectionrate",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 88
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "093",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "导检质控",
+				"url": "/zk/guidequality",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 89
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "094",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "弃检质控",
+				"url": "/zk/discardquality",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 90
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "095",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "主检质控",
+				"url": "/zk/mainquality",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 91
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "096",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "报告周期质控",
+				"url": "/zk/reportcyclequality",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 92
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "097",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "报告发放质控",
+				"url": "/zk/reportissuingquality",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 93
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "098",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "医生资质审核",
+				"url": "/zk/doctorqualification",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 94
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "099",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "设备质检",
+				"url": "/zk/equipmentquality",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 95
+			},
+			{
+				"childrenNodes": [],
+				"levelName": null,
+				"parentName": null,
+				"funcCode": "0910",
+				"parentCode": "009",
+				"level": 1,
+				"funcName": "检验标本质控",
+				"url": "/zk/inspectionstandard",
+				"icon": "el-icon-edit-outline",
+				"orderNum": 96
+			}
+		],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "009",
+		"parentCode": null,
+		"level": 0,
+		"funcName": "体检质控",
+		"url": "/zk",
+		"icon": "el-icon-edit-outline",
+		"orderNum": 9
+	},
+	{
+		"childrenNodes": [],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "F01",
+		"parentCode": "A",
+		"level": 0,
+		"funcName": "数据同步",
+		"url": null,
+		"icon": null,
+		"orderNum": 10
+	},
+	{
+		"childrenNodes": [],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "F02",
+		"parentCode": "A",
+		"level": 0,
+		"funcName": "配置打印机",
+		"url": null,
+		"icon": null,
+		"orderNum": 11
+	},
+	{
+		"childrenNodes": [],
+		"levelName": null,
+		"parentName": null,
+		"funcCode": "F03",
+		"parentCode": "A",
+		"level": 0,
+		"funcName": "进度查询",
+		"url": null,
+		"icon": null,
+		"orderNum": 12
 	}
 ]

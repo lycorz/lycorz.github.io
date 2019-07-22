@@ -302,6 +302,10 @@ export default {
     sendMessage() {
       //取出选中项的innercode发给后台
       let postArr = [];
+      if(this.multipleSelection.length === 0){
+        this.$message.error(`至少勾选一位客户`);
+        return false;
+      }
       this.multipleSelection.forEach((item,index)=>{
         postArr.push(item.innerCode);
       })
@@ -335,7 +339,7 @@ export default {
         this.hfInnerCode = row.innerCode;
         this.sjr = row.respondents;
         this.tzr = row.visitPerson;
-        this.hfnr = row.respondents;
+        this.hfnr = row.visitContent;
     },
     // 提交回访
     postReview(){
@@ -352,7 +356,7 @@ export default {
             that.dialogReviewVisible = false;
             if (response.data.status == 1) {
               //设置默认值
-              that.$message.success(`发送成功`);
+              that.$message.success(`提交成功`);
               that.getUser();
               resolve(true);
             } else {

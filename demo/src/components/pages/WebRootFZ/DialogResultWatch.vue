@@ -2,7 +2,7 @@
   <el-dialog
     @open="getInit"
     id="resultwatch"
-    title="查看其他项目"
+    title="检查结果"
     :visible.sync="resultwatch"
     width="600px"
     append-to-body
@@ -27,10 +27,11 @@
     <!-- 内容面板，不同类型显示不同 -->
     <div class="contentContainer">
       <!-- 一般检查 if ybjc.type is 1 render ybjc -->
-      <div v-if="choosedDept == '02'">
+      <div v-if="choosedDept === '01' || choosedDept === '02'">
         <div class="ybjc" :key="index" v-for="(item,index) in ybjc">
           <div class="subTitle">
-            <span>一般检查（{{item.rptItemName}}）</span>
+            <span v-if="choosedDept === '01'">一般检查（{{item.rptItemName}}）</span>
+            <span v-else>{{item.rptItemName}}</span>
           </div>
           <div class="ybjcTable">
             <el-table :data="item.commonSubItemResults" style="width: 100%">
@@ -44,7 +45,7 @@
               </el-table-column>
             </el-table>
             <!-- 所见 -->
-            <div class="ybjcSummary">{{item.summary}}</div>
+            <div class="ybjcSummary" v-html="item.summary"></div>
             <!-- 医生 -->
             <div class="ybjcDoc">
               <section></section>
@@ -140,7 +141,7 @@ export default {
     return {
       resultwatch: false,
       index: "",
-      orderCode: "",
+      orderCode: "c0015e6f-d95e-4deb-94cd-e2035af42b1a",
       //检查结果 因为三种检查的数据结构不同，开辟三个数据对象存储，代码更清晰
       //一般检查结果
       ybjc: [],
@@ -187,7 +188,7 @@ export default {
       let that = this;
       that.loading1 = true;
       //获取一般检查结果
-      if (chooseCode === "01"||chooseCode === "02") {
+      if (chooseCode == "01" || chooseCode == "02") {
         this.$axios
           .get(this.$api.GetCommonResult, {
             params: {
@@ -202,13 +203,15 @@ export default {
               if (response.data.entity.length != 0) {
                 that.ybjc = response.data.entity;
               } else {
-                that.$message.error(`无一般检查项目`);
+                that.ybjc = null;
+                that.$message.error(`无检查结果`);
               }
             } else {
               that.$message.error(`GetCommonResult${response.data.message}`);
             }
           })
           .catch(function(error) {
+            that.ybjc = null;
             that.loading = false;
             that.$message.error(`GetCommonResult${error}`);
           });
@@ -229,9 +232,11 @@ export default {
               if (response.data.entity.length != 0) {
                 that.sysjc = response.data.entity;
               } else {
-                that.$message.error(`无实验室检查项目`);
+                that.sysjc = null;
+                that.$message.error(`无实验室检查结果`);
               }
             } else {
+              that.sysjc = null;
               that.$message.error(`GetLisResult${response.data.message}`);
             }
           })
@@ -254,12 +259,13 @@ export default {
             that.loading = false;
             if (response.data.status == 1) {
               if (response.data.entity.length != 0) {
-                console.log(that.fzjc, 8889996);
                 that.fzjc = response.data.entity;
               } else {
-                that.$message.error(`无辅助检查项目`);
+                that.fzjc = null;
+                that.$message.error(`无辅助检查结果`);
               }
             } else {
+              that.fzjc = null;
               that.$message.error(`ResAuxiliaryResult${response.data.message}`);
             }
           })

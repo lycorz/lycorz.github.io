@@ -4,34 +4,35 @@
 					<i class="toggle-icon" :class="[collapse ? 'el-icon-s-unfold' : 'el-icon-s-fold']" @click="changeCollapse(!collapse)"></i>
 					<span>{{USERINFO.loginName || '未登录'}}</span>
 					<div class="right">
-						<img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1752813724,2836321587&fm=26&gp=0.jpg" alt="">
+						<img :src="USERINFO.photo" alt="" v-if="USERINFO.photo">
+						<img src="../../assets/img/default.jpg" alt="" v-else>
 					</div>
         </div>
         <div class="sideBar-con" ref="sideBar">
             <el-menu class="sidebar-el-menu" background-color="#fff" text-color="#606266" active-text-color="#419FFF" unique-opened :default-active="$route.path"  :default-openeds="openList"
                 style="border-right: none;" :collapse="collapse" router @select="handleSelect">
                 <template v-for="item in sideBarMenus">
-                    <template v-if="item.childrenNodes">
-                        <el-submenu :index="item.gotoUrl" :key="item.part">
+                    <template v-if="item.childrenNodes.length">
+                        <el-submenu :index="item.url" :key="item.url">
                             <template slot="title">
-                                <i :class="item.icon"></i><span slot="title">{{ item.name }}</span>
+                                <i :class="item.icon"></i><span slot="title">{{ item.funcName }}</span>
                             </template>
                             <template v-for="subItem in item.childrenNodes">
-                                <el-submenu v-if="subItem.childrenNodes" :index="subItem.gotoUrl" :key="subItem.part">
-                                    <template slot="title">{{ subItem.name }}</template>
-                                    <el-menu-item v-for="(threeItem,i) in subItem.childrenNodes" :key="i" :index="threeItem.gotoUrl">
-                                        {{ threeItem.name }}
+                                <el-submenu v-if="subItem.childrenNodes.length" :index="subItem.url" :key="subItem.url">
+                                    <template slot="title">{{ subItem.funcName }}</template>
+                                    <el-menu-item v-for="(threeItem,i) in subItem.childrenNodes" :key="i" :index="threeItem.url">
+                                        {{ threeItem.funcName }}
                                     </el-menu-item>
                                 </el-submenu>
-                                <el-menu-item v-else :index="subItem.gotoUrl" :key="subItem.part">
-                                    {{ subItem.name }}
+                                <el-menu-item v-else :index="subItem.url" :key="subItem.url">
+                                    {{ subItem.funcName }}
                                 </el-menu-item>
                             </template>
                         </el-submenu>
                     </template>
                     <template v-else>
-                        <el-menu-item :index="item.gotoUrl" :key="item.part">
-                            <i :class="item.icon"></i><span slot="title">{{ item.name }}</span>
+                        <el-menu-item :index="item.url" :key="item.url">
+                            <i :class="item.icon"></i><span slot="title">{{ item.funcName }}</span>
                         </el-menu-item>
                     </template>
                 </template>
@@ -49,6 +50,7 @@
 </template>
 
 <script>
+import consts from '../../utils/const'
     import {mapState, mapGetters,mapMutations} from 'vuex'
     export default {
         methods: {

@@ -119,9 +119,7 @@ export default {
           that.$message.error(`错误：${error}`);
         });
     },
-    fff(){
-      console.log(888888888888888888889)
-    }
+
   }
 };
 </script>

@@ -72,7 +72,8 @@
       </div>
       <el-table
         :data="tableData"
-        style="width: 100%;height:9999px;"
+        style="width: 100%;"
+		height="9999"
         v-loading="loading"
         :default-sort="{prop: 'date', order: 'descending'}"
       >
@@ -139,7 +140,7 @@ export default {
       //查询条件,科室类型选中值
       deptCode: "all",
       //查询条件，用户状态
-      customerStatus: "0",
+      customerStatus: "2",
       //刷卡显示用户详情状态控制
       shuaCard: "none",
       cardNum: "",
@@ -360,7 +361,7 @@ export default {
     watch(row, index) {
       // 先判断是否已锁定
       let that = this;
-            // 发送条件
+      // 发送条件
       let entity = {};
       entity.orderCode = row.orderCode;
       entity.cardNum = row.cardNum;

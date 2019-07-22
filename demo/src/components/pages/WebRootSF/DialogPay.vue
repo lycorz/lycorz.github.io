@@ -322,7 +322,7 @@ export default {
         })
         .then(function(response) {
           // 按钮恢复
-          this.printerF = false;
+          that.printerF = false;
           that.Loading = false;
           if (response.data.status == 1) {
             if (response.data.entity == true) {

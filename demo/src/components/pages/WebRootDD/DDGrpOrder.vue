@@ -206,7 +206,7 @@
 							</template>
 						</el-table-column>
 						<el-table-column prop="Tele" label="联系电话"></el-table-column>
-						<el-table-column prop="CardNum" label="卡号"></el-table-column>
+						<el-table-column prop="CardNum" label="体检卡号"></el-table-column>
 						<el-table-column prop="IdcardNum" label="身份证号"></el-table-column>
 						<el-table-column prop="MaritalStatus" label="婚姻">
 							<template slot-scope="scope">
@@ -259,7 +259,7 @@
 						<div class="packageDis">
 							<span class="item">原价：￥ <span>{{packageDiscount.totalPrice2 | numFilter}}</span></span>
 							<div class="right">
-								<el-checkbox v-model="isFree">优惠自由</el-checkbox>
+								<el-checkbox v-model="isFree" v-if="USERINFO.canExcItemLimit">优惠自由</el-checkbox>
 								折扣：<div class="item-list iptNum">
 										<el-input-number v-model="packageDiscount.discount" @blur="discountHandle('packageDiscount')" @change="discountHandle('packageDiscount')" :min="0" :max="1" :step="0.1"></el-input-number>
 									</div>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -520,7 +520,7 @@ import {mapState} from 'vuex'
 					Orders: [
 						{//orderCode\orderType
 							OrderCode: '00000000-0000-0000-0000-000000000000',
-							CustomerCode: '00000000-0000-0000-0000-000000000000',
+							CustomerCode: '',
 							CustomerName: '',
 							Sex: '',//1 男 2 女
 							MaritalStatus: 1,//1 未婚  =2 已婚
@@ -569,7 +569,7 @@ import {mapState} from 'vuex'
 					Operator: '001',
 					Customer: {
 						CustomerCode: "00000000-0000-0000-0000-000000000000",
-						CardNum: "00000000-0000-0000-0000-000000000000",
+						CardNum: "",
 						CustomerName: "",
 						Sex: '',
 						Nation: "",
@@ -688,9 +688,16 @@ import {mapState} from 'vuex'
 					return;
 				}
 				for(let key of this.importAllData) {
-					if (key.Items && key.Items.length == 0) {
-						this.$message.error('请对所有人员配置套餐');
-						return;
+					if(key.DiyFlag == 1 || key.DiyFlag == 2) {
+						if (key.Items && key.Items.length == 0) {
+							this.$message.error('请对所有人员配置套餐');
+							return;
+						}
+					} else {
+						if (!key.Packages[0].PackageCode) {
+							this.$message.error('请对导入人员配置套餐');
+							return;
+						}
 					}
 				}
 				this.subOrderParams.Orders = this.importAllData;
@@ -829,6 +836,17 @@ import {mapState} from 'vuex'
 				}
 				this.importData = result;
 			},
+			clearImportParams() {
+				this.importParams = {
+					Filter: '',
+					Sex: '',
+					MaritalStatus: '',
+					DeptName: '',
+					TeamName: '',
+					Age1: '',
+					Age2: ''
+				}
+			},
 			//上传回调
 			beforeUpload(file){
 				if (file) {
@@ -894,6 +912,7 @@ import {mapState} from 'vuex'
 				} else {
 					this.importAllData = this.importData = [];
 				}
+				console.log(this.importAllData)
 				this.load.close();
 			},
 			uploadErr(err, file, fileList){
@@ -993,11 +1012,27 @@ import {mapState} from 'vuex'
 			addPeopleBtn(id){
 				this.$refs.peopleForm.validate((valid) => {
 					if(valid) {
+						this.clearImportParams();
 						this.peopleInfoModal = false;
 						let index = this.importAllData.findIndex(x => x.IdcardNum === id);
 						if (index !== -1 && this.isAddPeople) {
 							this.$message.error('该人员已导入，请重新检查人员信息');
 							return;
+						} else if (index !== -1) {
+							let obj = this.importAllData[index];
+							for(let key in this.peopleInfo.Customer) {
+								if (this.peopleInfo.Customer.hasOwnProperty(key)) {
+									let key2 = '';
+									if (key.length > 0) {
+										key2 = key.substr(0,1).toUpperCase() + key.substr(1);
+									}
+									obj[key2] = this.peopleInfo.Customer[key];
+								}
+							}
+							// obj.Packages = [{
+							// 	PackageCode: '',
+							// 	PackageName: ''
+							// }]
 						} else {
 							let ind = this.importData.length;
 							let obj = {};
@@ -1007,11 +1042,15 @@ import {mapState} from 'vuex'
 									if (key.length > 0) {
 										key2 = key.substr(0,1).toUpperCase() + key.substr(1);
 									}
-									obj[key] = this.peopleInfo.Customer[key];
+									obj[key2] = this.peopleInfo.Customer[key];
 								}
 							}
-							this.importAllData.push(obj)
-							console.log(this.importAllData)
+							obj.Packages = [{
+								PackageCode: '',
+								PackageName: ''
+							}]
+							this.importAllData.unshift(obj);
+							this.importData = this.importAllData;
 						}
 						this.isAddPeople = true;
 					}
@@ -1109,7 +1148,6 @@ import {mapState} from 'vuex'
 				}
 				this.setTypeModal = true;
 			},
-
 			// 添加套餐取消按钮
 			cancelPackageBtn() {
 				this.selectedLeft = [];
@@ -1121,7 +1159,7 @@ import {mapState} from 'vuex'
 			},
 			// 添加套餐确定按钮
 			addPackageBtn() {
-				this.USERINFO.discount = 0;//预设系统最低折扣
+				//this.USERINFO.discountLowLimit = 0;//预设系统最低折扣
 				this.visible = false;
 
 				if (this.$refs.tree.getCheckedNodes().length === 0) {
@@ -1140,12 +1178,12 @@ import {mapState} from 'vuex'
 				this.selectedLeft = this.selectedLeft.filter(x => x.itemCode);
 				let lowestDiscount = exePriceAll/fullPriceAll;
 				if(this.isFree) {
-					if(this.USERINFO.discount > this.packageDiscount.discount2) {
-						this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+					if(this.USERINFO.discountLowLimit > this.packageDiscount.discount2) {
+						this.$message.error(`您最低的折扣为${this.USERINFO.discountLowLimit.toFixed(2)}`);
 						return;
 					}
 				} else {
-					lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+					lowestDiscount = this.USERINFO.discountLowLimit < lowestDiscount ? this.USERINFO.discountLowLimit : lowestDiscount;
 					if(lowestDiscount > this.packageDiscount.discount2) {
 						this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
 						return;
@@ -1157,8 +1195,15 @@ import {mapState} from 'vuex'
 				}
 
 				let discount = this.packageDiscount.exePrice / fullPriceAll;
-				this.distributePrice(this.selectedLeft, this.packageDiscount.exePrice,discount);
-
+				if(this.packageDiscount.discount2 !== exePriceAll/fullPriceAll && exePriceAll !== this.packageDiscount.exePrice) {
+					if(this.isFree) {
+						this.selectedLeft.forEach(x => {
+							x.exePrice = x.fullPrice * this.packageDiscount.discount2;
+						})
+					} else {
+						this.distributePrice(this.selectedLeft, this.packageDiscount.exePrice,discount);
+					}
+				}
 				this.multipleSelection.forEach(x => {
 					this.importData.forEach((y, index) => {
 						if (x.IdcardNum === y.IdcardNum) {

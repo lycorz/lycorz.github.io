@@ -6,24 +6,24 @@
 		<div class="peopleData">
       <div class="propleSearch">
         <el-input
-          placeholder="请输入关键字"
+          placeholder="姓名/首拼"
           v-model="params.SearchValue"
           class="arcRadius"
 					@keyup.enter.native="getData(true)"
           style="width: 150px;">
-          
+
         </el-input>
 				<el-select v-model="params.DeptCode" placeholder="科室类型" clearable>
           <el-option
             v-for="item in doctorEnum"
-            :key="item.value"
-            :label="item.name"
-            :value="item.value"
+            :key="item.deptCode"
+            :label="item.deptName"
+            :value="item.deptCode"
           ></el-option>
         </el-select>
 				<el-select v-model="params.CertType" placeholder="证书类型" clearable>
           <el-option
-            v-for="item in doctorEnum"
+            v-for="item in certTypeEnum"
             :key="item.value"
             :label="item.name"
             :value="item.value"
@@ -31,7 +31,7 @@
         </el-select>
         <el-button @click="getData(true)" style="margin-left: 16px;">查询</el-button>
 				<div class="right">
-					<el-button type="primary">导出报表</el-button>
+					<el-button type="primary"  @click="exportExcel" v-no-more-click>导出报表</el-button>
 				</div>
       </div>
     </div>
@@ -84,8 +84,13 @@
 				<el-button @click="detailModal = false">关闭</el-button>
 			</div>
 		</el-dialog>
-		<el-dialog title="预览" :visible.sync="imgModal" :close-on-click-modal="false" width="800px" @close="imgPath = ''">
-			<img :src="imgPath">
+		<el-dialog title="预览" :visible.sync="imgModal" :close-on-click-modal="false" width="800px" @close="imgPath = []">
+			<!-- <img :src="img" style="width: 100%;" v-for="(img,index) in imgPath" :key="index"> -->
+        <el-carousel arrow="always" height="600px" >
+          <el-carousel-item v-for="(img,index) in imgPath" :key="index">
+              <img width="100%" height="100%" :src="img">
+          </el-carousel-item>
+        </el-carousel>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="imgModal = false">关闭</el-button>
 			</div>
@@ -93,7 +98,8 @@
 	</div>
 </template>
 <script>
-import consts from "../../../utils/const"
+import consts from "../../../utils/const";
+import $ from "jquery";
 export default {
 	name: 'ZKDoctorQualification',
 	data() {
@@ -102,10 +108,11 @@ export default {
 			imgModal: false,
 			detail: [],
 			total: 0,
-			imgPath: '',
+			imgPath: [],
 			loading: false,
 			tableData: [],
 			doctorEnum: [],//医生类型
+			certTypeEnum: [],//证书类型
 			params: {
 				SearchValue: '',
 				CertType: '',
@@ -151,8 +158,13 @@ export default {
 			})
 		},
 		getDoctorEnum() {
-			this.$getType('RejectDoctorEnum').then(res => {
-				this.doctorEnum = res.data.entity;
+			this.$axios.get(this.$api.GetAllDeptList).then(res => {
+				if(res.data.status === 1) {
+					this.doctorEnum = res.data.entity;
+				}
+			})
+			this.$getType('CertType').then(res => {
+				this.certTypeEnum = res.data.entity;
 			})
 		},
 		openDetail(data) {
@@ -160,11 +172,39 @@ export default {
 			this.detailModal = true;
 		},
 		openImg(data) {
-			console.log(data)
-			this.imgPath = consts.IMG_BASE_PATH + data;
+
+			this.imgPath = data.split(';').map(x => x = consts.IMG_BASE_PATH + x);
 			if(data) {
 				this.imgModal = true;
+			} else {
+				this.$message.error('暂未上传图片');
 			}
+		},
+		//导出报表
+		exportExcel(){
+			let loading = this.$loading({
+				lock: true,
+				text: '导出中...',
+				spinner: 'el-icon-loading',
+				background: 'rgba(0, 0, 0, 0.7)'
+			});
+			this.$axios.get(this.$api.ExportDocetrQua, {params: this.searchParams}).then(res => {
+				if(res.data.status === 1) {
+					this.downExcel(res.data.entity);
+				} else {
+					this.$message.error(res.data.message);
+				}
+				loading.close();
+			}).catch(err => {
+				this.$message.error(err.data.message || '');
+				loading.close();
+			})
+		},
+		downExcel(url) {
+			let $form = $('<form method="GET"></form>');
+			$form.attr("action", consts.SF_REPORT_PATH + url);
+			$form.appendTo($("body"));
+			$form.submit();
 		},
 		// 处理分页fn
     handleCurrentChange(val) {

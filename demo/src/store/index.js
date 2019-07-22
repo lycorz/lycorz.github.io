@@ -1,8 +1,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios'
+import router from '../router';
 import api from '../api'
+import consts from '../utils/const'
 import { MessageBox } from 'element-ui';
+import { reject, resolve } from 'q';
 const header = require('../header.json')
 Vue.use(Vuex);
 
@@ -13,15 +16,8 @@ const state = {
   sideBarMenus: [], // 侧边导航
   openList: [], // 侧边栏默认打开
 	isGoto: true,  // 当前页面是否允许调转
-	USERINFO: {
-		loginName: "test1234",
-		operatorCode: "001",
-		roleCode: "J0001",
-		roleName: "总检",
-		userName: "test1234",
-		discount: 0.8,
-		token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJlS2V5LlBFLkFQSSIsImlzcyI6ImVLZXkuUEUuQXV0aCIsImlkIjoiMDA0IiwibmFtZSI6InRlc3QxMjM0Iiwicm9sZSI6IuaAu-ajgCIsIm5iZiI6MTU2MDQ5MjI3NiwiZXhwIjoxNTYwNTI4Mjc2LCJpYXQiOjE1NjA0OTIyNzZ9.x4QyftfLigWMPOoKyfLLO7uUKKrTSo8gULSFEpu1GjM"
-	}// 用户信息
+	USERINFO: {},// 用户信息
+	assist: []//辅助功能项
 }
 const mutations = {
 	//左侧菜单栏展开闭合
@@ -33,15 +29,23 @@ const mutations = {
 	//获取菜单数据后的处理
   changeMenu(state, menu) {
 		state.activeIndex = window.location.href.split('#')[1].substring(0, 3);
-    state.Menus = menu;
-    state.sideBarMenus = menu.filter(x => x.path === state.activeIndex)[0].childrenNodes;
-    state.openList[0] = state.sideBarMenus[0].part
+		state.Menus = menu.filter(x => !x.parentCode && x.parentCode != 'A');
+		state.assist = menu.filter(x => x.parentCode == 'A').map(x => x.funcName);
+		if (state.activeIndex !== '/lo') {
+			state.sideBarMenus = menu.filter(x => x.url === state.activeIndex)[0].childrenNodes;
+		} else {
+			state.sideBarMenus = menu[0].childrenNodes;
+			state.activeIndex = menu[0].url;
+		}
+		let url = state.sideBarMenus[0].childrenNodes.length ? state.sideBarMenus[0].childrenNodes[0].url : state.sideBarMenus[0].url
+		router.push(url)
+    state.openList[0] = state.sideBarMenus[0].orderNum;
 	},
 	//改变当前页面所属的第一级导航
   changeActiveIndex(state, key) {
     state.activeIndex = key;
-    state.sideBarMenus = state.Menus.filter(x => x.path === key)[0].childrenNodes;
-    state.openList[0] = state.sideBarMenus[0].part
+    state.sideBarMenus = state.Menus.filter(x => x.url === key)[0].childrenNodes;
+    state.openList[0] = state.sideBarMenus[0].orderNum
 	},
 	// 改变当前页面是否可以跳转
   changeGoto(state, key) {
@@ -62,6 +66,7 @@ const mutations = {
 	},
 	// 赋值用户信息
 	getUserInfo(state, data) {
+		data.photo = consts.IMG_BASE_PATH + data.photo;
 		state.USERINFO = data;//存放在vuex
 		window.USERINFO = data;//存放在window下
 	}
@@ -69,12 +74,33 @@ const mutations = {
 const actions = {
 	//异步获取导航菜单
 	getMenu({ commit }, operatorCode) {
-		// axios.get(api.GetUserFuncItemList,{params: {operatorCode}}).then(res => {
-		//   if (res.data) {
-				// commit('changeMenu', res.data.entity);
-				commit('changeMenu', header);
-    //   }
-    // })
+		axios.get(consts.SF_REPORT_PATH + api.GetUserFuncItemList,{params: {operatorCode}}).then(res => {
+		  if (res.data) {
+				commit('changeMenu', res.data.entity);
+				// commit('changeMenu', header);
+      }
+    })
+	},
+	login({ commit }, userInfo) {
+		return axios.post(consts.SF_REPORT_PATH + api.Login, userInfo).then(res => {
+			if (res.data.status === 1) {
+				commit('getUserInfo', res.data.entity);
+				return resolve({
+					status: 1,
+					message: '登陆成功'
+				})
+			} else {
+				return resolve({
+					status: -1,
+					message: res.data.message
+				});
+			}
+		}).catch(err => {
+			return reject({
+				status: -1,
+				message: err.data.message
+			});
+		});
 	}
 }
 

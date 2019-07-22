@@ -92,7 +92,11 @@
           <el-table-column prop="cardNum" label="体检卡号"></el-table-column>
           <el-table-column prop="unitName" label="单位名称" width="100px"></el-table-column>
           <el-table-column prop="deptName" label="部门名称" width="100px"></el-table-column>
-          <el-table-column prop="orderMoney" label="体检金额" width="100px"></el-table-column>
+          <el-table-column prop="orderMoney" label="体检金额" width="100px">
+						<template slot-scope="scope">
+						￥{{scope.row.orderMoney | numFilter}}
+					</template>
+					</el-table-column>
           <el-table-column prop="createOrderTime" label="创建时间" width="100px">
 						<template slot-scope="scope">
 							{{scope.row.createOrderTime | formatDate('YYYY-MM-DD')}}
@@ -250,7 +254,7 @@
           </div>
         </el-dialog>
 				<!-- 编辑 -->
-        <el-dialog title="当前客户订单" :visible.sync="currentOrderModal" width="800px" :close-on-click-modal="false" class="currentOrder" >
+        <el-dialog title="当前客户订单" :visible.sync="currentOrderModal" width="800px" :close-on-click-modal="false" class="currentOrder" @close="getData()">
 					<div class="modal-top">
 						<el-button type="primary" class="right" @click="qjBtn(itemsData, 1)">弃检</el-button>
 					</div>
@@ -267,7 +271,7 @@
 							<el-table-column type="selection" width="55"></el-table-column>
               <el-table-column prop="itemName" label="项目名称"></el-table-column>
               <el-table-column prop="feeType" label="付款方式"></el-table-column>
-              <el-table-column prop="checkStatus" label="项目状态" :filters="[{text: '未检', value: '未检'}, {text: '已检', value: '已检'}, {text: '已获取结果', value: '已获取结果'}, {text: '弃检', value: '弃检'}]" :filter-method="filterHandler">
+              <el-table-column prop="checkStatus" label="项目状态">
 								<template slot-scope="scope">
 									{{scope.row.isGiveUp ? '弃检' : scope.row.checkStatus === 1 ? '已检' : scope.row.checkStatus === 2 ? '已获取结果' : '未检'}}
 								</template>
@@ -636,10 +640,11 @@ export default {
 					ItemCodes
 				}).then(res => {
 					if (res.data.status === 1) {
+						this.qjSelection = this.qjSelection.map(x => {
+							x.isGiveUp = true;
+							return x;
+						})
 						this.$message.success('项目弃检成功！');
-						this.currentOrderModal = false;
-						this.itemsData = '';
-						this.getData();
 					} else {
 						this.$message.error(res.data.message);
 					}
@@ -647,7 +652,7 @@ export default {
 					this.$message.error(err.data.message);
 				})
 			} else {
-				if (data.items.every(x => x.status !== '未检')) {
+				if (data.items.some(x => x.isGiveUp)) {
 					this.$alert('<span>存在已检项目，不可弃检！</span><br /><i style="color:#8F9399;">存在已检项目，不可弃检！</i>', '提醒：', {
 						confirmButtonText: '关闭',
 						dangerouslyUseHTMLString: true,

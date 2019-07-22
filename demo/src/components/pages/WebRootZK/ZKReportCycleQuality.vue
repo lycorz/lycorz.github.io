@@ -45,7 +45,7 @@
         </div>
         <el-button @click="getData(true)">查询</el-button>
 				<div class="right">
-					<el-button type="primary">导出报表</el-button>
+					<el-button type="primary" @click="exportExcel" v-no-more-click>导出报表</el-button>
 				</div>
       </div>
     </div>
@@ -106,6 +106,8 @@
 	</div>
 </template>
 <script>
+import consts from "../../../utils/const";
+import $ from "jquery";
 export default {
 	name: 'ZKReportCycleQuality',
 	data() {
@@ -222,6 +224,39 @@ export default {
 		openDetail(data) {
 			this.detail = data;
 			this.detailModal = true;
+		},
+			//导出报表
+		exportExcel(){
+			let loading = this.$loading({
+				lock: true,
+				text: '导出中...',
+				spinner: 'el-icon-loading',
+				background: 'rgba(0, 0, 0, 0.7)'
+			});
+			if (!this.params.timeRange  || this.params.timeRange.length !== 2) {
+					this.searchParams.BeginTime = '';
+					this.searchParams.EndTime = '';
+				} else {
+					this.searchParams.BeginTime = this.params.timeRange[0];
+					this.searchParams.EndTime = this.params.timeRange[1];
+				}
+			this.$axios.get(this.$api.ExportReportCycle, {params: this.searchParams}).then(res => {
+				if(res.data.status === 1) {
+					this.downExcel(res.data.entity);
+				} else {
+					this.$message.error(res.data.message);
+				}
+				loading.close();
+			}).catch(err => {
+				this.$message.error(err.data.message || '');
+				loading.close();
+			})
+		},
+		downExcel(url) {
+			let $form = $('<form method="GET"></form>');
+			$form.attr("action", consts.SF_REPORT_PATH + url);
+			$form.appendTo($("body"));
+			$form.submit();
 		},
 		// 处理分页fn
     handleCurrentChange(val) {

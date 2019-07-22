@@ -94,6 +94,7 @@ export default {
               that.$parent.getUser();
             } else {
               //
+              console.log(response.data,8888999)
               that.cantChoose = false;
             }
           })

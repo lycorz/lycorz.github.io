@@ -152,101 +152,9 @@
 </template>
 
 <script>
-// $.extend($.fn, {
-//   //获取文本框内光标位置
-//   getSelectionStart: function() {
-//     let e = this[0];
-//     if (e.selectionStart) {
-//       return e.selectionStart;
-//     } else if (document.selection) {
-//       e.focus();
-//       let r = document.selection.createRange();
-//       let sr = r.duplicate();
-//       sr.moveToElementText(e);
-//       sr.setEndPoint("EndToEnd", r);
-//       return sr.text.length - r.text.length;
-//     }
 
-//     return 0;
-//   },
-//   getSelectionEnd: function() {
-//     let e = this[0];
-//     if (e.selectionEnd) {
-//       return e.selectionEnd;
-//     } else if (document.selection) {
-//       e.focus();
-//       let r = document.selection.createRange();
-//       let sr = r.duplicate();
-//       sr.moveToElementText(e);
-//       sr.setEndPoint("EndToEnd", r);
-//       return sr.text.length;
-//     }
-//     return 0;
-//   },
-//   //自动插入默认字符串
-//   insertString: function(str) {
-//     $(this).each(function() {
-//       let tb = $(this);
-//       tb.focus();
-//       if (document.selection) {
-//         let r = document.selection.createRange();
-//         document.selection.empty();
-//         r.text = str;
-//         r.collapse();
-//         r.select();
-//       } else {
-//         let newstart = tb.get(0).selectionStart + str.length;
-//         tb.val(
-//           tb.val().substr(0, tb.get(0).selectionStart) +
-//             str +
-//             tb.val().substring(tb.get(0).selectionEnd)
-//         );
-//         tb.get(0).selectionStart = newstart;
-//         tb.get(0).selectionEnd = newstart;
-//       }
-//     });
-
-//     return this;
-//   },
-//   setSelection: function(startIndex, len) {
-//     $(this).each(function() {
-//       if (this.setSelectionRange) {
-//         this.setSelectionRange(startIndex, startIndex + len);
-//       } else if (document.selection) {
-//         let range = this.createTextRange();
-//         range.collapse(true);
-//         range.moveStart("character", startIndex);
-//         range.moveEnd("character", len);
-//         range.select();
-//       } else {
-//         this.selectionStart = startIndex;
-//         this.selectionEnd = startIndex + len;
-//       }
-//     });
-
-//     return this;
-//   },
-//   getSelection: function() {
-//     let elem = this[0];
-
-//     let sel = "";
-//     if (document.selection) {
-//       let r = document.selection.createRange();
-//       document.selection.empty();
-//       sel = r.text;
-//     } else {
-//       let start = elem.selectionStart;
-//       let end = elem.selectionEnd;
-//       let content = $(elem).is(":input") ? $(elem).val() : $(elem).text();
-//       sel = content.substring(start, end);
-//     }
-//     return sel;
-//   }
-// });
 import edit from "vue-quill-editor";
-// import $ from "jquery";
 import { resolve, reject } from "q";
-// const html = '<el-select v-model="abnormalCode" clearable filterable placeholder="请选择添加异常"><el-option> v-for="item in abnormalItems" :key="item.abnormalCode" :label="item.abnormalName" :value="item.abnormalCode" filter-placement="bottom-end">{{item.abnormalName}}</el-option></el-select>',
 
 export default {
   name: "MedicalAdviceCreate",
@@ -300,18 +208,9 @@ export default {
 
       //tag标签
       dynamicTags: []
-      /* edit */
-      // editorOption: {
-      //   modules: {
-      //     toolbar: "#toolbar"
-      //   }
-      // },
-      // expressionValue: "",
-      // lastEditRange: null
     };
   },
   created() {
-    // this.getPriorityItems();
     this.getAbnormalItems();
   },
   inject: ["getData"],
@@ -433,10 +332,8 @@ export default {
         .then(res => {
           if (res.data.status == 1) {
             this.$message.success("正确");
-            // this.expressionIsTrue = 1;
           } else {
             this.$message.error(res.data.message);
-            // this.expressionIsTrue = -1;
           }
         })
         .catch(err => {
@@ -469,9 +366,6 @@ export default {
     },
     dialogClose() {
       this.EditisShow = false;
-      // $("#edit").val("");
-      // this.expressionIsTrue = 0;
-      // this.expressionValue = "";
       this.dynamicTags = new Array();
       this.selval = "";
     },
@@ -479,7 +373,6 @@ export default {
     /* edit */
     setOption(val) {
       if (val) {
-        // $("#edit").insertString("[" + val + "] ");
         let abnormalName = this.abnormalItems.find(z => z.abnormalCode == val)
           .abnormalName;
         let tag = { value: "[" + val + "]", name: abnormalName };
@@ -489,136 +382,24 @@ export default {
     left() {
       let tag = { value: "(" };
       this.dynamicTags.push(tag);
-      // $("#edit").insertString("( ");
     },
     right() {
       let tag = { value: ") " };
       this.dynamicTags.push(tag);
-      // $("#edit").insertString(") ");
     },
     or() {
       let tag = { value: "or" };
       this.dynamicTags.push(tag);
-      // $("#edit").insertString("or ");
     },
     and() {
       let tag = { value: "and" };
       this.dynamicTags.push(tag);
-      // $("#edit").insertString("and ");
     },
 
     //tag
     handleClose(tag) {
       this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
     }
-
-    // onEditorChange(editor) {
-    //   //内容改变事件
-    //   let selection = getSelection();
-    //   // 设置最后光标对象
-    //   this.lastEditRange = selection.getRangeAt(0);
-    //   console.log(this.lastEditRange);
-    // },
-    // onEditorFocus(editor) {
-    //   //获得焦点事件
-    //   console.log("获得焦点");
-    //   let selection = getSelection();
-    //   // 设置最后光标对象
-    //   this.lastEditRange = selection.getRangeAt(0);
-    //   console.log(this.lastEditRange);
-    // },
-    // addFormattingText(e) {
-    //   let edit = $(".ql-editor")[0];
-    //   edit.focus();
-    //   let selection = getSelection();
-    //   if (this.lastEditRange) {
-    //     console.log("文本不为空，不换行每次都出现");
-    //     // 存在最后光标对象，选定对象清除所有光标并添加最后光标还原之前的状态
-    //     selection.removeAllRanges();
-    //     selection.addRange(this.lastEditRange);
-    //   }
-    //   if (selection.anchorNode.nodeName != "#text") {
-    //     // 如果是编辑框范围。则创建表情文本节点进行插入
-    //     let emojiText = e;
-    //     // let range = document.createRange()
-    //     // console.log(emojiText)
-    //     console.log(edit.childNodes);
-    //     console.log(selection.anchorOffset);
-    //     if (edit.childNodes.length > 0) {
-    //       // 如果文本框的子元素大于0，则表示有其他元素，则按照位置插入表情节点
-    //       for (let i = 0; i < edit.childNodes.length; i++) {
-    //         if (i == selection.anchorOffset && selection.anchorOffset != 0) {
-    //           console.log("成功");
-    //           edit.insertBefore(emojiText, edit.childNodes[i]);
-    //         } else {
-    //           console.log("失败");
-    //           console.log(edit.children[0]);
-    //           edit.children[0].appendChild(document.createTextNode(emojiText));
-    //         }
-    //       }
-    //     } else {
-    //       // 否则直接插入一个表情元素
-    //       edit.appendChild(emojiText);
-    //     }
-    //     if (window.getSelection) {
-    //       //ie11 10 9 ff safari
-    //       edit.focus(); //解决ff不获取焦点无法定位问题
-    //       let range = window.getSelection(); //创建range
-    //       range.selectAllChildren(edit); //range 选择obj下所有子内容
-    //       range.collapseToEnd(); //光标移至最后
-    //     } else if (document.selection) {
-    //       //ie10 9 8 7 6 5
-    //       let range = document.selection.createRange(); //创建选择对象
-    //       //let range = document.body.createTextRange();
-    //       range.moveToElementText(edit); //range定位到obj
-    //       range.collapse(false); //光标移至最后
-    //       range.select();
-    //     }
-    //     // 创建新的光标对象
-    //     // edit.focus();
-    //     // let range = document.createRange();
-    //     // console.log(range);
-
-    //     // // 光标对象的范围界定为新建的表情节点
-    //     // range.selectNodeContents(emojiText);
-    //     // // 光标位置定位在表情节点的最大长度
-    //     // range.setStart(emojiText, emojiText.length);
-    //     // // 使光标开始和光标结束重叠
-    //     // range.collapse(true);
-    //     // // 清除选定对象的所有光标对象
-    //     // selection.removeAllRanges();
-    //     // // 插入新的光标对象
-    //     // selection.addRange(range);
-    //   } else {
-    //     console.log("已选择光标");
-    //     // 如果是文本节点则先获取光标对象
-    //     let range = selection.getRangeAt(0);
-    //     // 获取光标对象的范围界定对象，一般就是textNode对象
-    //     let textNode = range.startContainer;
-    //     // 获取光标位置
-    //     let rangeStartOffset = range.startOffset;
-    //     // 文本节点在光标位置处插入新的表情内容
-    //     textNode.insertData(rangeStartOffset, e);
-    //     //                    textNode.insertData(rangeStartOffset, emojiInput.value)
-    //     // 光标移动到到原来的位置加上新内容的长度
-    //     range.setStart(textNode, rangeStartOffset + e.length);
-    //     //                    range.setStart(textNode, rangeStartOffset + emojiInput.value.length)
-    //     // 光标开始和光标结束重叠
-    //     range.collapse(true);
-    //     // 清除选定对象的所有光标对象
-    //     selection.removeAllRanges();
-    //     // 插入新的光标对象
-    //     selection.addRange(range);
-    //   }
-    //   // 无论如何都要记录最后光标对象
-    //   this.lastEditRange = selection.getRangeAt(0);
-    // },
-    // onEditorReady(editor) {
-    //   // console.log('editor ready!', editor)
-    // },
-    // onEditorBlur(editor) {
-    //   // console.log('editor blur!', editor)
-    // }
   }
 };
 </script>

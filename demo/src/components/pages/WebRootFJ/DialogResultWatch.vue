@@ -45,7 +45,7 @@
               </el-table-column>
             </el-table>
             <!-- 所见 -->
-            <div class="ybjcSummary">{{item.summary}}</div>
+            <div class="ybjcSummary" v-html="item.summary"></div>
             <!-- 医生 -->
             <div class="ybjcDoc">
               <section></section>
@@ -204,7 +204,7 @@ export default {
                 that.ybjc = response.data.entity;
               } else {
                 that.ybjc = null;
-                that.$message.error(`无检查项目`);
+                that.$message.error(`无检查结果`);
               }
             } else {
               that.$message.error(`GetCommonResult${response.data.message}`);
@@ -233,7 +233,7 @@ export default {
                 that.sysjc = response.data.entity;
               } else {
                 that.sysjc = null;
-                that.$message.error(`无实验室检查项目`);
+                that.$message.error(`无实验室检查结果`);
               }
             } else {
               that.sysjc = null;
@@ -262,7 +262,7 @@ export default {
                 that.fzjc = response.data.entity;
               } else {
                 that.fzjc = null;
-                that.$message.error(`无辅助检查项目`);
+                that.$message.error(`无辅助检查结果`);
               }
             } else {
               that.fzjc = null;

@@ -7,6 +7,7 @@
     :visible.sync="FJCheckVisible"
     width="1000px"
     @open="getInit"
+    @close="getClose"
     :close-on-click-modal="false"
   >
     <div class="container" style="display:flex;flex-direction:row;" v-loading="loading">
@@ -96,6 +97,7 @@
                         placeholder="请搜索所见"
                         style="width:150px;display:inline-block;margin-left:10px;"
                         @change="appendFinding($event,index)"
+                        :disabled="forWatch"
                       >
                         <el-option
                           v-for="it in item.resSubResultTemplates"
@@ -108,6 +110,7 @@
                         v-model="item.resultType"
                         placeholder="是否异常"
                         style="width:100px;display:inline-block;margin-left:10px;"
+                        :disabled="forWatch"
                       >
                         <el-option label="正常" value="N"></el-option>
                         <el-option label="异常" value="H"></el-option>
@@ -120,6 +123,7 @@
                     rows="3"
                     @keyup.native="ybcjRules(item)"
                     @focus="bmiRules(item)"
+                    :disabled="choosedObj.inputType == 0 || forWatch"
                   ></el-input>
                 </div>
               </div>
@@ -129,7 +133,6 @@
                 <div class="fzjc" :key="index" v-for="(item,index) in fzjc">
                   <div class="subTitle">
                     <!-- <img class="jpgPic" :key="inx" v-for="(it,inx) in item.images" src="./login-bg.jpg" />  -->
-
                     <span>{{item.itemName}}</span>
                     <div class="fzjcRight">
                       <!-- 图片图标 -->
@@ -148,6 +151,7 @@
                             :id="'scFzjc'+index"
                             @change="previewFileFzjc(index)"
                             accept="image/*"
+                            :disabled="forWatch"
                           />上传
                         </a>
                       </div>
@@ -164,6 +168,7 @@
                         :rows="3"
                         placeholder="请输入内容"
                         v-model="item.finding"
+                        :disabled="forWatch"
                       ></el-input>
                     </div>
                     <div class="fzjcSummary fzjcDiv">
@@ -174,11 +179,17 @@
                         :rows="3"
                         placeholder="请输入内容"
                         v-model="item.summary"
+                        :disabled="forWatch"
                       ></el-input>
                     </div>
                     <div class="fzjcYc">
                       <span>结果类型：</span> &nbsp;
-                      <el-select v-model="item.resultType" placeholder="请选择" class="resultSelect">
+                      <el-select
+                        v-model="item.resultType"
+                        placeholder="请选择"
+                        class="resultSelect"
+                        :disabled="forWatch"
+                      >
                         <el-option label="正常" value="N"></el-option>
                         <el-option label="异常" value="H"></el-option>
                       </el-select>
@@ -191,6 +202,7 @@
                           style="display:inline-block;height:30px;width:80px;"
                           type="text"
                           v-model="item.reportDoc"
+                          :disabled="forWatch"
                         />
                       </section>
                       <section>
@@ -201,6 +213,8 @@
                           v-model="item.reportDate"
                           type="datetime"
                           placeholder="选择日期时间"
+                          :clearable="false"
+                          :disabled="forWatch"
                         ></el-date-picker>
                         <!-- <el-input
                           style="display:inline-block;height:30px;width:110px;"
@@ -214,6 +228,7 @@
                           style="display:inline-block;height:30px;width:80px;"
                           type="text"
                           v-model="item.reviewDoc"
+                          :disabled="forWatch"
                         />
                       </section>
                       <section>
@@ -224,6 +239,8 @@
                           v-model="item.reviewDate"
                           type="datetime"
                           placeholder="选择日期时间"
+                          :clearable="false"
+                          :disabled="forWatch"
                         ></el-date-picker>
                         <!-- <el-input
                           style="display:inline-block;height:30px;width:110px;"
@@ -252,7 +269,7 @@
             </div>
           </div>
           <div style="text-align:center" v-if="choosedObj.typeCode == '04'">
-            <el-button @click="addFzjc">
+            <el-button @click="addFzjc" :disabled="forWatch">
               <i class="el-icon-plus"></i>添加
             </el-button>
           </div>
@@ -269,8 +286,8 @@
         <div class="subTitle" style="text-align:right;">
           <span style="float:left;">小结</span>
           <div>
-            <el-button @click="addSummary">新增</el-button>
-            <el-button @click="delSummary">删除</el-button>
+            <el-button @click="addSummary" :disabled="choosedObj.inputType == 0 || forWatch">新增</el-button>
+            <el-button @click="delSummary" :disabled="forWatch">删除</el-button>
           </div>
         </div>
         <div class="xj">
@@ -284,7 +301,12 @@
             <el-table-column label="小结" prop="summary" width="100px"></el-table-column>
             <el-table-column label="操作" width="50px">
               <template slot-scope="scope">
-                <el-button @click="editSummary(scope.row,scope.$index)" type="text" size="small">编辑</el-button>
+                <el-button
+                  @click="editSummary(scope.row,scope.$index)"
+                  type="text"
+                  size="small"
+                  v-if="choosedObj.inputType != 0 && !forWatch"
+                >编辑</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -294,24 +316,34 @@
           <span style="float:left;">图片列表</span>
           <div style="padding-top:5px">
             <a href="javascript:;" class="a-upload">
-              <input type="file" name id="sc" @change="previewFile()" accept="image/*" />上传
+              <input
+                type="file"
+                name
+                id="sc"
+                @change="previewFile()"
+                accept="image/*"
+                :disabled="forWatch"
+              />上传
             </a>
           </div>
         </div>
         <div class="tplb" style>
           <div class="tpcontainer" :key="index" v-for="(item,index) in picList">
             <img class="tp" @click="showBigPic(item)" :src="item.imageBase64" />
-            <div class="del" @click="delPic(index)">删除</div>
+            <div class="del" @click="delPic(index)" v-if="!forWatch">删除</div>
           </div>
         </div>
       </div>
-      <!-- 遮罩 -->
-      <div id="boxes" v-if="forWatch"></div>
     </div>
     <span slot="footer" class="dialog-footer" style="display:flex;">
-      <el-button style="flex:1">暂 存</el-button>
+      <!-- <el-button style="flex:1">暂 存</el-button> -->
       <div style="flex:25;text-align:center;">
-        <el-button type="primary" @click="saveResult()">提交录入信息</el-button>
+        <el-button
+          :loading="submiting"
+          type="primary"
+          :disabled="forWatch"
+          @click="saveResult()"
+        >提交录入信息</el-button>
       </div>
       <el-button style="flex:1" @click="FJCheckVisible = false">取 消</el-button>
     </span>
@@ -341,6 +373,8 @@ export default {
       FJCheckVisible: false,
       // 是否订单锁定，显示罩子，不允许操作
       forWatch: false,
+      // 提交按钮加载状态
+      submiting: false,
       // 加载等待
       loading: true,
       //当前工作人员
@@ -411,6 +445,11 @@ export default {
     };
   },
   methods: {
+    // 弹窗关闭方法
+    getClose() {
+      this.items = [];
+      this.choosedObj = {};
+    },
     //弹窗打开初始化方法
     getInit() {
       // 初始化重置为空
@@ -539,6 +578,22 @@ export default {
               JSON.stringify(this.dataTable) +
               JSON.stringify(this.fileList)
           ) {
+            this.blue = index;
+            this.choosedObj = item;
+            // 判断是什么类型项目
+            if (item.typeCode == "04") {
+              this.getFzjcInit();
+              if (this.ifAsk) {
+                this.getFzjcHistory();
+              }
+            } else if (item.typeCode == "01" || item.typeCode == "02") {
+              //获取该组合项目下所有子项目所见和小结
+              this.getAllSubResultTemplate();
+              //如果需要获取则获取对比报告
+              if (this.ifAsk) {
+                this.getAllCompareData();
+              }
+            }
           } else {
             //若修改过，弹出提示框 确认是否要提交结论
             await this.$confirm(
@@ -554,12 +609,45 @@ export default {
               .then(() => {
                 that.saveResult();
               })
-              .catch(action => {});
+              .catch(action => {
+                this.blue = index;
+                this.choosedObj = item;
+                // 判断是什么类型项目
+                if (item.typeCode == "04") {
+                  this.getFzjcInit();
+                  if (this.ifAsk) {
+                    this.getFzjcHistory();
+                  }
+                } else if (item.typeCode == "01" || item.typeCode == "02") {
+                  //获取该组合项目下所有子项目所见和小结
+                  this.getAllSubResultTemplate();
+                  //如果需要获取则获取对比报告
+                  if (this.ifAsk) {
+                    this.getAllCompareData();
+                  }
+                }
+              });
           }
         }
         // 如果是辅助检查
         else if (that.items[prevBlue].typeCode == "04") {
           if (this.originFzjc == JSON.stringify(this.fzjc)) {
+            this.blue = index;
+            this.choosedObj = item;
+            // 判断是什么类型项目
+            if (item.typeCode == "04") {
+              this.getFzjcInit();
+              if (this.ifAsk) {
+                this.getFzjcHistory();
+              }
+            } else if (item.typeCode == "01" || item.typeCode == "02") {
+              //获取该组合项目下所有子项目所见和小结
+              this.getAllSubResultTemplate();
+              //如果需要获取则获取对比报告
+              if (this.ifAsk) {
+                this.getAllCompareData();
+              }
+            }
           } else {
             //若修改过，弹出提示框 确认是否要提交结论
             await this.$confirm(
@@ -575,25 +663,42 @@ export default {
               .then(() => {
                 that.saveResult();
               })
-              .catch(action => {});
+              .catch(action => {
+                this.blue = index;
+                this.choosedObj = item;
+                // 判断是什么类型项目
+                if (item.typeCode == "04") {
+                  this.getFzjcInit();
+                  if (this.ifAsk) {
+                    this.getFzjcHistory();
+                  }
+                } else if (item.typeCode == "01" || item.typeCode == "02") {
+                  //获取该组合项目下所有子项目所见和小结
+                  this.getAllSubResultTemplate();
+                  //如果需要获取则获取对比报告
+                  if (this.ifAsk) {
+                    this.getAllCompareData();
+                  }
+                }
+              });
           }
         }
       } else {
-      }
-      this.blue = index;
-      this.choosedObj = item;
-      // 判断是什么类型项目
-      if (item.typeCode == "04") {
-        this.getFzjcInit();
-        if (this.ifAsk) {
-          this.getFzjcHistory();
-        }
-      } else if (item.typeCode == "01" || item.typeCode == "02") {
-        //获取该组合项目下所有子项目所见和小结
-        this.getAllSubResultTemplate();
-        //如果需要获取则获取对比报告
-        if (this.ifAsk) {
-          this.getAllCompareData();
+        this.blue = index;
+        this.choosedObj = item;
+        // 判断是什么类型项目
+        if (item.typeCode == "04") {
+          this.getFzjcInit();
+          if (this.ifAsk) {
+            this.getFzjcHistory();
+          }
+        } else if (item.typeCode == "01" || item.typeCode == "02") {
+          //获取该组合项目下所有子项目所见和小结
+          this.getAllSubResultTemplate();
+          //如果需要获取则获取对比报告
+          if (this.ifAsk) {
+            this.getAllCompareData();
+          }
         }
       }
 
@@ -613,20 +718,25 @@ export default {
           .then(function(response) {
             that.loading = false;
             if (response.data.status == 1) {
-              console.log(response.data.entity, 5656);
               //页面加载后的要操作的数据对象
               that.xiaojieSelect = response.data.entity.resSubItems;
               //页面加载后的原始数据对象，用于切换组合项目或关闭弹窗时判断是否弹出保存提示框
+              // 初始化小结
+              if (response.data.entity.summaryList.length != 0) {
+                that.dataTable = response.data.entity.summaryList.map(
+                  (item, index) => {
+                    item.index = that.guid();
+                    return item;
+                  }
+                );
+              } else {
+                that.dataTable = [];
+              }
               that.originSelect =
                 JSON.stringify(response.data.entity.resSubItems) +
                 JSON.stringify(response.data.entity.summaryList) +
                 JSON.stringify(response.data.entity.resImageLists);
-              // 初始化小结
-              if (response.data.entity.summaryList.length != 0) {
-                that.dataTable = response.data.entity.summaryList;
-              } else {
-                that.dataTable = [];
-              }
+
               // 初始化图片
               if (response.data.entity.resImageLists.length != 0) {
                 that.picList = [];
@@ -773,21 +883,17 @@ export default {
             } else {
             }
           });
-
           this.$axios
             .post(this.$api.DeleCommonSubItemResults, havesum)
             .then(function(response) {
               if (response.data.status != 0) {
-                that.dataTable.forEach((item, index) => {
-                  that.multipleSelection.forEach((it, idx) => {
-                    if (item == it) {
-                      //要用选中长度，删除所有选中的项目
-                      that.dataTable.splice(
-                        index,
-                        that.multipleSelection.length
-                      );
-                    }
-                  });
+                // 删除
+                that.dataTable = that.dataTable.filter((item, index) => {
+                  return (
+                    that.multipleSelection.findIndex(
+                      x => x.index == item.index
+                    ) === -1
+                  );
                 });
               } else {
                 that.$message.error(`错误：${response.data.message}`);
@@ -806,7 +912,7 @@ export default {
         let ifSame = this.dataTable.filter((item, index) => {
           return item.summary == value.summary;
         });
-        console.log(43, value);
+
         if (ifSame.length == 0) {
           this.dataTable.push(value);
         }
@@ -850,18 +956,25 @@ export default {
       }
     },
     // 提交结果，需要判断提交的是物理检查（包含一般检查）结果还是辅助检查结果;保存成功之后组合项目也要变成“已提交“
-    saveResult() {
+    async saveResult() {
+      this.submiting = true;
+      let result = null;
       if (this.choosedObj.typeCode == "04") {
-        this.summitFzjc();
+        result = await this.summitFzjc();
       }
       // 修改后提交
       else if (this.ybjcChanged()) {
-        this.SaveOrUpdateCommonSubItemResult();
+        result = await this.SaveOrUpdateCommonSubItemResult();
       }
       // 一般检查第一次提交
       else {
-        this.postResult();
+        result = await this.postResult();
       }
+      // 提交成功后刷新界面，防止重复提交
+      if (result) {
+        await this.highLight(this.blue, this.choosedObj);
+      }
+      this.submiting = false;
     },
     // 判断一般检查是否修改过
     ybjcChanged() {
@@ -939,6 +1052,7 @@ export default {
             entitySummary.rptDoctor = this.operatorCode;
             entitySummary.operator = this.operatorCode;
             entitySummary.reviewDoctor = this.operatorCode;
+            entitySummary.resultType = "H";
             //将小结对象放入数组
             arr.push(entitySummary);
           });
@@ -976,11 +1090,13 @@ export default {
                 // 组合项目变为已提交
                 that.getItems();
               } else {
+                that.submiting = false;
                 that.$message.error(`错误：${response.data.message}`);
                 reject(false);
               }
             })
             .catch(function(error) {
+              that.submiting = false;
               that.$message.error(`错误：${error}`);
               reject(false);
             });
@@ -1051,6 +1167,7 @@ export default {
             entitySummary.rptDoctor = this.operatorCode;
             entitySummary.operator = this.operatorCode;
             entitySummary.reviewDoctor = this.operatorCode;
+            entitySummary.resultType = "H";
             //将小结对象放入数组
             arr.push(entitySummary);
           });
@@ -1085,11 +1202,13 @@ export default {
                 that.getItems();
                 resolve(true);
               } else {
+                that.submiting = false;
                 that.$message.error(`错误：${response.data.message}`);
                 reject(false);
               }
             })
             .catch(function(error) {
+              that.submiting = false;
               that.$message.error(`错误：${error}`);
               reject(false);
             });
@@ -1177,7 +1296,7 @@ export default {
     //手动添加辅助检查项目
     addFzjc() {
       let empty = {};
-      empty.operatorCode = this.operatorCode;
+      empty.Operator = this.operatorCode;
       empty.itemName = this.fzjc[0].itemName;
       empty.rptItemCode = this.fzjc[0].rptItemCode;
       empty.rptSubItemCode = this.fzjc[0].rptSubItemCode;
@@ -1215,6 +1334,9 @@ export default {
               console.log(response.data.entity, 111);
               // 要操作对象
               that.fzjc = response.data.entity;
+              that.fzjc.forEach((item, index) => {
+                item.Operator = that.operatorCode;
+              });
               //页面加载后的原始数据对象，用于切换组合项目或关闭弹窗时判断是否弹出保存提示框
               that.originFzjc = JSON.stringify(response.data.entity);
               resolve(true);
@@ -1275,6 +1397,23 @@ export default {
     //提交辅助检查数据
     async summitFzjc() {
       let that = this;
+      // 判断是否所有医生字段已填入值
+      let noDocArr = this.fzjc.filter((item, index) => {
+        return (
+          item.reportDoc === "" ||
+          item.reviewDoc === "" ||
+          item.reportDoc === null ||
+          item.reviewDoc === null ||
+          item.reportDate === "" ||
+          item.reviewDate === "" ||
+          item.reportDate === null ||
+          item.reviewDate === null
+        );
+      });
+      if (noDocArr.length !== 0) {
+        that.$message.error(`报告医生,报告时间，审核医生，审核时间不能为空`);
+        return false;
+      }
       // 判断是否订单被主检锁定，如果被主键锁定不允许提交
       await this.ifMasterLocked();
       if (!that.ifmasterl) {
@@ -1292,11 +1431,13 @@ export default {
                 that.getItems();
                 resolve(true);
               } else {
+                that.submiting = false;
                 that.$message.error(`错误：${response.data.message}`);
                 reject(false);
               }
             })
             .catch(function(error) {
+              that.submiting = false;
               that.$message.error(`错误：${error}`);
               reject(false);
             });
@@ -1790,8 +1931,9 @@ export default {
 #boxes {
   position: absolute;
   width: 764px;
-  height: 484px;
+  height: 444px;
   right: 17px;
+  margin-top: -12px;
   background: rgba(0, 0, 0, 0.1);
 }
 </style>

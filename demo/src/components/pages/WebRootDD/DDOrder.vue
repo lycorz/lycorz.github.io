@@ -17,7 +17,7 @@
 						:value="item.value">
 					</el-option>
 				</el-select>
-				<el-button @click="setReportTypeModal = true" :disabled="isEdit">报告类型</el-button>
+				<el-button @click="setReportTypeModal = true" >报告类型</el-button>
 				<el-button type="primary" @click="submitOrder" :disabled="isEdit" :loading="isSubmit">提交</el-button>
 			</div>
     </div>
@@ -254,7 +254,7 @@
 						<div class="packageDis">
 							<span class="item">原价：￥ <span>{{packageDiscount.totalPrice2 | numFilter}}</span></span>
 							<div class="right">
-								<el-checkbox v-model="isFree">优惠自由</el-checkbox>
+								<el-checkbox v-model="isFree" v-if="USERINFO.canExcItemLimit">优惠自由</el-checkbox>
 								折扣：<div class="item-list iptNum">
 												<el-input-number v-model="packageDiscount.discount" @blur="discountHandle('packageDiscount')" @change="discountHandle('packageDiscount')" :min="0" :max="1" :step="0.1"></el-input-number>
 											</div>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -298,6 +298,7 @@
 												show-checkbox
 												node-key="id"
 												ref="third"
+												@check="getNum"
 												@node-click="dbClick"
 												:filter-node-method="filtertree">
 											</el-tree>
@@ -324,6 +325,7 @@
 												show-checkbox
 												ref="second"
 												node-key="id"
+												@check="getNum"
 												@node-click="dbClick"
 												:filter-node-method="filtertree"
 												>
@@ -331,7 +333,7 @@
 										</div>
 										<div class="fixBottom">
 											<el-button type="text" @click="allTreeSelection('GetDeptList', 'second', GetDeptListNum)">全选</el-button>
-											<span class="subitem">合计： <span class="labelColor ftArial">{{GetDeptList.length}}</span></span>
+											<span class="subitem">合计： <span class="labelColor ftArial">{{GetDeptListItems}}</span></span>
 											<span class="subitem">选中： <span class="labelColor ftArial">{{selectedSecondTotal || 0}}</span></span>
 										</div>
 									</div>
@@ -362,7 +364,7 @@
 						<div class="packageDis">
 							<span class="item">原价：￥ <span>{{projectDiscount.totalPrice | numFilter}}</span></span>
 							<div class="right">
-								<el-checkbox v-model="isFree">优惠自由</el-checkbox>
+								<el-checkbox v-model="isFree" v-if="USERINFO.canExcItemLimit">优惠自由</el-checkbox>
 								折扣：<div class="item-list iptNum">
 												<el-input-number v-model="projectDiscount.discount" @blur="discountHandle('projectDiscount')" @change="discountHandle('projectDiscount')" :min="0" :max="1" :step="0.1"></el-input-number>
 											</div>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -573,15 +575,15 @@
 						</li>
 					</ul>
 					<div slot="footer" class="dialog-footer">
-						<el-checkbox v-model="isFree">优惠自由</el-checkbox>
+						<el-checkbox v-model="isFree" v-if="USERINFO.canExcItemLimit">优惠自由</el-checkbox>
 						<el-button @click="discountModal = false">取 消</el-button>
 						<el-button type="primary" @click="confirmDiscount">确 定</el-button>
 					</div>
 				</el-dialog>
 				<!-- 报告类型 -->
-				<el-dialog title="报告类型" :visible.sync="setReportTypeModal" :close-on-click-modal="false" width="500px" class="setType" @open="openReportType">
+				<el-dialog title="报告类型" :visible.sync="setReportTypeModal" :close-on-click-modal="false" width="500px" class="setType" @close="openReportType">
 					<el-checkbox-group v-model="ReportType">
-						<el-checkbox v-for="item in reportTypes" :label="item" :key="item"></el-checkbox>
+						<el-checkbox v-for="item in reportTypes" :label="item" :key="item">{{item}}</el-checkbox>
 					</el-checkbox-group>
 					<span style="line-height: 32px;">特殊报告：</span>
 					<el-radio-group v-model="SpecialReportType" class="radioType">
@@ -681,8 +683,8 @@ export default {
 					Packages: [],
 					OrderVipFlag: 0,//0非 1 是
 					OrderType: '',
-					ReportType: 0,// 报告类型
-					SpecialReportType: 0,//特殊报告类型
+					ReportType: null,// 报告类型
+					SpecialReportType: null,//特殊报告类型
 					CreateOrderTime: moment().format('YYYY-MM-DD'),
 					Status: '',
 					IsLock: false,
@@ -752,6 +754,9 @@ export default {
 			GetPackageList: [], // 检查套餐字典源
 			addPackageType: '',//添加套餐类型名称
 
+			selectedThirdTotal: 0,
+			selectedSecondTotal: 0,
+
 			//添加项目框
 			selectedLeft: [],// 左侧所选择的-添加套餐专用
 			selectedRight: [],// 右侧所选择的
@@ -795,7 +800,14 @@ export default {
 	},
 	created: function () {
 		this.GetOrderType();
-		//this.submitParams.Order.IdcardNum = '111111111111111111';//开发测试
+		this.$nextTick(() => {
+		//	this.submitParams.Order.IdcardNum = '111111111111111111';//开发测试
+			// setTimeout(() => {
+			// 	this.ReportType = [this.reportType1[1].name];
+			// 	this.SpecialReportType = 2;
+			// 	console.log([this.reportType1[0].name],this.SpecialReportType)
+			// }, 3000)
+		})
 	},
 	methods: {
 		//添加项目-按项目添加-搜索fn
@@ -922,11 +934,17 @@ export default {
 		//切换订单类型时出发
 		OrderTypeChange(val) {
 			if(val) {
-				this.ReportType = [this.reportType1[1].name];
+				this.$nextTick(() => {
+					this.ReportType = [];
+					this.ReportType.push(this.reportType1[1].name);
+				})
 			} else {
-				this.ReportType = [this.reportType1[0].name];
+				this.$nextTick(() => {
+					this.ReportType = [];
+					this.ReportType.push(this.reportType1[0].name);
+				})
 			}
-			this.SpecialReportType = 0;
+			this.SpecialReportType = null;
 			if (this.tableData.length === 0) return;
 			this.$confirm('<span>您确定要放弃当前编辑的订单进行订单类型切换吗？</span><br /><i style="color:#8F9399;">订单类型切换会清空未提交的数据</i>', '提示', {
 				confirmButtonText: '确定',
@@ -935,16 +953,14 @@ export default {
 				type: 'warning'
 			}).then(() => {
 				this.tableData = [];
-				this.submitParams.Order.SpecialReportType = 0;
 			}).catch(() => {
-				if (val) {
-					this.submitParams.Order.OrderType = 0;
-				} else {
-					this.submitParams.Order.OrderType = 1;
-				}
 				this.SpecialReportType = this.submitParams.Order.SpecialReportType;
+				if(val) {
+					this.ReportType = [].push(this.reportType1[0].name);
+				} else {
+					this.ReportType = [].push(this.reportType1[1].name);
+				}
 			})
-
 		},
 		submitOrder() {//提交订单
 		 this.$refs.submitInfo.validate((valid) => {
@@ -959,9 +975,13 @@ export default {
 				}
 				if (!this.submitParams.Order.ReportType) {
 					this.submitParams.Order.ReportType = 0;
+				} else {
+					this.submitParams.Order.ReportType = this.getReportType(this.ReportType[0]);
 				}
 				if(!this.submitParams.Order.SpecialReportType) {
 					this.submitParams.Order.SpecialReportType = 0;
+				} else {
+					this.submitParams.Order.SpecialReportType = this.SpecialReportType;
 				}
 				this.isSubmit = true;
 				let loading = this.$loading({
@@ -1007,7 +1027,7 @@ export default {
 							}
 						})
 					})
-				}
+				}``
 				this.submitParams.Order.OrderMoney = this.exePrice || 0;
 				this.submitParams.Order.Birthday = moment(this.submitParams.Order.Birthday).format('YYYY-MM-DD');
 				this.$axios.post(this.$api.SubmitOrder, this.submitParams).then(res => {
@@ -1085,7 +1105,7 @@ export default {
 		},
 		// 打折框-确定
 		confirmDiscount(){
-			this.USERINFO.discount = 0.5;//预设系统最低折扣
+			//this.USERINFO.discountLowLimit = 0.5;//预设系统最低折扣
 			let lowestPriceAll = 0;
 			let exePriceAll = 0;
 			let fullPriceAll = 0;
@@ -1108,12 +1128,12 @@ export default {
 			}
 			let lowestDiscount = exePriceAll/fullPriceAll;
 			if(this.isFree) {
-				if (this.USERINFO.discount > this.discountData.discount2) {
-					this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+				if (this.USERINFO.discountLowLimit > this.discountData.discount2) {
+					this.$message.error(`您最低的折扣为${this.USERINFO.discountLowLimit.toFixed(2)}`);
 					return;
 				}
 			} else {
-				lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+				lowestDiscount = this.USERINFO.discountLowLimit < lowestDiscount ? this.USERINFO.discountLowLimit : lowestDiscount;
 				if(lowestDiscount > this.discountData.discount2) {
 					this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
 					return;
@@ -1301,7 +1321,7 @@ export default {
 		},
 		// 添加套餐确定按钮
 		addPackageBtn() {
-			this.USERINFO.discount = 0.5;//预设系统最低折扣
+			//this.USERINFO.discountLowLimit = 0.5;//预设系统最低折扣
 			this.visible3 = false;
 			let lowestPriceAll = 0;//项目最低价之和
 			let exePriceAll = 0;//项目原执行价之和
@@ -1322,13 +1342,13 @@ export default {
 				//对价格权限的控制
 				if(this.isFree) {
 					lowestDiscount = exePriceAll/fullPriceAll;
-					if(this.USERINFO.discount > this.packageDiscount.discount2) {
-						this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+					if(this.USERINFO.discountLowLimit > this.packageDiscount.discount2) {
+						this.$message.error(`您最低的折扣为${this.USERINFO.discountLowLimit.toFixed(2)}`);
 						return;
 					}
 				} else {
 					lowestDiscount = exePriceAll/fullPriceAll;
-					lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+					lowestDiscount = this.USERINFO.discountLowLimit < lowestDiscount ? this.USERINFO.discountLowLimit : lowestDiscount;
 					if(lowestDiscount > this.packageDiscount.discount2) {
 						this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
 						return;
@@ -1393,12 +1413,12 @@ export default {
 				//对价格权限的控制
 				lowestDiscount = exePriceAll/fullPriceAll;
 				if(this.isFree) {
-					if(this.USERINFO.discount > this.packageDiscount.discount2) {
-						this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+					if(this.USERINFO.discountLowLimit > this.packageDiscount.discount2) {
+						this.$message.error(`您最低的折扣为${this.USERINFO.discountLowLimit.toFixed(2)}`);
 						return;
 					}
 				} else {
-					lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+					lowestDiscount = this.USERINFO.discountLowLimit < lowestDiscount ? this.USERINFO.discountLowLimit : lowestDiscount;
 					if(lowestDiscount > this.packageDiscount.discount2) {
 						this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
 						return;
@@ -1532,6 +1552,11 @@ export default {
 					let obj = res.data.entity;
 					this.setCustomer(obj);
 				} else {
+					this.$nextTick(() => {
+						this.ReportType = [];
+						this.ReportType.push(this.reportType1[0].name);
+						this.submitParams.Order.ReportType = this.getReportType(this.ReportType[0]);
+					})
 					this.$message.error(res.data.message);
 					this.load.close();
 				}
@@ -1607,7 +1632,7 @@ export default {
 		},
 		// 添加项目-确定
 		confirmAddProjectBtn(){
-			this.USERINFO.discount = 0.5;
+			//this.USERINFO.discountLowLimit = 0.5;
 			let lowestPriceAll = 0;//项目最低价之和
 			let exePriceAll = 0;//项目原执行价之和
 			let fullPriceAll = 0;//项目原价之和
@@ -1618,12 +1643,12 @@ export default {
 			})
 			let lowestDiscount = exePriceAll/fullPriceAll;
 			if(this.isFree) {
-				if(this.USERINFO.discount > this.projectDiscount.discount2) {
-					this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+				if(this.USERINFO.discountLowLimit > this.projectDiscount.discount2) {
+					this.$message.error(`您最低的折扣为${this.USERINFO.discountLowLimit.toFixed(2)}`);
 					return;
 				}
 			} else {
-				lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+				lowestDiscount = this.USERINFO.discountLowLimit < lowestDiscount ? this.USERINFO.discountLowLimit : lowestDiscount;
 				if(lowestDiscount > this.projectDiscount.discount2) {
 					this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
 					return;
@@ -1683,8 +1708,18 @@ export default {
 			let selectedNum = this.$refs[target].getCheckedNodes().length;
 			if (selectedNum === num) {
 				this.$refs[target].setCheckedKeys([]);
+				if(this.activeTabName === 'third') {
+					this.selectedThirdTotal = 0;
+				} else {
+					this.selectedSecondTotal = 0;
+				}
 			} else {
 				this.$refs[target].setCheckedNodes(this[source]);
+				if(this.activeTabName === 'third') {
+					this.selectedThirdTotal = this.GetItemListView.length;
+				} else {
+					this.selectedSecondTotal = this.GetItemListView.length;
+				}
 			}
 		},
 		// tree - 反选
@@ -1856,8 +1891,8 @@ export default {
 					this.$message.error(`已选项目中包含${num}个已检项目，不可删除`);
 					return;
 				}
-				if(this.multipleSelection.some(x => x.IsUnitItem)) {
-					this.$message.error('已选项目不可删除');
+				if(this.multipleSelection.some(x => x.isUnitItem)) {
+					this.$message.error('已选项目中包含不可删除的项目');
 					return;
 				}
 				this.$confirm('<span>确定对当前所选项目进行删除操作吗？</span><br /><i style="color:#8F9399;">删除后不可恢复，请谨慎操作</i>', '提示', {
@@ -2016,6 +2051,13 @@ export default {
 			setTimeout(() =>{
 				this.dbClickFlag = 0
 			}, 500)
+		},
+		getNum(a,b){
+			if(this.activeTabName === 'third') {
+				this.selectedThirdTotal = b.checkedKeys.length;
+			} else {
+				this.selectedSecondTotal = b.checkedKeys.filter(x => x.indexOf('K') != 0).length;
+			}
 		}
 	},
 	computed: {
@@ -2047,19 +2089,16 @@ export default {
 			})
 			return price;
 		},
-		selectedThirdTotal: function() {
-			if (this.$refs.third) {
-				return this.$refs.third.getCheckedNodes().length;
-			} else {
-				return 0;
-			}
-		},
-		selectedSecondTotal: function() {
-			if (this.$refs.second) {
-				return this.$refs.second.getCheckedNodes().length;
-			} else {
-				return 0;
-			}
+		GetDeptListItems: function() {
+			let num = 0;
+			this.GetDeptList.forEach(x => {
+				if(x.children) {
+					x.children.forEach(y => {
+						num ++;
+					})
+				}
+			})
+			return num;
 		}
 	},
 	watch: {
@@ -2166,7 +2205,9 @@ export default {
 .content .el-input--prefix .el-input__inner {
 	    padding-left: 25px;
 }
-
+.el-input >>> .el-input__inner {
+	padding: 0 8px;
+}
 .addProject{
 	overflow: hidden;
 }

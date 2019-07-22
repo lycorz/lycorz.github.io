@@ -153,6 +153,7 @@ export default {
   },
   inject: ["getData"],
   methods: {
+    //图片上的删除
     handleRemove(file, fileList) {
       let fileNames = this.imgPath.find(
         z => z.slice(-file.name.length, z.length) == file.name
@@ -163,10 +164,12 @@ export default {
         this.delImage([fileNames]);
       }
     },
+    //图片上的放大镜
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
       this.imgdialogVisible = true;
     },
+    //上传前判断图片是否合法
     beforeUpload(file) {
       // const isJPG = file.type === "image/jpeg" || "jpg" || "png";
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -182,12 +185,14 @@ export default {
       }
       return isLt2M;
     },
+    //图片上传成功
     onSuccess(response, file, fileList) {
       console.log(this.imgPath);
       this.imgPath.push(response.entity[0]);
       console.log(this.imgPath);
       this.allPath.push(response.entity[0]);
     },
+    //医生证书枚举获取
     getCertType() {
       this.$getType("CertType")
         .then(res => {
@@ -239,7 +244,6 @@ export default {
       this.fromData.oldInnerCode = this.Code;
       this.$refs.createFrom.validate(valid => {
         if (valid) {
-          console.log(this.imgPath);
           this.fromData.certPhoto = this.imgPath.join(";");
           this.$axios
             .post(this.$api.SaveUserCert, this.fromData)

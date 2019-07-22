@@ -28,7 +28,7 @@ export default {
     saveChange() {
       let obj = {};
       obj.summary = this.summary;
-      obj.index = this.index;
+      obj.index = this.guid();
       this.$emit("postSummary", obj);
       this.adviceEditVisible = false;
     },

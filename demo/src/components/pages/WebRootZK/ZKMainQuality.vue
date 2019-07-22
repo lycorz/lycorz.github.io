@@ -6,7 +6,7 @@
 		<div class="peopleData">
       <div class="propleSearch">
         <el-input
-          placeholder="请输入关键字"
+          placeholder="医生姓名/首拼"
           v-model="params.SearchValue"
           class="arcRadius"
 					@keyup.enter.native="getData(true)"
@@ -33,15 +33,15 @@
         </div>
         <el-button @click="getData(true)">查询</el-button>
 				<div class="right">
-					<el-button type="primary">导出报表</el-button>
+					<el-button type="primary" @click="exportExcel" v-no-more-click>导出报表</el-button>
 				</div>
       </div>
     </div>
 		<el-table :data="tableData" style="width: 100%;" v-loading="loading">
-      <el-table-column type="index" label="序号" width="50"></el-table-column>
+      <el-table-column type="index" label="序号" width="150"></el-table-column>
       <el-table-column prop="docterName" label="医生姓名"></el-table-column>
-      <el-table-column prop="rejectNum" label="驳回次数" width="100"></el-table-column>
-      <el-table-column label="操作" width="80">
+      <el-table-column prop="rejectNum" label="驳回次数" width="200"></el-table-column>
+      <el-table-column label="操作" width="100">
 				<template slot-scope="data">
 					<el-button type="text" @click="openDetail(data.row.rejectDetails)">驳回详情</el-button>
 				</template>
@@ -77,6 +77,8 @@
 	</div>
 </template>
 <script>
+import consts from "../../../utils/const";
+import $ from "jquery";
 export default {
 	name: 'ZKMainQuality',
 	data() {
@@ -138,7 +140,6 @@ export default {
 	},
 	created() {
 		this.getDoctorEnum();
-
 	},
 	methods: {
 		getData(key) {
@@ -183,6 +184,39 @@ export default {
 		openDetail(data) {
 			this.detail = data;
 			this.detailModal = true;
+		},
+		//导出报表
+		exportExcel(){
+			let loading = this.$loading({
+				lock: true,
+				text: '导出中...',
+				spinner: 'el-icon-loading',
+				background: 'rgba(0, 0, 0, 0.7)'
+			});
+			if (!this.params.timeRange  || this.params.timeRange.length !== 2) {
+					this.searchParams.BeginTime = '';
+					this.searchParams.EndTime = '';
+				} else {
+					this.searchParams.BeginTime = this.params.timeRange[0];
+					this.searchParams.EndTime = this.params.timeRange[1];
+				}
+			this.$axios.get(this.$api.ExportMainIns, {params: this.searchParams}).then(res => {
+				if(res.data.status === 1) {
+					this.downExcel(res.data.entity);
+				} else {
+					this.$message.error(res.data.message);
+				}
+				loading.close();
+			}).catch(err => {
+				this.$message.error(err.data.message || '');
+				loading.close();
+			})
+		},
+		downExcel(url) {
+			let $form = $('<form method="GET"></form>');
+			$form.attr("action", consts.SF_REPORT_PATH + url);
+			$form.appendTo($("body"));
+			$form.submit();
 		},
 		// 处理分页fn
     handleCurrentChange(val) {

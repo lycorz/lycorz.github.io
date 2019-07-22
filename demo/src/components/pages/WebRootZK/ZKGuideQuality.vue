@@ -17,7 +17,7 @@
           <el-option label="男" :value="1"></el-option>
           <el-option label="女" :value="2"></el-option>
         </el-select>
-				<el-select v-model="params.IsGuide" placeholder="是否参与体检" clearable>
+				<el-select v-model="params.IsGuide" placeholder="是否参与导检" clearable>
           <el-option label="是" :value="true"></el-option>
           <el-option label="否" :value="false"></el-option>
         </el-select>
@@ -33,7 +33,7 @@
         </div>
         <el-button @click="getData(true)">查询</el-button>
 				<div class="right">
-					<el-button type="primary">导出报表</el-button>
+					<el-button type="primary"  @click="exportExcel" v-no-more-click>导出报表</el-button>
 				</div>
       </div>
     </div>
@@ -52,7 +52,7 @@
 					{{scope.row.checkBeginTime | formatDate('YYYY-MM-DD')}}
 				</template>
 			</el-table-column>
-      <el-table-column prop="isGuide" label="是否参与体检">
+      <el-table-column prop="isGuide" label="是否参与导检">
 				<template slot-scope="scope">
 					{{scope.row.isGuide ? '是' : '否'}}
 				</template>
@@ -61,8 +61,8 @@
 		<div class="fixBottom" style="flex: 0 0 81px;border-top: 1px solid #DCDFE5">
 			<div style="line-height: 40px;height: 40px;margin-left: -16px;margin-right: -16px;border-bottom: 1px solid #DCDFE5">
 				<span class="subitem" style="display: inline-block;floar: left;margin: 0px 0;font-size: 14px;color:#606266;text-indent: 20px;">合计： </span>
-				<span class="subitem" style="display: inline-block;floar: left;margin: 0px 8px;">参与导检的人数/占比:<span class="labelColor ftArial" font-weight: bold>{{guideCount}} / {{guideProp}}%</span></span>
-				<span class="subitem" style="display: inline-block;floar: left;margin: 0px 8px;">折扣总额度:<span class="labelColor ftArial" font-weight: bold>{{notGuideCount}} / {{notGuideProp}}%</span></span>
+				<span class="subitem" style="display: inline-block;floar: left;margin: 0px 8px;">参与导检的人数（占比）:<span class="labelColor ftArial" font-weight: bold>{{guideCount}}人（{{guideProp}}%）</span></span>
+				<span class="subitem" style="display: inline-block;floar: left;margin: 0px 8px;">未参与导检的人数（占比）:<span class="labelColor ftArial" font-weight: bold>{{notGuideCount}}人（ {{notGuideProp}}%）</span></span>
 			</div>
       <div class="right">
         <el-pagination
@@ -79,6 +79,8 @@
 </template>
 <script>
 import moment from "moment";
+import consts from "../../../utils/const";
+import $ from "jquery";
 export default {
 	name: 'ZKGuideQuality',
 	data() {
@@ -182,6 +184,39 @@ export default {
 				this.$message.error(err.data.message);
 				this.loading = false;
 			})
+		},
+		//导出报表
+		exportExcel(){
+			let loading = this.$loading({
+				lock: true,
+				text: '导出中...',
+				spinner: 'el-icon-loading',
+				background: 'rgba(0, 0, 0, 0.7)'
+			});
+			if (!this.params.timeRange  || this.params.timeRange.length !== 2) {
+					this.searchParams.BeginTime = '';
+					this.searchParams.EndTime = '';
+				} else {
+					this.searchParams.BeginTime = this.params.timeRange[0];
+					this.searchParams.EndTime = this.params.timeRange[1];
+				}
+			this.$axios.get(this.$api.ExportGuideClass, {params: this.searchParams}).then(res => {
+				if(res.data.status === 1) {
+					this.downExcel(res.data.entity);
+				} else {
+					this.$message.error(res.data.message);
+				}
+				loading.close();
+			}).catch(err => {
+				this.$message.error(err.data.message || '');
+				loading.close();
+			})
+		},
+		downExcel(url) {
+			let $form = $('<form method="GET"></form>');
+			$form.attr("action", consts.SF_REPORT_PATH + url);
+			$form.appendTo($("body"));
+			$form.submit();
 		},
 		// 处理分页fn
     handleCurrentChange(val) {

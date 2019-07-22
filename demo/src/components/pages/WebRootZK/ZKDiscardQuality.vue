@@ -6,7 +6,7 @@
 		<div class="peopleData">
       <div class="propleSearch">
         <el-input
-          placeholder="请输入关键字"
+          placeholder="项目名称/首拼"
           v-model="params.SearchValue"
           class="arcRadius"
 					@keyup.enter.native="getData(true)"
@@ -25,20 +25,20 @@
         </div>
         <el-button @click="getData(true)">查询</el-button>
 				<div class="right">
-					<el-button type="primary">导出报表</el-button>
+					<el-button type="primary" @click="exportExcel" v-no-more-click>导出报表</el-button>
 				</div>
       </div>
     </div>
 		<el-table :data="tableData" style="width: 100%;" v-loading="loading">
       <el-table-column type="index" label="序号" width="50"></el-table-column>
       <el-table-column prop="abandonName" label="弃检项目名称"></el-table-column>
-      <el-table-column prop="abandonCount" label="弃检数量" width="100"></el-table-column>
-      <el-table-column prop="abandonProp" label="占比" width="100">
+      <el-table-column prop="abandonCount" label="弃检数量" width="200"></el-table-column>
+      <el-table-column prop="abandonProp" label="占比" width="200">
 				<template slot-scope="scope">
 					{{scope.row.abandonProp}}%
 				</template>
 			</el-table-column>
-      <el-table-column prop="isGuide" label="操作" width="80">
+      <el-table-column prop="isGuide" label="操作" width="120">
 				<template slot-scope="scope">
 					<el-button type="text" @click="openDetail(scope.row.abandonDetails)">查看详情</el-button>
 				</template>
@@ -73,6 +73,8 @@
 	</div>
 </template>
 <script>
+import consts from "../../../utils/const";
+import $ from "jquery";
 export default {
 	name: 'ZKDiscardQuality',
 	data() {
@@ -167,6 +169,39 @@ export default {
 		openDetail(data) {
 			this.detail = data;
 			this.detailModal = true;
+		},
+				//导出报表
+		exportExcel(){
+			let loading = this.$loading({
+				lock: true,
+				text: '导出中...',
+				spinner: 'el-icon-loading',
+				background: 'rgba(0, 0, 0, 0.7)'
+			});
+			if (!this.params.timeRange  || this.params.timeRange.length !== 2) {
+					this.searchParams.BeginTime = '';
+					this.searchParams.EndTime = '';
+				} else {
+					this.searchParams.BeginTime = this.params.timeRange[0];
+					this.searchParams.EndTime = this.params.timeRange[1];
+				}
+			this.$axios.get(this.$api.ExportAbandon, {params: this.searchParams}).then(res => {
+				if(res.data.status === 1) {
+					this.downExcel(res.data.entity);
+				} else {
+					this.$message.error(res.data.message);
+				}
+				loading.close();
+			}).catch(err => {
+				this.$message.error(err.data.message || '');
+				loading.close();
+			})
+		},
+		downExcel(url) {
+			let $form = $('<form method="GET"></form>');
+			$form.attr("action", consts.SF_REPORT_PATH + url);
+			$form.appendTo($("body"));
+			$form.submit();
 		},
 		// 处理分页fn
     handleCurrentChange(val) {

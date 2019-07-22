@@ -30,6 +30,22 @@
                 >{{item.name}}</el-option>
               </el-select>
             </div>
+            <div class="searchItem">
+              <el-select
+                clearable
+                v-model="searchParams.orderType"
+                style="width:120px;"
+                placeholder="缴费状态"
+              >
+                <el-option
+                  v-for="item in orderPayStatusItems"
+                  :key="item.value"
+                  :label="item.name"
+                  :value="item.value"
+                  filter-placement="bottom-end"
+                >{{item.name}}</el-option>
+              </el-select>
+            </div>
             <div style="display: inline-block;margin: 0 16px;">
               <el-date-picker
                 v-model="timeRange"
@@ -58,14 +74,20 @@
           <el-table-column prop="unitContractMoney" align="left" label="合同金额"></el-table-column>
           <el-table-column prop="checkedNum" align="left" label="已检人数"></el-table-column>
           <el-table-column prop="checkedMoney" align="left" label="已检金额"></el-table-column>
-          <el-table-column prop="deptName" align="left" label="已结人数"></el-table-column>
-          <el-table-column prop="deptName" align="left" label="已付金额"></el-table-column>
+          <el-table-column prop="paidMoney" align="left" label="已结人数"></el-table-column>
+          <el-table-column prop="paidPersonNum" align="left" label="已付金额"></el-table-column>
           <el-table-column prop="orderMoney" align="left" label="订单金额"></el-table-column>
-          <el-table-column prop="deptName" align="left" label="缴费状态"></el-table-column>
-          <el-table-column prop="deptName" align="left" label="最后缴费时间">
-            <!-- <template slot-scope="scope">{{scope.row.beginTime | formatDate}}</template> -->
+          <el-table-column prop="paidStatus" align="left" label="缴费状态">
+            <template slot-scope="scope">{{scope.row.paidStatus==1?"已缴费":"未缴费"}}</template>
           </el-table-column>
-          <el-table-column prop="orderStatus" align="left" label="订单状态"></el-table-column>
+          <el-table-column prop="paidTime" align="left" label="最后缴费时间">
+            <template slot-scope="scope">{{scope.row.paidTime | formatDate}}</template>
+          </el-table-column>
+          <el-table-column prop="orderStatus" align="left" label="订单状态">
+            <template
+              slot-scope="scope"
+            >{{scope.row.orderStatus==0?"未开始":(scope.row.orderStatus==1?"体检开始":"体检结束")}}</template>
+          </el-table-column>
           <el-table-column prop="closeTime" align="left" label="订单关闭时间">
             <template slot-scope="scope">{{scope.row.closeTime | formatDate}}</template>
           </el-table-column>
@@ -80,19 +102,19 @@
                 </span>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item>
-                    <span @click="showRefund(scope.row)">退费</span>
+                    <span style="display: block;" @click="showRefund(scope.row)">退费</span>
                   </el-dropdown-item>
                   <el-dropdown-item>
-                    <span @click="showWithdraw(scope.row)">撤回</span>
+                    <span style="display: block;" @click="showWithdraw(scope.row)">撤销交易</span>
                   </el-dropdown-item>
-                  <el-dropdown-item>
-                    <span @click="endOrderBtn(scope.row)">结束订单</span>
+                  <el-dropdown-item :disabled="scope.row.orderStatus==2">
+                    <span style="display: block;" @click="endOrderBtn(scope.row)">结束订单</span>
                   </el-dropdown-item>
-                  <el-dropdown-item>
-                    <span @click="signPay(scope.row)">标记为已缴费</span>
+                  <el-dropdown-item :disabled="scope.row.paidStatus==1">
+                    <span @click="signPay(scope.row)" style="display: block;">标记为已缴费</span>
                   </el-dropdown-item>
-                  <el-dropdown-item>
-                    <span @click="delOrderBtn(scope.row)">删除订单</span>
+                  <el-dropdown-item :disabled="scope.row.orderStatus!=0">
+                    <span style="display: block;" @click="delOrderBtn(scope.row)">删除订单</span>
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
@@ -130,6 +152,8 @@ export default {
     return {
       total: 0, // 总条数
       loading: false,
+      OrderTypeItems: [], //DONE
+      orderPayStatusItems: [],
       timeRange: [
         moment()
           .subtract(0.5, "year")
@@ -183,10 +207,43 @@ export default {
       tableData: [] // 单位列表
     };
   },
+  provide() {
+    return {
+      getData: this.getData
+    };
+  },
   created: function() {
     this.getData(true);
+    this.getOrderTypeItems();
+    this.getorderPayStatusItems();
   },
   methods: {
+    getOrderTypeItems() {
+      this.$getType("GrpOrderStatus")
+        .then(res => {
+          if (res.data.status == 1) {
+            this.OrderTypeItems = res.data.entity;
+          } else {
+            console.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
+    getorderPayStatusItems() {
+      this.$getType("GrpOrderPayStatus")
+        .then(res => {
+          if (res.data.status == 1) {
+            this.orderPayStatusItems = res.data.entity;
+          } else {
+            console.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
     // 获取数据
     getData(key) {
       if (key) {
@@ -230,36 +287,32 @@ export default {
           this.total = 0;
         });
     },
-    //撤回tabs点击
-    payBackClick(tab, event) {
-      console.log(tab, event);
-    },
     //详情
     showUnitDetails(row) {
       let dialogddgrp = this.$refs.dialogddgrp;
       dialogddgrp.unitDetailsIsShow = true;
-      dialogddgrp.OrderCode = row.orderCode;
+      dialogddgrp.orderCode = row.orderCode;
     },
     //缴费
     showPay(row) {
       let dialogddgrp = this.$refs.dialogddgrp;
-      dialogddgrp.customerOrderIsShow = true;
-      dialogddgrp.OrderCode = row.orderCode;
+      dialogddgrp.payIsShow = true;
+      dialogddgrp.orderCode = row.orderCode;
     },
     /*    按钮组    */
     //退费
     showRefund(row) {
       let dialogddgrp = this.$refs.dialogddgrp;
       dialogddgrp.refundIsShow = true;
-      dialogddgrp.OrderCode = row.orderCode;
+      dialogddgrp.orderCode = row.orderCode;
     },
     //撤回
-    showWithdraw(row){
+    showWithdraw(row) {
       let dialogddgrp = this.$refs.dialogddgrp;
       dialogddgrp.withdrawIsShow = true;
-      dialogddgrp.OrderCode = row.orderCode;
+      dialogddgrp.orderCode = row.orderCode;
     },
-    //标记为已缴费    TODO:无接口
+    //标记为已缴费    DONE:SignGroupOrderPayStatus
     signPay(row) {
       this.$confirm(
         '<span>您确定要将此订单标记为已缴费吗？</span><br /><i style="color:#8F9399;">确定后不可更改请谨慎操作</i>',
@@ -272,11 +325,25 @@ export default {
         }
       )
         .then(() => {
-          this.$message.success("标记已缴费成功");
+          this.$axios
+            .post(this.$api.SignGroupOrderPayStatus, {
+              orderCode: row.orderCode
+            })
+            .then(res => {
+              if (res.data.status == 1) {
+                this.$message.success("标记已缴费成功");
+                this.getData();
+              } else {
+                this.$message.error("标记已缴费失败，请重试");
+              }
+            })
+            .catch(error => {
+              console.error(error);
+            });
         })
-        .catch(err => {});
+        .catch(() => {});
     },
-    // 删除订单   TODO:无接口
+    // 删除订单   DONE:DeleteGroupOrder
     delOrderBtn(row) {
       this.$confirm(
         '<span>您确定要删除该体检订单吗？</span><br /><i style="color:#8F9399;">确定删除后人员及项目将都被删除</i>',
@@ -289,11 +356,23 @@ export default {
         }
       )
         .then(() => {
-          this.$message.success("删除订单成功");
+          this.$axios
+            .post(this.$api.DeleteGroupOrder, { orderCode: row.orderCode })
+            .then(res => {
+              if (res.data.status == 1) {
+                this.$message.success("删除订单成功");
+                this.getData();
+              } else {
+                this.$message.error(res.data.message);
+              }
+            })
+            .catch(error => {
+              console.error(error);
+            });
         })
-        .catch(err => {});
+        .catch(() => {});
     },
-    // 结束订单   TODO:无接口
+    // 结束订单   DONE:EndGroupOrder
     endOrderBtn(row) {
       this.$confirm(
         '<span>您确定要结束该体检订单吗？</span><br /><i style="color:#8F9399;">确定结束后人员及项目将都不能再被编辑</i>',
@@ -306,9 +385,21 @@ export default {
         }
       )
         .then(() => {
-          this.$message.success("结束订单成功");
+          this.$axios
+            .post(this.$api.EndGroupOrder, { orderCode: row.orderCode })
+            .then(res => {
+              if (res.data.status == 1) {
+                this.$message.success("结束订单成功");
+                this.getData();
+              } else {
+                this.$message.error("结束订单失败，请重试");
+              }
+            })
+            .catch(error => {
+              console.error(error);
+            });
         })
-        .catch(err => {});
+        .catch(() => {});
     },
     //翻页fn
     handleCurrentChange(val) {

@@ -6,16 +6,16 @@
 		<div class="peopleData">
       <div class="propleSearch">
         <el-input
-          placeholder="请输入关键字"
+          placeholder="设备名称/首拼"
           v-model="params.EquipmentName"
           class="arcRadius"
 					@keyup.enter.native="getData(true)"
           style="width: 150px;margin-right: 16px">
-          
+
         </el-input>
         <el-button @click="getData(true)">查询</el-button>
 				<div class="right">
-					<el-button type="primary">导出报表</el-button>
+					<el-button type="primary" @click="exportExcel" v-no-more-click>导出报表</el-button>
 				</div>
       </div>
     </div>
@@ -73,6 +73,8 @@
 	</div>
 </template>
 <script>
+import consts from "../../../utils/const";
+import $ from "jquery";
 export default {
 	name: 'ZKEquipmentQuality',
 	data() {
@@ -121,6 +123,32 @@ export default {
 		openDetail(data) {
 			this.detail = data;
 			this.detailModal = true;
+		},
+		//导出报表
+		exportExcel(){
+			let loading = this.$loading({
+				lock: true,
+				text: '导出中...',
+				spinner: 'el-icon-loading',
+				background: 'rgba(0, 0, 0, 0.7)'
+			});
+			this.$axios.get(this.$api.ExportEquipment, {params: this.searchParams}).then(res => {
+				if(res.data.status === 1) {
+					this.downExcel(res.data.entity);
+				} else {
+					this.$message.error(res.data.message);
+				}
+				loading.close();
+			}).catch(err => {
+				this.$message.error(err.data.message || '');
+				loading.close();
+			})
+		},
+		downExcel(url) {
+			let $form = $('<form method="GET"></form>');
+			$form.attr("action", consts.SF_REPORT_PATH + url);
+			$form.appendTo($("body"));
+			$form.submit();
 		},
 		// 处理分页fn
     handleCurrentChange(val) {

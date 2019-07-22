@@ -337,7 +337,7 @@ export default {
             return this.$message.error("执行价格不得超过原价");
           }
           if (parseFloat(this.fromData.lowestPrice) > parseFloat(this.fromData.exePrice)) {
-            return this.$message.error("最低价格不得超过执行价");
+            return this.$message.error("执行价格不能小于最低价格");
           }
           // if (parseFloat(this.fromData.costPrice) > parseFloat(this.fromData.fullPrice)) {
           //   return this.$message.error("成本价格不得超过原价");
@@ -351,8 +351,8 @@ export default {
                 this.close();
                 this.getData();
               } else {
-                console.error(res.data.message);
-                this.$message.error("新增失败，请重试。");
+                // console.error(res.data.message);
+                this.$message.error(res.data.message);
               }
             })
             .catch(err => {

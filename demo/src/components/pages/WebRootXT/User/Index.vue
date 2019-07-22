@@ -132,12 +132,12 @@
           ></el-pagination>
         </div>
       </div>
-      <el-dialog :visible.sync="imgdialogVisible"  :close-on-click-modal="false" width="700px" class="infoucs">
-        <el-carousel arrow="always" height="600px">
+      <el-dialog :visible.sync="imgdialogVisible"  :close-on-click-modal="false" width="800px" class="infoucs">
+        <el-carousel arrow="always" height="600px" >
           <el-carousel-item v-for="item in imgItems" :key="item">
-            <div style="background: #475669; height:600px;width:700px">
-              <img width="100%" :src="item">
-            </div>
+            <!-- <div style="background: #475669; height:700px;width:800px"> -->
+              <img width="100%" height="100%" :src="item">
+            <!-- </div> -->
           </el-carousel-item>
         </el-carousel>
       </el-dialog>

@@ -1,15 +1,13 @@
  <template>
 	<div>
-		<el-dialog title="订单详情" :visible.sync="orderDetailsModal" width="1000px" :close-on-click-modal="false" @open="getDetailData">
+		<el-dialog title="订单详情" :visible.sync="orderDetailsModal" width="1000px" :close-on-click-modal="false" @open="getDetailData" @close="clearParams">
 			<div class="peopleData">
 				<div class="searchParams">
 					<el-input
 						placeholder="请搜索"
 						v-model="params.filter"
 						@keyup.enter.native="filterData"
-						style="width: 192px;"
-					>
-
+						style="width: 192px;">
 					</el-input>
 					<el-select v-model="params.sex" clearable placeholder="性别" style="margin: 0 8px;width: 75px;">
 						<el-option label="男"	:value="1"></el-option>
@@ -83,7 +81,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column prop="tele" label="联系电话"></el-table-column>
-				<el-table-column prop="cardNum" label="卡号"></el-table-column>
+				<el-table-column prop="cardNum" label="体检卡号"></el-table-column>
 				<el-table-column prop="idcardNum" label="身份证号"></el-table-column>
 				<el-table-column prop="maritalStatus" label="婚姻">
 					<template slot-scope="scope">
@@ -97,7 +95,11 @@
 						{{scope.row.diyFlag === 1 ? '个性化（有限）': scope.row.diyFlag === 2 ? '个性化（无限）': scope.row.diyFlag === 0 ? '固定套餐' : ''}}
 					</template>
 				</el-table-column>
-				<el-table-column prop="packageName" label="套餐名称"></el-table-column>
+				<el-table-column  label="套餐名称">
+					<template slot-scope="scope">
+						{{scope.row.packages.length ? scope.row.packages[0].packageName : ''}}
+					</template>
+				</el-table-column>
 				<el-table-column prop="remark" label="备注"></el-table-column>
 				<el-table-column prop="orderMoney" label="金额">
 					<template slot-scope="scope">
@@ -155,6 +157,7 @@
 										empty-text="正在获取中，请稍后..."
 										show-checkbox
 										node-key="id"
+										@check="getNum"
 										ref="third"
 										@node-click="dbClick"
 										:filter-node-method="filtertree">
@@ -170,7 +173,6 @@
 						<el-tab-pane label="按科室添加" name="second">
 							<div class="modal-tree" style="border-top: none;">
 								<div class="modal-top"  style="text-indent: 8px;">
-									<!-- <el-input placeholder="请搜索" v-model="filterDept" style="width: 150px;"></el-input> -->
 									<div class="right" style="margin-right: 8px">
 										<el-button @click="addBtn" v-no-more-click>添加</el-button>
 									</div>
@@ -180,6 +182,7 @@
 										:data="GetDeptList"
 										empty-text="正在获取中，请稍后..."
 										show-checkbox
+										@check="getNum"
 										ref="second"
 										node-key="id"
 										@node-click="dbClick"
@@ -189,7 +192,7 @@
 								</div>
 								<div class="fixBottom">
 									<el-button type="text" @click="allTreeSelection('GetDeptList', 'second', GetDeptListNum)">全选</el-button>
-									<span class="subitem">合计： <span class="labelColor ftArial">{{GetDeptList.length}}</span></span>
+									<span class="subitem">合计： <span class="labelColor ftArial">{{GetDeptListItems}}</span></span>
 									<span class="subitem">选中： <span class="labelColor ftArial">{{selectedSecondTotal || 0}}</span></span>
 								</div>
 							</div>
@@ -218,7 +221,7 @@
 			</div>
 			<div class="packageDis">
 				<span class="item">原价：￥ <span>{{projectDiscount.totalPrice2 | numFilter}}</span></span>
-				<el-checkbox v-model="isFree">优惠自由</el-checkbox>
+				<el-checkbox v-model="isFree" v-if="USERINFO.canExcItemLimit">优惠自由</el-checkbox>
 				折扣：<div class="item-list iptNum" style="display: inline-block">
 								<el-input-number v-model="projectDiscount.discount" @blur="discountHandle('projectDiscount')" @change="discountHandle('projectDiscount')" :min="0" :max="1" :step="0.1"></el-input-number>
 							</div>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -258,11 +261,6 @@
 		<el-dialog title="当前客户订单" :visible.sync="currentOrderModal" width="1000px" :close-on-click-modal="false" @close="cancelType">
 			<div class="peopleData" v-if="isCanEdit">
 				<div class="searchParams">
-					<!-- <span>订单类型：</span> -->
-					<!-- <el-select v-model="currentType.orderType" clearable placeholder="订单类型" style="width: 130px;display: none">
-						<el-option label="普通订单" :value="0"></el-option>
-						<el-option label="筛查订单" :value="1"></el-option>
-					</el-select> -->
 					<span style="margin-left: 8px;">定制类型：</span>
 					<el-select v-model="currentType.diyFlag" clearable placeholder="定制类型" style="width: 130px;">
 						<el-option label="固定套餐" :value="0"></el-option>
@@ -341,6 +339,9 @@ export default {
 			deptNames: [],
 			batchs: [],//批次，需请求接口获取
 
+			selectedThirdTotal: 0,
+			selectedSecondTotal: 0,
+
 			activeTabName: 'third',//默认
 			params: {//筛选条件
 				filter: '',
@@ -388,9 +389,11 @@ export default {
 
 			projectDiscount: {//添加项目打折数据
 				totalPrice: 0,
+				totalPrice2: 0,
 				discount: 0,
 				discount2: 0,
-				exePrice: 0
+				exePrice: 0,
+				exePrice2: 0
 			},
 		}
 	},
@@ -434,6 +437,19 @@ export default {
 					}
 				}
 				return result;
+		},
+		//清空搜索参数
+		clearParams() {
+			this.params = {
+				filter: '',
+				sex: '',
+				maritalStatus: '',
+				deptName: '',
+				teamName: '',
+				isCheckBegin: '',
+				isCheckEnd: '',
+				batch: ''
+			}
 		},
 		//订单详情-查询
 		filterData(){
@@ -623,7 +639,7 @@ export default {
 		},
 		// 添加项目-确定
 		confirmAddProjectBtn(){
-			this.USERINFO.discount = 0;
+			//this.USERINFO.discountLowLimit = 0;
 			let lowestPriceAll = 0;//项目最低价之和
 			let exePriceAll = 0;//项目原执行价之和
 			let fullPriceAll = 0;//项目原价之和
@@ -634,12 +650,12 @@ export default {
 			})
 			let lowestDiscount = exePriceAll/fullPriceAll;
 			if(this.isFree) {
-				if(this.USERINFO.discount > this.projectDiscount.discount2) {
-					this.$message.error(`您最低的折扣为${this.USERINFO.discount.toFixed(2)}`);
+				if(this.USERINFO.discountLowLimit > this.projectDiscount.discount2) {
+					this.$message.error(`您最低的折扣为${this.USERINFO.discountLowLimit.toFixed(2)}`);
 					return;
 				}
 			} else {
-				lowestDiscount = this.USERINFO.discount < lowestDiscount ? this.USERINFO.discount : lowestDiscount;
+				lowestDiscount = this.USERINFO.discountLowLimit < lowestDiscount ? this.USERINFO.discountLowLimit : lowestDiscount;
 				if(lowestDiscount > this.projectDiscount.discount2) {
 					this.$message.error(`您最低的折扣为${lowestDiscount.toFixed(2)}`);
 					return;
@@ -964,8 +980,18 @@ export default {
 			let selectedNum = this.$refs[target].getCheckedNodes().length;
 			if (selectedNum === num) {
 				this.$refs[target].setCheckedKeys([]);
+				if(this.activeTabName === 'third') {
+					this.selectedThirdTotal = 0;
+				} else {
+					this.selectedSecondTotal = 0;
+				}
 			} else {
 				this.$refs[target].setCheckedNodes(this[source]);
+				if(this.activeTabName === 'third') {
+					this.selectedThirdTotal = this.GetItemListView.length;
+				} else {
+					this.selectedSecondTotal = this.GetItemListView.length;
+				}
 			}
 		},
 		// tree - 反选
@@ -1059,25 +1085,29 @@ export default {
 		},
 		delTreeChange(a,b) {
 			this.delSelectNum = b.checkedKeys.length;
+		},
+		getNum(a,b){
+			if(this.activeTabName === 'third') {
+				this.selectedThirdTotal = b.checkedKeys.length;
+			} else {
+				this.selectedSecondTotal = b.checkedKeys.filter(x => x.indexOf('K') != 0).length;
+			}
 		}
 	},
 	computed: {
 		...mapState([
 			'USERINFO'
 		]),
-		selectedThirdTotal: function() {
-			if (this.$refs.third) {
-				return this.$refs.third.getCheckedNodes().length;
-			} else {
-				return 0;
-			}
-		},
-		selectedSecondTotal: function() {
-			if (this.$refs.second) {
-				return this.$refs.second.getCheckedNodes().length;
-			} else {
-				return 0;
-			}
+		GetDeptListItems: function() {
+			let num = 0;
+			this.GetDeptList.forEach(x => {
+				if(x.children) {
+					x.children.forEach(y => {
+						num ++;
+					})
+				}
+			})
+			return num;
 		}
 	},
 	watch: {

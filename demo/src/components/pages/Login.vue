@@ -4,22 +4,23 @@
       <div class="ms-title">后台管理系统</div>
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
         <el-form-item prop="LoginId">
-          <el-input v-model="ruleForm.LoginId" placeholder="请输入用户名">
-            <el-button slot="prepend" icon="el-icon-service"></el-button>
+          <el-input v-model="ruleForm.LoginId" placeholder="账号" clearable @keyup.enter.native="submitForm('ruleForm')" class="username">
+            <i slot="prefix" class="el-input__icon el-icon-user"></i>
           </el-input>
         </el-form-item>
         <el-form-item prop="Pwd">
           <el-input
             type="password"
-            placeholder="请输入密码"
+            placeholder="登录密码"
             v-model="ruleForm.Pwd"
+						clearable
             @keyup.enter.native="submitForm('ruleForm')"
           >
-            <el-button slot="prepend" icon="el-icon-bell"></el-button>
+            <i slot="prefix" class="el-input__icon el-icon-lock"></i>
           </el-input>
         </el-form-item>
         <div class="login-btn">
-          <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+          <el-button type="primary" @click="submitForm('ruleForm')" :loading="isLogin">登录</el-button>
         </div>
       </el-form>
     </div>
@@ -27,40 +28,53 @@
 </template>
 
 <script>
-import {mapMutations} from 'vuex';
+import {mapMutations,mapActions} from 'vuex';
 export default {
 	name: 'Login',
 	data () {
-			return {
-					ruleForm: {
-							LoginId: '004',
-							Pwd: 'pwd'
-					},
-					rules: {
-							LoginId: [
-									{ required: true, message: '请输入用户名', trigger: 'blur' }
-							],
-							Pwd: [
-									{ required: true, message: '请输入密码', trigger: 'blur' }
-							]
-					}
+		return {
+			isLogin: false,
+			ruleForm: {
+				LoginId: '004',
+				Pwd: 'pwd'
+			},
+			rules: {
+				LoginId: [
+					{ required: true, message: '请输入用户名', trigger: 'blur' }
+				],
+				Pwd: [
+					{ required: true, message: '请输入密码', trigger: 'blur' }
+				]
 			}
+		}
+	},
+	mounted() {
+		document.querySelector('.username input').focus();
 	},
 	methods: {
 		...mapMutations(['getUserInfo']),
+		...mapActions(['login','getMenu']),
 		submitForm(formName) {
 			this.$refs[formName].validate((valid) => {
 				if (valid) {
-					this.$axios.post(this.$api.Login, this.ruleForm).then(res => {
-						if (res.data.status === 1) {
-							this.$store.commit('getUserInfo', res.data.entity);
-							this.$router.push('/dd/DDOrder');
+					this.isLogin = true;
+					this.login(this.ruleForm).then(res => {
+						if(res.status === 1) {
+							this.$message({
+								message: res.message,
+								type: 'success',
+								duration: 1000
+							})
+							this.getMenu(window.USERINFO.operatorCode);
+							this.isLogin = true;
 						} else {
-							this.$message.error(res.data.message);
+							this.isLogin = true;
+							this.$message.error(res.message);
 						}
-					}).catch (err => {
-						this.$message.error(err.data.message);
-					});
+					}).catch(err => {
+						this.isLogin = true;
+						this.$message.error(err.message);
+					})
 				}
 			})
 		}

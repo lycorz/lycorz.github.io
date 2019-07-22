@@ -29,17 +29,26 @@ const api = {
 	CreateGroupOrder: '/api/DD/CreateGroupOrder',//创建团检订单
 	SubmitGroupOrder: '/api/DD/SubmitGroupOrder',//提交团检订单
   GetGroupOrder: '/api/DD/GetGroupOrder',//获取团检订单详情
-  
+
   GetGroupOrderList:'/api/DD/GetGroupOrderList',//查询团检订单列表（团检订单管理）
   BatchDiscount:'/api/DD/BatchDiscount',  //订单统一打折（团检订单统一打折）
   GrpPayOrder:'/api/DD/GrpPayOrder',  //团检缴费申请
-  GetGrpPayOrderList:' /api/DD/GetGrpPayOrderList', //获取可撤销团检缴费申请
+  GetGrpPayOrderList:'/api/DD/GetGrpPayOrderList', //获取可撤销团检缴费申请
   CancelGrpPayOrder:'/api/DD/CancelGrpPayOrder',//撤销团检缴费申请
   GetGrpPaidOrderList:'/api/DD/GetGrpPaidOrderList', //获取可退费团检缴费申请单
   GrpOrderPayback:'/api/DD/GrpOrderPayback',//团检退费申请
   GetGrpOrderPaybackList:'/api/DD/GetGrpOrderPaybackList',//获取可撤销团检 退费申请列表
   CancelGrpOrderPayback:'/api/DD/CancelGrpOrderPayback',//撤销团检退费申请
   GetOrderLisBar:'/api/DD/GetOrderLisBar',//根据定订编号获取订单下的条码
+  EndGroupOrder:'/api/DD/EndGroupOrder',    //标记团检订单结束
+  DeleteGroupOrder:'/api/DD/DeleteGroupOrder',    //删除团检订单
+  SignGroupOrderPayStatus:'/api/DD/SignGroupOrderPayStatus',    //标记团检订单缴费
+  GetOrderListByGrp:'/api/DD/GetOrderListByGrp',  //获取团检订单下的个人订单列表(详情)
+  GetOrderListByPay:'/api/DD/GetOrderListByPay',    //获取团检订单下需要缴费的人员订单列表
+  ExportPaidDetail:'/api/DD/ExportPaidDetail',    //导出缴费明细
+  ExportPersonDetail:'/api/DD/ExportPersonDetail',    //导出人员明细
+  GetDepts:'/api/DD/GetDepts',    //获取部门列表
+  GetTeams:'/api/DD/GetTeams',    //获取组别列表
   ///DD End////////////////
    /*          分检检查-分检结论录入  start         */
   PermissionDept: '/api/FJ/PermissionDept', //获取当前用户拥有权限的科室
@@ -501,12 +510,19 @@ const api = {
 
 	//体检质控
 	GetGuideClassList: '/api/ZK/GetGuideClassList',//导检质控列表
+	ExportGuideClass: '/api/ZK/ExportGuideClass',//导检质控列表导出
 	GetAbandonList: '/api/ZK/GetAbandonList',//弃检质控列表
+	ExportAbandon: '/api/ZK/ExportAbandon',//弃检质控列表导出
 	GetResMainInsList: '/api/ZK/GetResMainInsList',//主检质控列表
+	ExportMainIns: '/api/ZK/ExportMainIns',//主检质控列表导出
 	GetResReportTakeList: '/api/ZK/GetResReportTakeList',//报告发放质控列表
+	ExportReportTake: '/api/ZK/ExportReportTake',//报告发放质控列表导出
 	GetDocetrQuaList: '/api/ZK/GetDocetrQuaList',//医生资质审核
+	ExportDocetrQua: '/api/ZK/ExportDocetrQua',//医生资质审核导出
 	GetResReportCycleList: '/api/ZK/GetResReportCycleList',//报告周期质控
-	GetEquipmentList: '/api/DIC/GetEquipmentList',//报告周期质控
+	ExportReportCycle: '/api/ZK/ExportReportCycle',//报告周期质控导出
+	GetEquipmentList: '/api/DIC/GetEquipmentList',//设备指控
+	ExportEquipment: '/api/ZK/ExportEquipment',//设备指控导出
 
 }
 
